@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 // Imports de nuestro feature
 import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
-import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
+import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const RegisterMotorcyclePage(),
+        home: const RegisterPage(),
       ),
     );
   }
