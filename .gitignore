@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Windows desktop specific (auto-generated)
+/windows/
+
+# Flutter metadata (auto-generated)
+.metadata
+
+# Documentation generated files
+IMPLEMENTACION.md
