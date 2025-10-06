@@ -82,7 +82,7 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
               right: 0,
               bottom: 0,
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
+                // margin: removido para ocupar toda la pantalla
                 padding: const EdgeInsets.all(24),
                 constraints: BoxConstraints(
                   maxHeight:
@@ -97,9 +97,20 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, -5),
+                      color: const Color(
+                        0xFF007AFF,
+                      ).withOpacity(0.3), // Sombra azul #007AFF
+                      blurRadius: 25,
+                      offset: const Offset(0, -8),
+                      spreadRadius: 2,
+                    ),
+                    BoxShadow(
+                      color: const Color(
+                        0xFF007AFF,
+                      ).withOpacity(0.1), // Sombra secundaria más sutil
+                      blurRadius: 15,
+                      offset: const Offset(0, -3),
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
@@ -112,7 +123,7 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
                       const SizedBox(height: 30),
                       // Formulario
                       _buildForm(context),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20), // Reducido de 40 a 20
                       // Botón Siguiente
                       _buildNextButton(context),
                       const SizedBox(height: 20),
@@ -274,8 +285,6 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
             },
           ),
 
-          const SizedBox(height: 16),
-
           // Campo Modelo
           SimpleFormField(
             icon: Icons.motorcycle,
@@ -296,8 +305,6 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
             },
           ),
 
-          const SizedBox(height: 16),
-
           // Campo Año
           SimpleFormField(
             icon: Icons.calendar_today_outlined,
@@ -316,8 +323,6 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
               }
             },
           ),
-
-          const SizedBox(height: 16),
 
           // Campo Cilindraje
           SimpleFormField(
@@ -338,8 +343,6 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
               }
             },
           ),
-
-          const SizedBox(height: 16),
 
           // Campo Kilometraje
           SimpleFormField(

@@ -20,16 +20,29 @@ class SimpleFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 8), // Reducido de 16 a 8
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 14,
+          ), // Reducido de 18 a 14
           decoration: BoxDecoration(
             color: const Color(0xFFE8F0FE),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.grey.shade200, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(
+                  0.06,
+                ), // Reducido para ser más contenido
+                blurRadius: 6, // Reducido para evitar expansión excesiva
+                offset: const Offset(0, 3), // Ligeramente hacia abajo
+                spreadRadius: -1, // Negativo para contraer la sombra
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -102,7 +115,7 @@ class SelectionBottomSheet {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // Title
             Text(
@@ -113,7 +126,7 @@ class SelectionBottomSheet {
                 color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // Input field
             TextField(
@@ -135,7 +148,7 @@ class SelectionBottomSheet {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // Buttons
             Row(
@@ -194,7 +207,7 @@ class SelectionBottomSheet {
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +223,7 @@ class SelectionBottomSheet {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // Title
             Text(
@@ -221,7 +234,7 @@ class SelectionBottomSheet {
                 color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // Options
             SizedBox(
