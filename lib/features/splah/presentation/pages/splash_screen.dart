@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     });
 
     // Redirección a LoginPage
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 4,), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -42,12 +42,13 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             AnimatedOpacity(
               opacity: _opacity,
-              duration: const Duration(seconds: 2),
+              duration: const Duration(seconds:3),
               child: Image.asset(
                 'assets/img/logo.png', // ✅ Asegúrate de tener esta ruta en pubspec.yaml
                 width: 150,
                 height: 150,
               ),
+              
             ),
             const SizedBox(height: 30),
             const CircularProgressIndicator(
@@ -55,14 +56,24 @@ class _SplashScreenState extends State<SplashScreen> {
               strokeWidth: 3,
             ),
             const SizedBox(height: 15),
-            const Text(
-              'Cargando...',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
+           const Text.rich(
+                TextSpan(
+                  text: 'Manteni',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'App',
+                      style: TextStyle(
+                        color: Color(0xFF1E88E5),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
