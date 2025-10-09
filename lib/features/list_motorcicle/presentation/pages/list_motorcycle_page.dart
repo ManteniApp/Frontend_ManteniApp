@@ -61,36 +61,55 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Espacio para el header
-            _buildHeader(),
+      body: Stack(
+        children: [
+          // Contenido principal
+          SafeArea(
+            child: Column(
+              children: [
+                // Espacio para el header
+                _buildHeader(),
 
-            // Contenido principal con el container sobrepuesto
-            Expanded(
-              child: Stack(
-                children: [
-                  // Fondo con el container redondeado sobrepuesto
-                  _buildOverlayContainer(),
-                ],
-              ),
+                // Contenido principal con el container sobrepuesto
+                Expanded(
+                  child: Stack(
+                    children: [
+                      // Fondo con el container redondeado sobrepuesto
+                      _buildOverlayContainer(),
+
+                      // Botón flotante posicionado sobre el contenedor
+                      Positioned(
+                        bottom: 32,
+                        right: 32,
+                        child: FloatingActionButton(
+                          onPressed: _addNewMotorcycle,
+                          backgroundColor: const Color(0xFF2196F3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              100,
+                            ), // Ajusta este valor para más o menos redondez
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+          ),
 
-            // Espacio para el footer
-            _buildFooter(),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addNewMotorcycle,
-        backgroundColor: const Color(0xFF2196F3),
-        child: const Icon(Icons.add, color: Colors.white),
+          // TODO: BARRA DE NAVEGACIÓN FLOTANTE - Será agregada desde otra feature
+          // Posicionada en la parte inferior, flotando sobre el contenido
+          // _buildFloatingNavigationBar(),
+        ],
       ),
     );
   }
 
   Widget _buildHeader() {
+    // TODO: HEADER TEMPORAL - Será reemplazado por el header de la otra feature
+    // Este header será reemplazado por el componente compartido de la otra rama
     return Container(
       height: 80,
       width: double.infinity,
@@ -191,29 +210,6 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     );
   }
 
-  Widget _buildFooter() {
-    return Container(
-      height: 60,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: const Center(
-        child: Text(
-          'Footer - Navegación',
-          style: TextStyle(color: Color(0xFF757575), fontSize: 14),
-        ),
-      ),
-    );
-  }
-
   void _deleteMotorcycle(int index) {
     setState(() {
       motorcycles.removeAt(index);
@@ -236,4 +232,26 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       ),
     );
   }
+
+  // TODO: MÉTODO PARA BARRA DE NAVEGACIÓN FLOTANTE
+  // Descomenta cuando el componente esté disponible desde la otra feature
+  /*
+  Widget _buildFloatingNavigationBar() {
+    return Positioned(
+      bottom: 20,
+      left: 20,
+      right: 20,
+      child: FloatingNavigationBar(
+        // Parámetros que probablemente tendrá el componente compartido
+        currentIndex: 0, // Índice de la pantalla actual
+        onTap: (index) {
+          // Navegación entre pantallas
+        },
+        items: [
+          // Los items de navegación que vendrán de la otra feature
+        ],
+      ),
+    );
+  }
+  */
 }
