@@ -62,25 +62,34 @@ class _MainLayoutState extends State<MainLayout> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Tus Motos',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black54,
-                                ),
-                              ),
                               Text(
                                 _selectedIndex == 0
                                     ? 'Inicio'
                                     : _selectedIndex == 1
-                                    ? 'Perfil de Moto'
+                                    ? 'Motos'
                                     : _selectedIndex == 2
                                     ? 'Reportes'
                                     : 'Alertas',
                                 style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              Transform.translate(
+                                offset: const Offset(0, -5),
+                                child: Text(
+                                  _selectedIndex == 0
+                                      ? 'Buenos días, Santiago!'
+                                      : _selectedIndex == 1
+                                      ? 'Perfil de Moto'
+                                      : _selectedIndex == 2
+                                      ? 'Mis Reportes'
+                                      : 'Mis Alertas',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ],
