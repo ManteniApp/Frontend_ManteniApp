@@ -3,14 +3,23 @@ import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import '../../../features/auth/presentation/pages/bike_profile_page.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  final int initialIndex;
+  final String? selectedAlert;
+
+  const MainLayout({super.key, this.initialIndex = 1, this.selectedAlert});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _selectedIndex = 1;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   final List<Widget> _pages = const [
     Center(child: Text('Inicio')),
@@ -26,10 +35,10 @@ class _MainLayoutState extends State<MainLayout> {
       body: Stack(
         children: [
           SafeArea(
-            bottom: false, // Importante para que el contenido vaya hasta abajo
+            bottom: false,
             child: Column(
               children: [
-                // 🔹 Header global
+                ///////////////////////////////////////////////// 🔹 HEADER GLOBAL
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -78,12 +87,15 @@ class _MainLayoutState extends State<MainLayout> {
                           ),
                         ],
                       ),
-                      const Icon(Icons.notifications_none_rounded, size: 28),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.notifications_none_rounded, size: 28),
+                      ),
                     ],
                   ),
                 ),
 
-                // 🔹 Contenido dinámico
+                ////////////////////////////// 🔹 Contenido dinámico
                 Expanded(
                   child: IndexedStack(index: _selectedIndex, children: _pages),
                 ),
@@ -91,7 +103,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
           ),
 
-          // 🔹 Menú inferior (Salomon)
+          //////////////////////////////////// 🔹 MENÚ INFERIOR (Salomon)
           Positioned(
             left: 0,
             right: 0,

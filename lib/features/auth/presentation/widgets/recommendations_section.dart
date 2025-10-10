@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/core/layout/main_layout.dart';
 import 'recommendation_card.dart';
-import '../pages/alerts_placeholder_page.dart';
 
 class RecommendationsSection extends StatelessWidget {
   const RecommendationsSection({super.key});
@@ -22,15 +22,14 @@ class RecommendationsSection extends StatelessWidget {
         ],
       ),
       child: Column(
-        //crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header con título y botón
+          ///////////////////////////////////////////////////// Header con título y botón
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 "Recomendaciones",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               IconButton(
                 icon: const Icon(
@@ -38,10 +37,10 @@ class RecommendationsSection extends StatelessWidget {
                   color: Color(0xFF007BFF),
                 ),
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const AlertsPlaceholderPage(),
+                      builder: (_) => const MainLayout(initialIndex: 3),
                     ),
                   );
                 },
@@ -49,7 +48,7 @@ class RecommendationsSection extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 14),
+          //const SizedBox(height: 14),
 
           // Tarjetas (temporalmente hardcodeadas)
           RecommendationCard(
@@ -59,10 +58,11 @@ class RecommendationsSection extends StatelessWidget {
                 "Faltan menos de 300 km para el próximo mantenimiento.",
             type: RecommendationType.alert,
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const AlertsPlaceholderPage(
+                  builder: (_) => MainLayout(
+                    initialIndex: 3,
                     selectedAlert: "Cambio de aceite",
                   ),
                 ),
@@ -76,10 +76,11 @@ class RecommendationsSection extends StatelessWidget {
                 "Revisa la presión semanalmente para evitar desgaste irregular.",
             type: RecommendationType.tip,
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const AlertsPlaceholderPage(
+                  builder: (_) => MainLayout(
+                    initialIndex: 3,
                     selectedAlert: "Presión de llantas",
                   ),
                 ),

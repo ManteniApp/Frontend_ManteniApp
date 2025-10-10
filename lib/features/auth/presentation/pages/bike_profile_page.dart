@@ -11,19 +11,15 @@ class BikeProfilePage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            bottom: 100,
-          ), // evita que el menú tape el contenido
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //const SizedBox(height: 20),
               // Imagen + info
               Center(
                 child: Column(
                   children: [
                     Image.asset('assets/images/bike2.png', height: 180),
-                    const SizedBox(height: 10),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -62,16 +58,12 @@ class BikeProfilePage extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
+              IndicatorsRow(),
               Transform.translate(
-                offset: const Offset(0, -13),
-                child: IndicatorsRow(),
-              ),
-              Transform.translate(
-                offset: const Offset(0, -50),
+                offset: const Offset(0, -40),
                 child: RecommendationsSection(),
               ),
-              // y la sección de recomendaciones
             ],
           ),
         ),
