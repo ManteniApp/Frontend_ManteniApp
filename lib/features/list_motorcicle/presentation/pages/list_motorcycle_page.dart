@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/motorcycle_entity.dart';
 import '../widgets/motorcycle_card.dart';
+import '../../../auth/presentation/pages/bike_profile_page.dart';
 
 class ListMotorcyclePage extends StatefulWidget {
   const ListMotorcyclePage({super.key});
@@ -67,34 +68,8 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
           SafeArea(
             child: Column(
               children: [
-                // Espacio para el header
-                _buildHeader(),
-
                 // Contenido principal con el container sobrepuesto
-                Expanded(
-                  child: Stack(
-                    children: [
-                      // Fondo con el container redondeado sobrepuesto
-                      _buildOverlayContainer(),
-
-                      // Botón flotante posicionado sobre el contenedor
-                      Positioned(
-                        bottom: 32,
-                        right: 32,
-                        child: FloatingActionButton(
-                          onPressed: _addNewMotorcycle,
-                          backgroundColor: const Color(0xFF2196F3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              100,
-                            ), // Ajusta este valor para más o menos redondez
-                          ),
-                          child: const Icon(Icons.add, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                Expanded(child: _buildOverlayContainer()),
               ],
             ),
           ),
@@ -107,29 +82,14 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     );
   }
 
-  Widget _buildHeader() {
-    // TODO: HEADER TEMPORAL - Será reemplazado por el header de la otra feature
-    // Este header será reemplazado por el componente compartido de la otra rama
-    return Container(
-      height: 80,
-      width: double.infinity,
-      decoration: const BoxDecoration(color: Color(0xFF2196F3)),
-      child: const Center(
-        child: Text(
-          'Mis Motocicletas',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildOverlayContainer() {
     return Container(
-      margin: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.fromLTRB(
+        16.0,
+        16.0,
+        16.0,
+        80.0,
+      ), // Más espacio en la parte inferior
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -141,32 +101,51 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
           ),
         ],
       ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Título del contenedor
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16.0),
-              child: Text(
-                'Lista de Motocicletas',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF212121),
+      child: Stack(
+        children: [
+          // Contenedor principal con padding
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Título del contenedor
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 16.0),
+                  child: Text(
+                    'Lista de Motocicletas',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF212121),
+                    ),
+                  ),
                 ),
-              ),
-            ),
 
-            // Grid de motocicletas
-            Expanded(
-              child: motorcycles.isEmpty
-                  ? _buildEmptyState()
-                  : _buildMotorcycleGrid(),
+                // Grid de motocicletas
+                Expanded(
+                  child: motorcycles.isEmpty
+                      ? _buildEmptyState()
+                      : _buildMotorcycleGrid(),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Botón flotante posicionado dentro del contenedor
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+              onPressed: _addNewMotorcycle,
+              backgroundColor: const Color(0xFF2196F3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -184,6 +163,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
         return MotorcycleCard(
           motorcycle: motorcycles[index],
           onDelete: () => _deleteMotorcycle(index),
+          onTap: () => _navigateToBikeProfile(motorcycles[index]),
         );
       },
     );
@@ -231,6 +211,12 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
         backgroundColor: Color(0xFF2196F3),
       ),
     );
+  }
+
+  void _navigateToBikeProfile(MotorcycleEntity motorcycle) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const BikeProfilePage()));
   }
 
   // TODO: MÉTODO PARA BARRA DE NAVEGACIÓN FLOTANTE

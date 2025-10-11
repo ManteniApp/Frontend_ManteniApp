@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import '../../../features/auth/presentation/pages/bike_profile_page.dart';
+import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -25,7 +26,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = const [
     Center(child: Text('Inicio')),
-    BikeProfilePage(), // Aqui lo cambian por la pagina de motos (el listado) y ya ahi si que abra el perfil de moto
+    ListMotorcyclePage(), // Aqui lo cambian por la pagina de motos (el listado) y ya ahi si que abra el perfil de moto
     Center(child: Text('Reportes')),
     Center(child: Text('Alertas')),
   ];
