@@ -21,9 +21,11 @@ class _MainLayoutState extends State<MainLayout> {
     _selectedIndex = widget.initialIndex;
   }
 
+  //////////////////////////////////////////////////////// 🔹 PAGINAS DEL MENU INFERIOR /////////////////////////////////////////////////////////////
+
   final List<Widget> _pages = const [
     Center(child: Text('Inicio')),
-    BikeProfilePage(),
+    BikeProfilePage(), // Aqui lo cambian por la pagina de motos (el listado) y ya ahi si que abra el perfil de moto
     Center(child: Text('Reportes')),
     Center(child: Text('Alertas')),
   ];
@@ -38,7 +40,7 @@ class _MainLayoutState extends State<MainLayout> {
             bottom: false,
             child: Column(
               children: [
-                ///////////////////////////////////////////////// 🔹 HEADER GLOBAL
+                ///////////////////////////////////////////////// 🔹 HEADER GLOBAL /////////////////////////////////////////////////
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -79,9 +81,9 @@ class _MainLayoutState extends State<MainLayout> {
                                 offset: const Offset(0, -5),
                                 child: Text(
                                   _selectedIndex == 0
-                                      ? 'Buenos días, Santiago!'
+                                      ? 'Buenos días, Santiago!' // 🔶Cambiar por nombre del usuario logeado
                                       : _selectedIndex == 1
-                                      ? 'Perfil de Moto'
+                                      ? 'Listado de Motos' // 🔶 Hacer Dinamico cuando se conecte con lo demas
                                       : _selectedIndex == 2
                                       ? 'Mis Reportes'
                                       : 'Mis Alertas',
@@ -112,7 +114,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
           ),
 
-          //////////////////////////////////// 🔹 MENÚ INFERIOR (Salomon)
+          //////////////////////////////////// 🔹 MENÚ INFERIOR (Salomon) ////////////////////////////////////
           Positioned(
             left: 0,
             right: 0,

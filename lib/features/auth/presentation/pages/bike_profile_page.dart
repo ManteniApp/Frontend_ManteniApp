@@ -14,7 +14,7 @@ class BikeProfilePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagen + info
+              ////////////////////////////////////////////////////////////////////  Imagen + info
               Center(
                 child: Column(
                   children: [
@@ -32,7 +32,7 @@ class BikeProfilePage extends StatelessWidget {
                             color: Color(0xFF1976D2),
                           ),
                         ),
-                        //const SizedBox(width: 5),
+
                         IconButton(
                           onPressed: () {},
                           icon: const Icon(
@@ -41,7 +41,6 @@ class BikeProfilePage extends StatelessWidget {
                             color: Color(0xFF1976D2),
                           ),
                         ),
-                        //const Icon(Icons.info_outline, size: 20, color: Colors.grey),
                       ],
                     ),
                     Transform.translate(
