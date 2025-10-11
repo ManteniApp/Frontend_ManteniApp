@@ -8,6 +8,7 @@ import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
+import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const RegisterPage(),
+        home: const RegisterMotorcyclePage(),
       ),
     );
   }
