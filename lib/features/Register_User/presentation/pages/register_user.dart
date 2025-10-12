@@ -14,7 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? username;
   String? phone;
 
-  bool _obscurePassword = true; // 👁️ estado para mostrar/ocultar contraseña
+  bool _obscurePassword = true; // estado para mostrar/ocultar contraseña
 
   Widget _buildHeader(BuildContext context) {
     return Center(
@@ -64,13 +64,13 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             // 🟦 Header independiente (logo pequeño + texto)
             Positioned(
-              top: 40, // 🔽 ajusta este valor si lo quieres más abajo
+              top: 40, // 
               left: 0,
               right: 0,
               child: _buildHeader(context),
             ),
 
-            // 🖼️ Imagen grande centrada arriba del contenedor
+            //  Imagen grande centrada arriba del contenedor
             Positioned(
               top: 70, 
               left: 0,
@@ -85,9 +85,9 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            // 🟩 Contenedor blanco con el formulario
+            //  Contenedor blanco con el formulario
             Positioned(
-              top: 350, // 🔽 posición vertical del contenedor blanco
+              top: 350, //  posición vertical del contenedor blanco
               left: 0,
               right: 0,
               child: Container(

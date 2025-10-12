@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
+// Imports de nuestro feature
+import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
+//import 'features/Register_User/presentation/pages/register_user.dart';
+import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
+import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
+import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 //import 'core/theme/app_theme.dart';
 //import 'features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
 import 'core/layout/main_layout.dart';
+
 
 void main() {
   runApp(const ManteniApp());
@@ -12,11 +23,31 @@ class ManteniApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ManteniApp',
-      theme: ThemeData(useMaterial3: true, fontFamily: 'Poppins'),
-      home: const MainLayout(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => MotorcycleProvider(
+            registerMotorcycleUseCase: RegisterMotorcycleUseCase(
+              MotorcycleRepositoryImpl(
+                remoteDataSource: MotorcycleRemoteDataSourceImpl(
+                  client: http.Client(),
+                  baseUrl: 'https://api.ejemplo.com', // Cambiar por tu API real
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'ManteniApp',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+          fontFamily: 'Poppins'
+        ),
+        home: const  MainLayout(),
+      ),
     );
   }
 }
