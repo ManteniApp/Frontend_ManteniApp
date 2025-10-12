@@ -9,14 +9,17 @@ import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
 import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
+//import 'core/theme/app_theme.dart';
+//import 'features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
+import 'core/layout/main_layout.dart';
 
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ManteniApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ManteniApp extends StatelessWidget {
+  const ManteniApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +44,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          fontFamily: 'Poppins'
         ),
-        home: const  PerfilUser(),
+        home: const  MainLayout(),
       ),
     );
   }

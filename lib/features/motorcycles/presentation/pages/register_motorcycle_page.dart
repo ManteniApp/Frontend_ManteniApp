@@ -139,42 +139,74 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Logo real de ManteniApp
-          SizedBox(
-            width: 32,
-            height: 32,
-            child: Image.asset(
-              'assets/images/logoMA.png',
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback si no encuentra la imagen
-                return Container(
+    return Row(
+      children: [
+        // Botón de volver en la esquina superior izquierda
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFF007AFF).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: Color(0xFF007AFF),
+              size: 20,
+            ),
+          ),
+        ),
+        // Espacio expansible para centrar el logo y texto
+        Expanded(
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Logo real de ManteniApp
+                SizedBox(
                   width: 32,
                   height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF007AFF),
-                    borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'assets/images/logoMA.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Fallback si no encuentra la imagen
+                      return Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF007AFF),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.build,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      );
+                    },
                   ),
-                  child: const Icon(Icons.build, color: Colors.white, size: 18),
-                );
-              },
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'ManteniApp',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          const Text(
-            'ManteniApp',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
+        ),
+        // Espacio invisible para mantener el balance visual
+        const SizedBox(width: 40),
+      ],
     );
   }
 

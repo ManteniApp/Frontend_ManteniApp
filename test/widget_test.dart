@@ -14,7 +14,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const ManteniApp());
 
     // Verify that our motorcycle registration page loads
     expect(find.text('Registra Tu Moto'), findsOneWidget);
