@@ -9,7 +9,7 @@ class BikeMainInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset(
-          'assets/images/moto_demo.png',
+          'assets/images/bike2.png',
           height: 180,
           fit: BoxFit.contain,
         ),
@@ -28,7 +28,11 @@ class BikeMainInfo extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             IconButton(
-              icon: const Icon(Icons.info_outline, size: 20, color: Colors.grey),
+              icon: const Icon(
+                Icons.info_outline,
+                size: 20,
+                color: Colors.grey,
+              ),
               onPressed: () {
                 // acción a definir más adelante
               },
@@ -38,10 +42,7 @@ class BikeMainInfo extends StatelessWidget {
 
         const Text(
           '23.120 Km',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
       ],
     );
