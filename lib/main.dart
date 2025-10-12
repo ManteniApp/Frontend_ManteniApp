@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 // Imports de nuestro feature
 import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
-import 'features/Register_User/presentation/pages/register_user.dart';
+//import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const RegisterPage(),
+        home: const  PerfilUser(),
       ),
     );
   }
