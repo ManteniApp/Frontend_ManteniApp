@@ -30,7 +30,7 @@ class PersonalInfoCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 🔹 Título y botones de edición
+          // Título y botones de edición
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -46,7 +46,7 @@ class PersonalInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // 🔹 Cada campo dentro de un contenedor con sombra azul
+          // Cada campo dentro de un contenedor con sombra azul
           _buildStyledInfoRow(Icons.person_outline, 'Usuario', nameController),
           const SizedBox(height: 15),
           _buildStyledInfoRow(Icons.phone_outlined, 'Teléfono', phoneController),
@@ -57,7 +57,7 @@ class PersonalInfoCard extends StatelessWidget {
     );
   }
 
-  // 🔹 Contenedores con sombra azul para cada fila
+  // Contenedores con sombra azul para cada fila
   Widget _buildStyledInfoRow(IconData icon, String label, TextEditingController controller) {
     return Container(
       decoration: BoxDecoration(
@@ -111,7 +111,7 @@ class PersonalInfoCard extends StatelessWidget {
     );
   }
 
-  // 🔹 Botones de edición
+  // Botones de edición
   Widget _buildEditButtons() {
     if (isEditing) {
       return Row(
