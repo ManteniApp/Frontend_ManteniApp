@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_manteniapp/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend_manteniapp/features/auth_1/presentation/pages/login_page.dart';
 import 'package:frontend_manteniapp/features/splah/presentation/pages/splash_screen.dart';
 
 void main() {
