@@ -12,6 +12,9 @@ class ApiConfig {
   // Endpoints de autenticación
   static const String loginEndpoint = '/users/login';
   static const String registerEndpoint = '/users/register';
+  static const String googleLoginUrlEndpoint = '/users/google/login/url';
+  static const String googleLoginCallbackEndpoint =
+      '/users/google/login/callback';
 
   // Endpoints de motocicletas
   static const String motorcyclesEndpoint = '/motorcycles';

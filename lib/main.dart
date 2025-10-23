@@ -7,6 +7,9 @@ import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 import 'core/layout/main_layout.dart';
+import 'features/auth_1/presentation/pages/login_page.dart';
+import 'features/Register_User/presentation/pages/register_user.dart';
+import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
 
 void main() {
   runApp(const ManteniApp());
@@ -38,7 +41,15 @@ class ManteniApp extends StatelessWidget {
           useMaterial3: true,
           fontFamily: 'Poppins',
         ),
-        home: const MainLayout(),
+        // Pantalla inicial - LoginPage
+        home: const LoginPage(),
+        // Rutas de navegación
+        routes: {
+          '/home': (context) => const MainLayout(),
+          '/login': (context) => const LoginPage(),
+          '/register': (context) => const RegisterPage(),
+          '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
+        },
       ),
     );
   }

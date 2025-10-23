@@ -43,6 +43,7 @@ class MotorcycleProvider extends ChangeNotifier {
   Future<bool> registerMotorcycleWithParams({
     required String marca,
     required String modelo,
+    required String placa, // 👈 Agregado
     required int ano,
     required String cilindraje,
     required int kilometraje,
@@ -50,6 +51,7 @@ class MotorcycleProvider extends ChangeNotifier {
     final motorcycle = MotorcycleEntity(
       brand: marca,
       model: modelo,
+      licensePlate: placa, // 👈 Agregado
       year: ano,
       displacement: int.tryParse(cilindraje.replaceAll('cc', '')) ?? 0,
       mileage: kilometraje,

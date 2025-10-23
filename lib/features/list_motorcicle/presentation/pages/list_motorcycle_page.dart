@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/motorcycle_entity.dart';
 import '../widgets/motorcycle_card.dart';
 import '../../../auth/presentation/pages/bike_profile_page.dart';
+import '../../../motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 
 class ListMotorcyclePage extends StatefulWidget {
   const ListMotorcyclePage({super.key});
@@ -11,52 +12,59 @@ class ListMotorcyclePage extends StatefulWidget {
 }
 
 class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
-  // Lista de motocicletas de ejemplo (en la implementación real vendría de un estado o servicio)
-  List<MotorcycleEntity> motorcycles = [
-    MotorcycleEntity(
-      id: '1',
-      name: 'Royal Enfield GRR 450',
-      imageUrl:
-          'https://example.com/motorcycle1.jpg', // Reemplaza con URLs reales
-      brand: 'Royal Enfield',
-      model: 'GRR 450',
-    ),
-    MotorcycleEntity(
-      id: '2',
-      name: 'Royal Enfield GRR 450',
-      imageUrl: 'https://example.com/motorcycle2.jpg',
-      brand: 'Royal Enfield',
-      model: 'GRR 450',
-    ),
-    MotorcycleEntity(
-      id: '3',
-      name: 'Royal Enfield GRR 450',
-      imageUrl: 'https://example.com/motorcycle3.jpg',
-      brand: 'Royal Enfield',
-      model: 'GRR 450',
-    ),
-    MotorcycleEntity(
-      id: '4',
-      name: 'Royal Enfield GRR 450',
-      imageUrl: 'https://example.com/motorcycle4.jpg',
-      brand: 'Royal Enfield',
-      model: 'GRR 450',
-    ),
-    MotorcycleEntity(
-      id: '5',
-      name: 'Royal Enfield GRR 450',
-      imageUrl: 'https://example.com/motorcycle5.jpg',
-      brand: 'Royal Enfield',
-      model: 'GRR 450',
-    ),
-    MotorcycleEntity(
-      id: '6',
-      name: 'Royal Enfield GRR 450',
-      imageUrl: 'https://example.com/motorcycle6.jpg',
-      brand: 'Royal Enfield',
-      model: 'GRR 450',
-    ),
-  ];
+  final MotorcycleRemoteDataSourceImpl _dataSource =
+      MotorcycleRemoteDataSourceImpl();
+
+  List<MotorcycleEntity> motorcycles = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMotorcycles();
+  }
+
+  Future<void> _loadMotorcycles() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final loadedMotorcycles = await _dataSource.getAllMotorcycles();
+
+      setState(() {
+        // Convertir MotorcycleModel a MotorcycleEntity de list_motorcicle
+        motorcycles = loadedMotorcycles
+            .map(
+              (model) => MotorcycleEntity(
+                id: model.id ?? '',
+                name: '${model.brand} ${model.model}',
+                imageUrl: '', // El backend no tiene imagen por ahora
+                brand: model.brand,
+                model: model.model,
+              ),
+            )
+            .toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar motocicletas: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +132,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
 
                 // Grid de motocicletas
                 Expanded(
-                  child: motorcycles.isEmpty
+                  child: motorcycles.isEmpty && !_isLoading
                       ? _buildEmptyState()
                       : _buildMotorcycleGrid(),
                 ),
@@ -151,6 +159,37 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
   }
 
   Widget _buildMotorcycleGrid() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF2196F3)),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text(
+              'Error al cargar las motocicletas',
+              style: TextStyle(fontSize: 16, color: Colors.red),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton.icon(
+              onPressed: _loadMotorcycles,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reintentar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2196F3),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -204,13 +243,11 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
   }
 
   void _addNewMotorcycle() {
-    // Aquí irías a la pantalla de agregar nueva motocicleta
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Función para agregar nueva motocicleta'),
-        backgroundColor: Color(0xFF2196F3),
-      ),
-    );
+    // Navegar a la pantalla de registro de motocicleta
+    Navigator.pushNamed(context, '/register-motorcycle').then((_) {
+      // Recargar la lista cuando se regrese de la pantalla de registro
+      _loadMotorcycles();
+    });
   }
 
   void _navigateToBikeProfile(MotorcycleEntity motorcycle) {

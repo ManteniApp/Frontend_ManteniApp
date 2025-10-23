@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../models/motorcycle_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_config.dart';
+import '../../../../core/services/auth_storage_service.dart'; // 👈 Agregado
 
 abstract class MotorcycleRemoteDataSource {
   Future<MotorcycleModel> registerMotorcycle(MotorcycleModel motorcycle);
@@ -23,9 +24,21 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   @override
   Future<MotorcycleModel> registerMotorcycle(MotorcycleModel motorcycle) async {
     try {
+      // Obtener el userId del almacenamiento seguro
+      final authStorage = AuthStorageService();
+      final userId = await authStorage.getUserId();
+
+      if (userId == null) {
+        throw Exception('Usuario no autenticado');
+      }
+
+      // Crear el body con usuarioId
+      final body = motorcycle.toJson();
+      body['usuarioId'] = int.parse(userId);
+
       final response = await apiClient.post(
         ApiConfig.motorcyclesEndpoint,
-        body: motorcycle.toJson(),
+        body: body,
         requiresAuth: true,
       );
 
@@ -33,8 +46,9 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
         final jsonData = json.decode(response.body);
         return MotorcycleModel.fromJson(jsonData);
       } else {
+        final errorBody = response.body;
         throw Exception(
-          'Error al registrar motocicleta: ${response.statusCode}',
+          'Error al registrar motocicleta: ${response.statusCode} - $errorBody',
         );
       }
     } catch (e) {

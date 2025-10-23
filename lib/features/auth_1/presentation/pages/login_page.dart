@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/features/auth_1/presentation/widgets/customButton.dart';
 import 'package:frontend_manteniapp/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:frontend_manteniapp/core/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,8 +13,10 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   bool _obscurePassword = true; // Controla si la contraseña está oculta
+  bool _isLoading = false; // Estado de carga
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +29,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 🟦 Logo y nombre de la app
-              Image.asset(
-                'assets/img/logo.png',
-                width: 150,
-                height: 150,
-              ),
+              Image.asset('assets/img/logo.png', width: 150, height: 150),
               const SizedBox(height: 10),
 
               const Text.rich(
@@ -44,9 +43,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     TextSpan(
                       text: 'App',
-                      style: TextStyle(
-                        color: Color(0xFF1E88E5),
-                      ),
+                      style: TextStyle(color: Color(0xFF1E88E5)),
                     ),
                   ],
                 ),
@@ -63,15 +60,11 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     TextSpan(
                       text: 'lo que te',
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
+                      style: TextStyle(color: Colors.black),
                     ),
                     TextSpan(
                       text: '\nmueve',
-                      style: TextStyle(
-                        color: Color(0xFF1E88E5),
-                      ),
+                      style: TextStyle(color: Color(0xFF1E88E5)),
                     ),
                   ],
                 ),
@@ -150,24 +143,14 @@ class _LoginPageState extends State<LoginPage> {
 
                     // 🟦 Botón Iniciar sesión
                     CustomButton(
-                      text: "Iniciar sesión",
+                      text: _isLoading ? "Iniciando..." : "Iniciar sesión",
                       icon: Icons.login,
                       color: const Color(0xFF1E88E5),
-                      onPressed: () {
-                        final user = userController.text;
-                        final pass = passwordController.text;
-
-                        if (user.isEmpty || pass.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Completa todos los campos"),
-                            ),
-                          );
-                          return;
-                        }
-
-                        Navigator.pushNamed(context, '/home');
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              _handleLogin();
+                            },
                     ),
                     const SizedBox(height: 20),
 
@@ -231,5 +214,79 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  // Método para manejar el inicio de sesión
+  Future<void> _handleLogin() async {
+    final user = userController.text.trim();
+    final pass = passwordController.text.trim();
+
+    // Validar campos vacíos
+    if (user.isEmpty || pass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Completa todos los campos"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Iniciar estado de carga
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Intentar iniciar sesión
+      final token = await _authService.login(user, pass);
+
+      if (!mounted) return;
+
+      if (token != null) {
+        // Login exitoso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("¡Bienvenido, $user!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navegar a home
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // Error en credenciales
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Credenciales incorrectas"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      // Mostrar error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    userController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }
