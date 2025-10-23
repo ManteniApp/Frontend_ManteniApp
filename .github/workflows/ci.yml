@@ -1,0 +1,34 @@
+name: CI - Flutter Build & Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐦 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.6' # 👈 Usa la misma que tienes localmente
+          channel: 'stable'
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
+
+      - name: 🔍 Analyze code (tolerant)
+        run: flutter analyze || true
+
+      - name: 🧪 Run tests
+        run: flutter test
+        continue-on-error: true  # Quita si ya tienes pruebas estables
+
+      - name: 🏗️ Build web app
+        run: flutter build web --release

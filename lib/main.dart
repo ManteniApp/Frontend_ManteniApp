@@ -1,4 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
+// Imports de nuestro feature
+import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
+//import 'features/Register_User/presentation/pages/register_user.dart';
+import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
+import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
+import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
+//import 'core/theme/app_theme.dart';
+//import 'features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
+import 'core/layout/main_layout.dart';
+
+import 'package:frontend_manteniapp/features/auth_1/presentation/pages/login_page.dart';
+import 'package:frontend_manteniapp/features/splah/presentation/pages/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
