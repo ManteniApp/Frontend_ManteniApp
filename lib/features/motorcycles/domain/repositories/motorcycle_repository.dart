@@ -10,6 +10,9 @@ abstract class MotorcycleRepository {
   /// Obtiene una motocicleta por ID
   Future<MotorcycleEntity?> getMotorcycleById(String id);
 
+  /// Obtiene una motocicleta por placa
+  Future<MotorcycleEntity?> getMotorcycleByPlaca(String placa);
+
   /// Actualiza una motocicleta existente
   Future<MotorcycleEntity> updateMotorcycle(MotorcycleEntity motorcycle);
 

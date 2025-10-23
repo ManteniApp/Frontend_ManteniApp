@@ -1,11 +1,13 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../models/motorcycle_model.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_config.dart';
 
 abstract class MotorcycleRemoteDataSource {
   Future<MotorcycleModel> registerMotorcycle(MotorcycleModel motorcycle);
   Future<List<MotorcycleModel>> getAllMotorcycles();
   Future<MotorcycleModel?> getMotorcycleById(String id);
+  Future<MotorcycleModel?> getMotorcycleByPlaca(String placa);
   Future<MotorcycleModel> updateMotorcycle(MotorcycleModel motorcycle);
   Future<bool> deleteMotorcycle(String id);
   Future<List<MotorcycleModel>> searchMotorcyclesByBrand(String brand);
@@ -13,22 +15,18 @@ abstract class MotorcycleRemoteDataSource {
 }
 
 class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
-  final http.Client client;
-  final String baseUrl;
+  final ApiClient apiClient;
 
-  MotorcycleRemoteDataSourceImpl({required this.client, required this.baseUrl});
+  MotorcycleRemoteDataSourceImpl({ApiClient? apiClient})
+    : apiClient = apiClient ?? ApiClient();
 
   @override
   Future<MotorcycleModel> registerMotorcycle(MotorcycleModel motorcycle) async {
     try {
-      final response = await client.post(
-        Uri.parse('$baseUrl/motorcycles'),
-        headers: {
-          'Content-Type': 'application/json',
-          // Aquí puedes agregar headers de autenticación si es necesario
-          // 'Authorization': 'Bearer $token',
-        },
-        body: json.encode(motorcycle.toJson()),
+      final response = await apiClient.post(
+        ApiConfig.motorcyclesEndpoint,
+        body: motorcycle.toJson(),
+        requiresAuth: true,
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -47,12 +45,9 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   @override
   Future<List<MotorcycleModel>> getAllMotorcycles() async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/motorcycles'),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer $token',
-        },
+      final response = await apiClient.get(
+        ApiConfig.motorcyclesEndpoint,
+        requiresAuth: true,
       );
 
       if (response.statusCode == 200) {
@@ -71,12 +66,9 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   @override
   Future<MotorcycleModel?> getMotorcycleById(String id) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/motorcycles/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer $token',
-        },
+      final response = await apiClient.get(
+        '${ApiConfig.motorcyclesEndpoint}/$id',
+        requiresAuth: true,
       );
 
       if (response.statusCode == 200) {
@@ -93,15 +85,35 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   }
 
   @override
+  Future<MotorcycleModel?> getMotorcycleByPlaca(String placa) async {
+    try {
+      final response = await apiClient.get(
+        '${ApiConfig.motorcyclesEndpoint}/placa/$placa',
+        requiresAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return MotorcycleModel.fromJson(jsonData);
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        throw Exception(
+          'Error al obtener motocicleta por placa: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+
+  @override
   Future<MotorcycleModel> updateMotorcycle(MotorcycleModel motorcycle) async {
     try {
-      final response = await client.put(
-        Uri.parse('$baseUrl/motorcycles/${motorcycle.id}'),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer $token',
-        },
-        body: json.encode(motorcycle.toJson()),
+      final response = await apiClient.patch(
+        '${ApiConfig.motorcyclesEndpoint}/${motorcycle.id}',
+        body: motorcycle.toJson(),
+        requiresAuth: true,
       );
 
       if (response.statusCode == 200) {
@@ -120,12 +132,9 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   @override
   Future<bool> deleteMotorcycle(String id) async {
     try {
-      final response = await client.delete(
-        Uri.parse('$baseUrl/motorcycles/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer $token',
-        },
+      final response = await apiClient.delete(
+        '${ApiConfig.motorcyclesEndpoint}/$id',
+        requiresAuth: true,
       );
 
       return response.statusCode == 200 || response.statusCode == 204;
@@ -137,12 +146,9 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   @override
   Future<List<MotorcycleModel>> searchMotorcyclesByBrand(String brand) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/motorcycles/search?brand=$brand'),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer $token',
-        },
+      final response = await apiClient.get(
+        '${ApiConfig.motorcyclesEndpoint}/search?brand=$brand',
+        requiresAuth: true,
       );
 
       if (response.statusCode == 200) {
@@ -159,12 +165,9 @@ class MotorcycleRemoteDataSourceImpl implements MotorcycleRemoteDataSource {
   @override
   Future<List<MotorcycleModel>> searchMotorcyclesByModel(String model) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/motorcycles/search?model=$model'),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer $token',
-        },
+      final response = await apiClient.get(
+        '${ApiConfig.motorcyclesEndpoint}/search?model=$model',
+        requiresAuth: true,
       );
 
       if (response.statusCode == 200) {

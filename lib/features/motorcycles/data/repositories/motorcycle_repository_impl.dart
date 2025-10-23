@@ -42,6 +42,18 @@ class MotorcycleRepositoryImpl implements MotorcycleRepository {
   }
 
   @override
+  Future<MotorcycleEntity?> getMotorcycleByPlaca(String placa) async {
+    try {
+      final motorcycleModel = await remoteDataSource.getMotorcycleByPlaca(
+        placa,
+      );
+      return motorcycleModel?.toEntity();
+    } catch (e) {
+      throw Exception('Error al obtener motocicleta por placa: $e');
+    }
+  }
+
+  @override
   Future<MotorcycleEntity> updateMotorcycle(MotorcycleEntity motorcycle) async {
     try {
       final motorcycleModel = MotorcycleModel.fromEntity(motorcycle);
