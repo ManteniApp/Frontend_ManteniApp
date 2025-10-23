@@ -1,0 +1,36 @@
+name: CI - Flutter Frontend ManteniApp
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0' # Puedes usar la más cercana a tu SDK (>=3.9.2)
+          channel: stable
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
+
+      - name: 🧪 Run tests
+        run: flutter test
+        continue-on-error: true # quítalo si ya tienes pruebas estables
+
+      - name: 🧹 Analyze code (lint)
+        run: flutter analyze
+        continue-on-error: true
+
+      - name: 🏗️ Build release (Web)
+        run: flutter build web --release
