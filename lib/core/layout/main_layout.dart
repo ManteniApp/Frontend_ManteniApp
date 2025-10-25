@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import '../../../features/auth/presentation/pages/bike_profile_page.dart';
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
+import '../../../features/maintenance_history/presentation/pages/maintenance_history_page.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -27,7 +28,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _pages = const [
     Center(child: Text('Inicio')),
     ListMotorcyclePage(), // Aqui lo cambian por la pagina de motos (el listado) y ya ahi si que abra el perfil de moto
-    Center(child: Text('Reportes')),
+    MaintenanceHistoryPage(), // Historial de mantenimientos
     Center(child: Text('Alertas')),
   ];
 
@@ -71,7 +72,7 @@ class _MainLayoutState extends State<MainLayout> {
                                     : _selectedIndex == 1
                                     ? 'Motos'
                                     : _selectedIndex == 2
-                                    ? 'Reportes'
+                                    ? 'Historial'
                                     : 'Alertas',
                                 style: const TextStyle(
                                   fontSize: 13,
@@ -86,7 +87,7 @@ class _MainLayoutState extends State<MainLayout> {
                                       : _selectedIndex == 1
                                       ? 'Listado de Motos' // 🔶 Hacer Dinamico cuando se conecte con lo demas
                                       : _selectedIndex == 2
-                                      ? 'Mis Reportes'
+                                      ? 'Mantenimientos'
                                       : 'Mis Alertas',
                                   style: const TextStyle(
                                     fontSize: 20,
@@ -156,8 +157,8 @@ class _MainLayoutState extends State<MainLayout> {
                         title: const Text("Motos"),
                       ),
                       SalomonBottomBarItem(
-                        icon: const Icon(Icons.insert_chart_outlined_rounded),
-                        title: const Text("Reportes"),
+                        icon: const Icon(Icons.build_outlined),
+                        title: const Text("Historial"),
                       ),
                       SalomonBottomBarItem(
                         icon: const Icon(Icons.notifications_outlined),
