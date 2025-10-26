@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/motorcycle_entity.dart';
 import '../widgets/motorcycle_card.dart';
-import '../../../auth/presentation/pages/bike_profile_page.dart';
 import '../../../motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 
 class ListMotorcyclePage extends StatefulWidget {
-  const ListMotorcyclePage({super.key});
+  final void Function(MotorcycleEntity) onOpenProfile;
+
+  const ListMotorcyclePage({super.key, required this.onOpenProfile});
 
   @override
   State<ListMotorcyclePage> createState() => _ListMotorcyclePageState();
@@ -35,7 +36,6 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       final loadedMotorcycles = await _dataSource.getAllMotorcycles();
 
       setState(() {
-        // Convertir MotorcycleModel a MotorcycleEntity de list_motorcicle
         motorcycles = loadedMotorcycles
             .map(
               (model) => MotorcycleEntity(
@@ -72,19 +72,13 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       backgroundColor: const Color(0xFFF5F5F5),
       body: Stack(
         children: [
-          // Contenido principal
           SafeArea(
             child: Column(
               children: [
-                // Contenido principal con el container sobrepuesto
                 Expanded(child: _buildOverlayContainer()),
               ],
             ),
           ),
-
-          // TODO: BARRA DE NAVEGACIÓN FLOTANTE - Será agregada desde otra feature
-          // Posicionada en la parte inferior, flotando sobre el contenido
-          // _buildFloatingNavigationBar(),
         ],
       ),
     );
@@ -92,12 +86,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
 
   Widget _buildOverlayContainer() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(
-        16.0,
-        16.0,
-        16.0,
-        80.0,
-      ), // Más espacio en la parte inferior
+      margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 80.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -111,13 +100,11 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       ),
       child: Stack(
         children: [
-          // Contenedor principal con padding
           Container(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Título del contenedor
                 const Padding(
                   padding: EdgeInsets.only(bottom: 16.0),
                   child: Text(
@@ -129,8 +116,6 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
                     ),
                   ),
                 ),
-
-                // Grid de motocicletas
                 Expanded(
                   child: motorcycles.isEmpty && !_isLoading
                       ? _buildEmptyState()
@@ -139,8 +124,6 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
               ],
             ),
           ),
-
-          // Botón flotante posicionado dentro del contenedor
           Positioned(
             bottom: 20,
             right: 20,
@@ -202,7 +185,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
         return MotorcycleCard(
           motorcycle: motorcycles[index],
           onDelete: () => _deleteMotorcycle(index),
-          onTap: () => _navigateToBikeProfile(motorcycles[index]),
+          onTap: () => widget.onOpenProfile(motorcycles[index]), // 👈 usa callback
         );
       },
     );
@@ -243,38 +226,8 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
   }
 
   void _addNewMotorcycle() {
-    // Navegar a la pantalla de registro de motocicleta
     Navigator.pushNamed(context, '/register-motorcycle').then((_) {
-      // Recargar la lista cuando se regrese de la pantalla de registro
       _loadMotorcycles();
     });
   }
-
-  void _navigateToBikeProfile(MotorcycleEntity motorcycle) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const BikeProfilePage()));
-  }
-
-  // TODO: MÉTODO PARA BARRA DE NAVEGACIÓN FLOTANTE
-  // Descomenta cuando el componente esté disponible desde la otra feature
-  /*
-  Widget _buildFloatingNavigationBar() {
-    return Positioned(
-      bottom: 20,
-      left: 20,
-      right: 20,
-      child: FloatingNavigationBar(
-        // Parámetros que probablemente tendrá el componente compartido
-        currentIndex: 0, // Índice de la pantalla actual
-        onTap: (index) {
-          // Navegación entre pantallas
-        },
-        items: [
-          // Los items de navegación que vendrán de la otra feature
-        ],
-      ),
-    );
-  }
-  */
 }

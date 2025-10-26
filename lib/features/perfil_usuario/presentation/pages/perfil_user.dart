@@ -8,7 +8,7 @@ import '../widgets/change_password_sheet.dart';
 import '../widgets/terminos_condiciones.dart';
 
 class PerfilUser extends StatefulWidget {
-  const PerfilUser({Key? key}) : super(key: key);
+  const PerfilUser({super.key});
 
   @override
   State<PerfilUser> createState() => _PerfilUserState();

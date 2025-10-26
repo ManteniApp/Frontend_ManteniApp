@@ -14,7 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? username;
   String? phone;
 
-  bool _obscurePassword = true; // estado para mostrar/ocultar contraseña
+  final bool _obscurePassword = true; // estado para mostrar/ocultar contraseña
 
   Widget _buildHeader(BuildContext context) {
     return Center(

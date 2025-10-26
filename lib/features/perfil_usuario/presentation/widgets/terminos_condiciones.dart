@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TerminosCondiciones extends StatelessWidget {
-  const TerminosCondiciones({Key? key}) : super(key: key);
+  const TerminosCondiciones({super.key});
 
   @override
   Widget build(BuildContext context) {

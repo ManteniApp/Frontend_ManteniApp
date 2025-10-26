@@ -15,7 +15,7 @@ import 'package:frontend_manteniapp/features/motorcycles/data/models/motorcycle_
 /// 2. Ejecuta tu backend
 /// 3. Navega a esta página desde tu app
 class BackendTestPage extends StatefulWidget {
-  const BackendTestPage({Key? key}) : super(key: key);
+  const BackendTestPage({super.key});
 
   @override
   State<BackendTestPage> createState() => _BackendTestPageState();
