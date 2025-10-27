@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/features/motorcycles/presentation/widgets/simple_form_field.dart';
+import '../controller/auth_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,10 +12,35 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   String? email;
   String? password;
-  String? username;
+  String? nombre;
   String? phone;
 
-  final bool _obscurePassword = true; // estado para mostrar/ocultar contraseña
+  final AuthController _authController = AuthController();
+  bool _obscurePassword = true;
+
+  // ✅ Funciones de validación
+  bool _isValidEmail(String email) {
+    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return regex.hasMatch(email);
+  }
+
+  bool _isValidPassword(String password) {
+    return password.length >= 6;
+  }
+
+  bool _isValidPhone(String phone) {
+    final regex = RegExp(r'^[0-9]{7,15}$'); // Solo números, entre 7 y 15 dígitos
+    return regex.hasMatch(phone);
+  }
+
+  void _showSnack(String message, {bool error = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: error ? Colors.redAccent : Colors.green,
+      ),
+    );
+  }
 
   Widget _buildHeader(BuildContext context) {
     return Center(
@@ -62,17 +88,10 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // 🟦 Header independiente (logo pequeño + texto)
-            Positioned(
-              top: 40, // 
-              left: 0,
-              right: 0,
-              child: _buildHeader(context),
-            ),
+            Positioned(top: 40, left: 0, right: 0, child: _buildHeader(context)),
 
-            //  Imagen grande centrada arriba del contenedor
             Positioned(
-              top: 70, 
+              top: 70,
               left: 0,
               right: 0,
               child: Center(
@@ -85,9 +104,8 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            //  Contenedor blanco con el formulario
             Positioned(
-              top: 350, //  posición vertical del contenedor blanco
+              top: 350,
               left: 0,
               right: 0,
               child: Container(
@@ -119,14 +137,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 30),
 
-                    // 🟦 Campos
+                    // Campos
                     SimpleFormField(
                       icon: Icons.mail,
                       label: 'Correo',
                       value: email,
                       onTap: () async {
-                        final result =
-                            await SelectionBottomSheet.showTextInput(
+                        final result = await SelectionBottomSheet.showTextInput(
                           context: context,
                           title: 'Correo electrónico',
                           hint: 'Ingresa tu correo',
@@ -137,7 +154,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                     ),
 
-                    // 🟩 Campo de contraseña con ojito
                     SimpleFormField(
                       icon: Icons.lock,
                       label: 'Contraseña',
@@ -145,8 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ? (_obscurePassword ? '••••••••' : password)
                           : '',
                       onTap: () async {
-                        final result =
-                            await SelectionBottomSheet.showTextInput(
+                        final result = await SelectionBottomSheet.showTextInput(
                           context: context,
                           title: 'Contraseña',
                           hint: 'Ingresa tu contraseña',
@@ -160,26 +175,25 @@ class _RegisterPageState extends State<RegisterPage> {
                     SimpleFormField(
                       icon: Icons.person,
                       label: 'Usuario',
-                      value: username,
+                      value: nombre,
                       onTap: () async {
-                        final result =
-                            await SelectionBottomSheet.showTextInput(
+                        final result = await SelectionBottomSheet.showTextInput(
                           context: context,
                           title: 'Nombre de usuario',
                           hint: 'Ingresa tu usuario',
                         );
                         if (result != null && result.isNotEmpty) {
-                          setState(() => username = result);
+                          setState(() => nombre = result);
                         }
                       },
                     ),
+
                     SimpleFormField(
                       icon: Icons.phone,
                       label: 'Teléfono',
                       value: phone,
                       onTap: () async {
-                        final result =
-                            await SelectionBottomSheet.showTextInput(
+                        final result = await SelectionBottomSheet.showTextInput(
                           context: context,
                           title: 'Número de teléfono',
                           hint: 'Ingresa tu número',
@@ -193,21 +207,45 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 25),
 
-                    // 🟦 Botón de registro
+                    // Botón de registro con validaciones
                     ElevatedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         if (email == null ||
                             password == null ||
-                            username == null ||
+                            nombre == null ||
                             phone == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Por favor completa todos los campos'),
-                            ),
-                          );
+                          _showSnack('Por favor completa todos los campos', error: true);
+                          return;
+                        }
+
+                        if (!_isValidEmail(email!)) {
+                          _showSnack('Correo electrónico inválido', error: true);
+                          return;
+                        }
+
+                        if (!_isValidPassword(password!)) {
+                          _showSnack('La contraseña debe tener al menos 6 caracteres', error: true);
+                          return;
+                        }
+
+                        if (!_isValidPhone(phone!)) {
+                          _showSnack('Número de teléfono inválido', error: true);
+                          return;
+                        }
+
+                        // Llamada al backend
+                        final response = await _authController.register(
+                          email!,
+                          password!,
+                          nombre!,
+                          phone!,
+                        );
+
+                        if (response != null && response.containsKey('user')) {
+                          _showSnack('✅ Usuario registrado con éxito');
+                          Navigator.pushNamed(context, '/register-motorcycle');
                         } else {
-                          Navigator.pushNamed(context, '/home');
+                          _showSnack('❌ Error al registrar el usuario', error: true);
                         }
                       },
                       icon: const Icon(Icons.person_add),

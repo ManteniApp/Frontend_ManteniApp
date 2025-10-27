@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/core/services/profile_service.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
@@ -106,12 +107,19 @@ class _MainLayoutState extends State<MainLayout> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                final userId = await ProfileService.getUserId();
+                                if (userId != null) {
+                                  Navigator.pushNamed(context, '/perfil');
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('No se encontró información del usuario')),
+                                  );
+                                }
+                              },
                               icon: const CircleAvatar(
                                 radius: 20,
-                                backgroundImage: AssetImage(
-                                  'assets/images/profile.png',
-                                ),
+                                backgroundImage: AssetImage('assets/images/profile.png'),
                               ),
                             ),
                             const SizedBox(width: 10),
