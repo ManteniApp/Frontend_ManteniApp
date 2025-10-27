@@ -13,8 +13,7 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
   String? _errorMessage;
 
   // Filtros
-  DateTime? _startDate;
-  DateTime? _endDate;
+  DateTime? _selectedDate;
   double? _minPrice;
   double? _maxPrice;
   String? _selectedMotorcycleFilter;
@@ -23,8 +22,7 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
   List<MaintenanceEntity> get maintenances => _maintenances;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  DateTime? get startDate => _startDate;
-  DateTime? get endDate => _endDate;
+  DateTime? get selectedDate => _selectedDate;
   double? get minPrice => _minPrice;
   double? get maxPrice => _maxPrice;
   String? get selectedMotorcycleFilter => _selectedMotorcycleFilter;
@@ -171,31 +169,17 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
   List<MaintenanceEntity> _applyMockFilters(List<MaintenanceEntity> data) {
     var filtered = data;
 
-    // Filtro por fecha
-    if (_startDate != null) {
-      filtered = filtered
-          .where(
-            (m) =>
-                m.date.isAfter(_startDate!) ||
-                m.date.isAtSameMomentAs(_startDate!),
-          )
-          .toList();
-    }
-    if (_endDate != null) {
-      final endOfDay = DateTime(
-        _endDate!.year,
-        _endDate!.month,
-        _endDate!.day,
-        23,
-        59,
-        59,
+    // Filtro por fecha (día completo)
+    if (_selectedDate != null) {
+      final selectedDay = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
       );
-      filtered = filtered
-          .where(
-            (m) =>
-                m.date.isBefore(endOfDay) || m.date.isAtSameMomentAs(endOfDay),
-          )
-          .toList();
+      filtered = filtered.where((m) {
+        final maintenanceDay = DateTime(m.date.year, m.date.month, m.date.day);
+        return maintenanceDay == selectedDay;
+      }).toList();
     }
 
     // Filtro por precio
@@ -228,9 +212,8 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
   }
 
   /// Establecer filtro de fecha
-  void setDateFilter({DateTime? startDate, DateTime? endDate}) {
-    _startDate = startDate;
-    _endDate = endDate;
+  void setDateFilter(DateTime? date) {
+    _selectedDate = date;
     loadMaintenanceHistory();
   }
 
@@ -249,8 +232,7 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
 
   /// Limpiar todos los filtros
   void clearFilters() {
-    _startDate = null;
-    _endDate = null;
+    _selectedDate = null;
     _minPrice = null;
     _maxPrice = null;
     _selectedMotorcycleFilter = null;
@@ -261,5 +243,48 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Eliminar un mantenimiento (Mock - TODO: integrar con backend)
+  Future<void> deleteMaintenance(String id) async {
+    try {
+      // TODO: Cuando el backend esté listo, descomentar:
+      // await deleteMaintenanceUseCase(id);
+
+      // Mock: Eliminar de la lista local
+      _maintenances = _maintenances.where((m) => m.id != id).toList();
+      notifyListeners();
+
+      // Simular delay de red
+      await Future.delayed(const Duration(milliseconds: 300));
+    } catch (e) {
+      _errorMessage = 'Error al eliminar el mantenimiento: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Editar un mantenimiento (Mock - TODO: integrar con backend)
+  Future<void> updateMaintenance(MaintenanceEntity updatedMaintenance) async {
+    try {
+      // TODO: Cuando el backend esté listo, descomentar:
+      // await updateMaintenanceUseCase(updatedMaintenance);
+
+      // Mock: Actualizar en la lista local
+      final index = _maintenances.indexWhere(
+        (m) => m.id == updatedMaintenance.id,
+      );
+      if (index != -1) {
+        _maintenances[index] = updatedMaintenance;
+        notifyListeners();
+      }
+
+      // Simular delay de red
+      await Future.delayed(const Duration(milliseconds: 300));
+    } catch (e) {
+      _errorMessage = 'Error al actualizar el mantenimiento: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
   }
 }

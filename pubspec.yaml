@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # Paquetes del proyecto
   cupertino_icons: ^1.0.8
@@ -20,7 +22,7 @@ dependencies:
   image_picker: ^1.1.1   # permite tomar o elegir fotos
   salomon_bottom_bar: ^3.3.2
   flutter_secure_storage: ^9.2.2  # Almacenamiento seguro para el JWT
-  intl: ^0.19.0  # Formateo de fechas y números
+  intl: ^0.20.2  # Formateo de fechas y números
   provider: ^6.1.1  # State management
 
 dev_dependencies:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 // Imports de nuestro feature
@@ -50,6 +51,16 @@ class ManteniApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ManteniApp',
         debugShowCheckedModeBanner: false,
+        // Configuración de localizaciones en español
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es', 'ES'), // Español
+        ],
+        locale: const Locale('es', 'ES'),
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,

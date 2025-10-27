@@ -3,8 +3,13 @@ import 'package:frontend_manteniapp/features/maintenance_history/domain/entities
 
 class MaintenanceDetailModal extends StatelessWidget {
   final MaintenanceEntity maintenance;
+  final VoidCallback? onEdit;
 
-  const MaintenanceDetailModal({super.key, required this.maintenance});
+  const MaintenanceDetailModal({
+    super.key,
+    required this.maintenance,
+    this.onEdit,
+  });
 
   Color _getTypeColor(String type) {
     switch (type.toLowerCase()) {
@@ -110,24 +115,49 @@ class MaintenanceDetailModal extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Botón cerrar
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2196F3),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          // Botones de acción
+          Row(
+            children: [
+              // Botón Editar
+              if (onEdit != null)
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onEdit?.call();
+                    },
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Editar'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF2196F3),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: Color(0xFF2196F3)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              if (onEdit != null) const SizedBox(width: 12),
+              // Botón Cerrar
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2196F3),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cerrar',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
-              child: const Text(
-                'Cerrar',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
+            ],
           ),
         ],
       ),

@@ -32,12 +32,12 @@ class FilterButton extends StatelessWidget {
         ),
       ),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 8),
         side: BorderSide(
           color: isActive ? const Color(0xFF2196F3) : Colors.grey[300]!,
           width: isActive ? 2 : 1,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         backgroundColor: isActive
             ? const Color(0xFF2196F3).withOpacity(0.1)
             : Colors.white,

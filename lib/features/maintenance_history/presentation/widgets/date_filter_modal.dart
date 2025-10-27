@@ -1,48 +1,41 @@
 import 'package:flutter/material.dart';
 
 class DateFilterModal extends StatefulWidget {
-  final DateTime? startDate;
-  final DateTime? endDate;
-  final Function(DateTime?, DateTime?) onApply;
+  final DateTime? selectedDate;
+  final Function(DateTime?) onApply;
 
-  const DateFilterModal({
-    super.key,
-    this.startDate,
-    this.endDate,
-    required this.onApply,
-  });
+  const DateFilterModal({super.key, this.selectedDate, required this.onApply});
 
   @override
   State<DateFilterModal> createState() => _DateFilterModalState();
 }
 
 class _DateFilterModalState extends State<DateFilterModal> {
-  DateTime? _startDate;
-  DateTime? _endDate;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
-    _startDate = widget.startDate;
-    _endDate = widget.endDate;
+    _selectedDate = widget.selectedDate;
   }
 
-  Future<void> _selectStartDate() async {
+  Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _startDate ?? DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
       locale: const Locale('es', 'ES'),
-      builder: (context, child) {
+      builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: Theme.of(context).copyWith(
+          data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
               primary: Color(0xFF2196F3),
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black,
             ),
+            dialogBackgroundColor: Colors.white,
           ),
           child: child!,
         );
@@ -51,53 +44,19 @@ class _DateFilterModalState extends State<DateFilterModal> {
 
     if (picked != null) {
       setState(() {
-        _startDate = picked;
-        // Si la fecha de fin es anterior a la de inicio, la ajustamos
-        if (_endDate != null && _endDate!.isBefore(picked)) {
-          _endDate = picked;
-        }
+        _selectedDate = picked;
       });
     }
   }
 
-  Future<void> _selectEndDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _endDate ?? DateTime.now(),
-      firstDate: _startDate ?? DateTime(2000),
-      lastDate: DateTime.now(),
-      locale: const Locale('es', 'ES'),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2196F3),
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        _endDate = picked;
-      });
-    }
-  }
-
-  void _clearDates() {
+  void _clearDate() {
     setState(() {
-      _startDate = null;
-      _endDate = null;
+      _selectedDate = null;
     });
   }
 
   void _applyFilter() {
-    widget.onApply(_startDate, _endDate);
+    widget.onApply(_selectedDate);
     Navigator.pop(context);
   }
 
@@ -149,9 +108,9 @@ class _DateFilterModalState extends State<DateFilterModal> {
           ),
           const SizedBox(height: 24),
 
-          // Fecha de inicio
+          // Selector de fecha
           Text(
-            'Fecha de inicio',
+            'Selecciona una fecha',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[700],
@@ -160,7 +119,7 @@ class _DateFilterModalState extends State<DateFilterModal> {
           ),
           const SizedBox(height: 8),
           InkWell(
-            onTap: _selectStartDate,
+            onTap: _selectDate,
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -172,48 +131,12 @@ class _DateFilterModalState extends State<DateFilterModal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _formatDate(_startDate),
+                    _formatDate(_selectedDate),
                     style: TextStyle(
                       fontSize: 16,
-                      color: _startDate == null
+                      color: _selectedDate == null
                           ? Colors.grey[600]
                           : Colors.black,
-                    ),
-                  ),
-                  Icon(Icons.calendar_today, size: 20, color: Colors.grey[600]),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Fecha de fin
-          Text(
-            'Fecha de fin',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          InkWell(
-            onTap: _selectEndDate,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _formatDate(_endDate),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: _endDate == null ? Colors.grey[600] : Colors.black,
                     ),
                   ),
                   Icon(Icons.calendar_today, size: 20, color: Colors.grey[600]),
@@ -228,7 +151,7 @@ class _DateFilterModalState extends State<DateFilterModal> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: _clearDates,
+                  onPressed: _clearDate,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     side: BorderSide(color: Colors.grey[300]!),
@@ -263,24 +186,6 @@ class _DateFilterModalState extends State<DateFilterModal> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  static void show(
-    BuildContext context, {
-    DateTime? startDate,
-    DateTime? endDate,
-    required Function(DateTime?, DateTime?) onApply,
-  }) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DateFilterModal(
-        startDate: startDate,
-        endDate: endDate,
-        onApply: onApply,
       ),
     );
   }

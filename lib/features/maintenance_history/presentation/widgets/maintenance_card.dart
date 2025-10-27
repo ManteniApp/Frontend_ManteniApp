@@ -5,11 +5,13 @@ import '../../domain/entities/maintenance_entity.dart';
 class MaintenanceCard extends StatelessWidget {
   final MaintenanceEntity maintenance;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   const MaintenanceCard({
     super.key,
     required this.maintenance,
     required this.onTap,
+    required this.onDelete,
   });
 
   @override
@@ -37,13 +39,13 @@ class MaintenanceCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Indicador de tipo (círculo)
+            // Indicador de tipo (barra vertical)
             Container(
-              width: 8,
-              height: 40,
+              width: 4,
+              height: 60,
               decoration: BoxDecoration(
                 color: _getTypeColor(maintenance.type),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(width: 12),
@@ -53,44 +55,73 @@ class MaintenanceCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tipo de mantenimiento
-                  Text(
-                    maintenance.type,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                  // Primera fila: Tipo de mantenimiento y Nombre de moto
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Mantenimiento',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        maintenance.motorcycleName,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  // Nombre de la moto
-                  Text(
-                    maintenance.motorcycleName,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  const SizedBox(height: 8),
+                  // Segunda fila: Tipo y Precio
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        maintenance.type,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        formatter.format(maintenance.cost),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  // Fecha
-                  Text(
-                    _formatDate(maintenance.date),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  const SizedBox(height: 8),
+                  // Tercera fila: Fecha y botón eliminar
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatDate(maintenance.date),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      ),
+                      IconButton(
+                        onPressed: onDelete,
+                        icon: const Icon(Icons.delete_outline),
+                        color: Colors.red[400],
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        tooltip: 'Eliminar',
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-
-            // Precio
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  formatter.format(maintenance.cost),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
             ),
           ],
         ),

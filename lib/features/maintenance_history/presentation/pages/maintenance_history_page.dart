@@ -8,6 +8,7 @@ import '../widgets/filter_button.dart';
 import '../widgets/date_filter_modal.dart';
 import '../widgets/price_filter_modal.dart';
 import '../widgets/motorcycle_filter_modal.dart';
+import '../widgets/edit_maintenance_modal.dart';
 import '../../domain/entities/maintenance_entity.dart';
 
 class MaintenanceHistoryPage extends StatefulWidget {
@@ -43,7 +44,106 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MaintenanceDetailModal(maintenance: maintenance),
+      builder: (context) => MaintenanceDetailModal(
+        maintenance: maintenance,
+        onEdit: () => _showEditMaintenanceDialog(maintenance),
+      ),
+    );
+  }
+
+  void _showEditMaintenanceDialog(MaintenanceEntity maintenance) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => EditMaintenanceModal(
+        maintenance: maintenance,
+        onSave: (updatedMaintenance) async {
+          Navigator.pop(context);
+          try {
+            await context.read<MaintenanceHistoryProvider>().updateMaintenance(
+              updatedMaintenance,
+            );
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Mantenimiento actualizado correctamente'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error al actualizar: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  void _confirmDeleteMaintenance(MaintenanceEntity maintenance) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Mantenimiento'),
+        content: Text(
+          '¿Estás seguro de que deseas eliminar este mantenimiento?\n\n'
+          '${maintenance.type} - ${maintenance.motorcycleName}\n'
+          'Costo: \$${maintenance.cost}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              // Validar que el ID no sea nulo
+              if (maintenance.id == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Error: ID de mantenimiento no válido'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              try {
+                await context
+                    .read<MaintenanceHistoryProvider>()
+                    .deleteMaintenance(maintenance.id!);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Mantenimiento eliminado correctamente'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al eliminar: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -57,10 +157,9 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => DateFilterModal(
-        startDate: provider.startDate,
-        endDate: provider.endDate,
-        onApply: (startDate, endDate) {
-          provider.setDateFilter(startDate: startDate, endDate: endDate);
+        selectedDate: provider.selectedDate,
+        onApply: (date) {
+          provider.setDateFilter(date);
         },
       ),
     );
@@ -168,6 +267,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FilterButton(
             label: 'Moto',
@@ -238,6 +338,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
                   child: MaintenanceCard(
                     maintenance: m,
                     onTap: () => _showMaintenanceDetail(m),
+                    onDelete: () => _confirmDeleteMaintenance(m),
                   ),
                 ),
               )
@@ -256,6 +357,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
                   child: MaintenanceCard(
                     maintenance: m,
                     onTap: () => _showMaintenanceDetail(m),
+                    onDelete: () => _confirmDeleteMaintenance(m),
                   ),
                 ),
               )
@@ -274,6 +376,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
                   child: MaintenanceCard(
                     maintenance: m,
                     onTap: () => _showMaintenanceDetail(m),
+                    onDelete: () => _confirmDeleteMaintenance(m),
                   ),
                 ),
               )
