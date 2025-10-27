@@ -27,7 +27,7 @@ class MaintenanceCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFE5EAF8), // Nuevo color de fondo
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -38,15 +38,27 @@ class MaintenanceCard extends StatelessWidget {
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Indicador de tipo (barra vertical)
-            Container(
-              width: 4,
-              height: 60,
-              decoration: BoxDecoration(
-                color: _getTypeColor(maintenance.type),
-                borderRadius: BorderRadius.circular(2),
-              ),
+            // Indicador circular con línea vertical
+            Column(
+              children: [
+                // Círculo selector sin relleno
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent, // Sin color de relleno
+                    border: Border.all(
+                      color: Colors.black87, // Borde negro
+                      width: 2,
+                    ),
+                  ),
+                ),
+                // Línea vertical negra
+                Container(width: 2, height: 44, color: Colors.black87),
+              ],
             ),
             const SizedBox(width: 12),
 
@@ -151,25 +163,5 @@ class MaintenanceCard extends StatelessWidget {
     final year = date.year;
 
     return '$day $month $year';
-  }
-
-  Color _getTypeColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'general':
-      case 'mantenimiento general':
-        return const Color(0xFF2196F3); // Azul
-      case 'eléctrico':
-      case 'mantenimiento eléctrico':
-      case 'electrico':
-      case 'mantenimiento electrico':
-        return const Color(0xFFFFB300); // Amarillo
-      case 'mecánico':
-      case 'mantenimiento mecánico':
-      case 'mecanico':
-      case 'mantenimiento mecanico':
-        return const Color(0xFF43A047); // Verde
-      default:
-        return const Color(0xFF757575); // Gris
-    }
   }
 }

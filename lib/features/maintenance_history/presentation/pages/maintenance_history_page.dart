@@ -213,7 +213,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white, // Fondo blanco
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -229,6 +229,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        centerTitle: true, // Centrar el título
       ),
       body: Column(
         children: [
