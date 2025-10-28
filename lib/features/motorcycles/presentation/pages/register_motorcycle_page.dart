@@ -509,6 +509,14 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
           ),
         );
 
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          Navigator.pushNamedAndRemoveUntil(
+            context, 
+            '/home', // Asegúrate de que esta ruta esté definida en tu app
+            (route) => false, // Remueve todas las rutas anteriores
+          );
+        });
+        
         // Resetear formulario
         setState(() {
           marca = null;

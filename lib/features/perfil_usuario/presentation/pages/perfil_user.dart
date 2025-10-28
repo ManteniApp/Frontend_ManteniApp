@@ -1,14 +1,18 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:frontend_manteniapp/core/services/profile_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/personal_info_card.dart';
-import '../widgets/settings_tile.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/change_password_sheet.dart';
+import '../widgets/settings_tile.dart';
 import '../widgets/terminos_condiciones.dart';
+import '../widgets/profile_avatar.dart';
+import '../widgets/image_picker_sheet.dart'; 
+
 
 class PerfilUser extends StatefulWidget {
-  const PerfilUser({super.key});
+  final String? userId;
+  const PerfilUser({Key? key, this.userId}) : super(key: key);
 
   @override
   State<PerfilUser> createState() => _PerfilUserState();
@@ -16,160 +20,214 @@ class PerfilUser extends StatefulWidget {
 
 class _PerfilUserState extends State<PerfilUser> {
   bool isEditing = false;
-  File? _image;
-  final ImagePicker _picker = ImagePicker();
+  bool isLoading = true;
 
-  final TextEditingController nameController =
-      TextEditingController(text: 'Laura');
-  final TextEditingController phoneController =
-      TextEditingController(text: '321 637 1722');
-  final TextEditingController emailController =
-      TextEditingController(text: 'laura123@gmail.com');
-  final TextEditingController passwordController =
-      TextEditingController(text: 'Laura123@');
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
 
-  String? emailError;
-  String? phoneError;
+  final ProfileService _profileService = ProfileService();
+  String? errorMessage;
+  String? currentUserId;
 
-  // Validaciones
-  bool _isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,4}$');
-    return emailRegex.hasMatch(email);
+  // Key para forzar actualización del ProfileAvatar
+  final GlobalKey<ProfileAvatarState> _profileAvatarKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeProfile();
   }
 
-  bool _isValidPassword(String password) {
-    final passwordRegex = RegExp(
-        r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#\$%^&*(),.?":{}|<>]).{8,}$');
-    return passwordRegex.hasMatch(password);
-  }
+  Future<void> _initializeProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedId = prefs.getString('userId');
 
-  bool _isValidPhone(String phone) {
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
-    return phoneRegex.hasMatch(phone);
-  }
-
-  // Selección de imagen
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile =
-        await _picker.pickImage(source: source, imageQuality: 80);
-    if (pickedFile != null) {
+    if (widget.userId != null && int.tryParse(widget.userId!) != null) {
+      currentUserId = widget.userId!;
+    } else if (storedId != null && int.tryParse(storedId) != null) {
+      currentUserId = storedId;
+    } else {
       setState(() {
-        _image = File(pickedFile.path);
+        isLoading = false;
+        errorMessage = 'No se encontró información del usuario. Inicia sesión nuevamente.';
+      });
+      return;
+    }
+
+    await _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final user = await _profileService.getUserProfile();
+      setState(() {
+        nameController.text = user.name;
+        phoneController.text = user.phone;
+        emailController.text = user.email;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error al cargar perfil: $e';
       });
     }
   }
 
-  void _showImagePickerOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading:
-                  const Icon(Icons.photo_library, color: Color(0xFF1E88E5)),
-              title: const Text('Elegir desde galería'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: Color(0xFF1E88E5)),
-              title: const Text('Tomar una foto'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.close, color: Colors.red),
-              title: const Text('Cancelar'),
-              onTap: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _saveChanges() {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    final phone = phoneController.text.trim();
-
-    setState(() {
-      emailError = _isValidEmail(email) ? null : 'Correo inválido';
-      phoneError = _isValidPhone(phone) ? null : 'Teléfono inválido (10 dígitos)';
-    });
-
-    if (!_isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Ingresa un correo válido.'), 
-          closeIconColor: Colors.red),
-      );
-      return;
-    }
-
-    if (!_isValidPassword(password)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-              ' La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.'), 
-          closeIconColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (!_isValidPhone(phone)){
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Ingresa un teléfono válido con 10 digitos.'), 
-          closeIconColor: Colors.red),
-      );
-      return;
-    }
-
-    setState(() => isEditing = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        backgroundColor: Colors.green,
-        content: Text(' Cambios guardados correctamente.')),
-    );
-  }
-
-  // Mostrar ventana flotante para cambiar contraseña
-  void _showChangePasswordSheet(BuildContext context) {
+  void _showImagePicker() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ChangePasswordSheet(
-        onPasswordChanged: (newPassword) {
-          // Actualiza el controlador de contraseña sin mostrar SnackBar en la pantalla principal
-          setState(() {
-            passwordController.text = newPassword;
-          });
+      builder: (_) => ImagePickerSheet(
+        onImageUpdated: () {
+          // Forzar actualización del avatar
+          _profileAvatarKey.currentState?.refreshImage();
+          setState(() {}); // Actualizar UI completa
         },
       ),
     );
   }
 
+  // ... (mantén el resto de tus métodos _saveChanges, _logout, _deleteAccount, _changePassword igual)
+
+  Future<void> _saveChanges() async {
+    try {
+      final success = await _profileService.updateBasicProfile(
+        nameController.text,
+        phoneController.text,
+      );
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Perfil actualizado correctamente')),
+        );
+        setState(() => isEditing = false);
+      } else {
+        throw Exception('No se pudo actualizar el perfil');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Cerrar sesión',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('userId');
+      await prefs.remove('userToken');
+      
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+      }
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Eliminar cuenta'),
+        content: const Text(
+            '¿Seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _profileService.deleteAccount();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+      }
+    }
+  }
+
+  Future<void> _changePassword(String currentPassword, String newPassword) async {
+    try {
+      final success = await _profileService.changePassword(currentPassword, newPassword);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Contraseña cambiada correctamente'),
+          ),
+        );
+      } else {
+        throw Exception('No se pudo cambiar la contraseña');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (errorMessage != null) {
+      return Scaffold(
+        body: Center(
+          child: Text(
+            errorMessage!,
+            style: const TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(), // Cierra teclado
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -179,7 +237,8 @@ class _PerfilUserState extends State<PerfilUser> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 70),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 30),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: const BorderRadius.only(
@@ -230,57 +289,42 @@ class _PerfilUserState extends State<PerfilUser> {
                           text: 'Cambiar contraseña',
                           backgroundColor: Colors.grey[200]!,
                           textColor: Colors.black,
-                          onPressed: () => _showChangePasswordSheet(context),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => ChangePasswordSheet(
+                                onPasswordChanged: _changePassword,
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 15),
                         CustomButton(
                           text: 'Cerrar sesión',
                           backgroundColor: const Color(0xFF1E88E5),
                           textColor: Colors.white,
-                          onPressed: () {},
+                          onPressed: _logout,
+                        ),
+                        const SizedBox(height: 10),
+                        CustomButton(
+                          text: 'Eliminar cuenta',
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          onPressed: _deleteAccount,
                         ),
                       ],
                     ),
                   ),
-                  // Imagen de perfil editable
+                  // ProfileAvatar con key para controlarlo
                   Positioned(
                     top: 0,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF1E88E5),
-                              width: 4,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            backgroundImage: _image != null
-                                ? FileImage(_image!)
-                                : const AssetImage('assets/images/lau.jpg') as ImageProvider,
-                            radius: 100,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: () => _showImagePickerOptions(context),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF1E88E5),
-                                shape: BoxShape.circle,
-                              ),
-                              padding: const EdgeInsets.all(6),
-                              child: const Icon(Icons.camera_alt,
-                                  size: 20, color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: ProfileAvatar(
+                      key: _profileAvatarKey,
+                      size: 120,
+                      editable: true,
+                      onTap: _showImagePicker,
                     ),
                   ),
                 ],

@@ -1,68 +1,56 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Servicio para almacenar y recuperar el token de autenticación de forma segura
-///
-/// Utiliza flutter_secure_storage para guardar el token de forma encriptada
 class AuthStorageService {
   static const String _tokenKey = 'auth_token';
   static const String _userIdKey = 'user_id';
   static const String _userEmailKey = 'user_email';
 
-  final FlutterSecureStorage _storage;
-
-  AuthStorageService({FlutterSecureStorage? storage})
-    : _storage = storage ?? const FlutterSecureStorage();
-
-  /// Guarda el token JWT
   Future<void> saveToken(String token) async {
-    await _storage.write(key: _tokenKey, value: token);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+    print('✅ Token guardado: $token');
   }
 
-  /// Obtiene el token JWT guardado
   Future<String?> getToken() async {
-    return await _storage.read(key: _tokenKey);
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_tokenKey);
+    print('🔍 Token recuperado: $token');
+    return token;
   }
 
-  /// Guarda el ID del usuario
   Future<void> saveUserId(String userId) async {
-    await _storage.write(key: _userIdKey, value: userId);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userIdKey, userId);
+    print('✅ UserId guardado: $userId');
   }
 
-  /// Obtiene el ID del usuario
   Future<String?> getUserId() async {
-    return await _storage.read(key: _userIdKey);
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString(_userIdKey);
+    print('🔍 UserId recuperado: $userId');
+    return userId;
   }
 
-  /// Guarda el email del usuario
   Future<void> saveUserEmail(String email) async {
-    await _storage.write(key: _userEmailKey, value: email);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userEmailKey, email);
   }
 
-  /// Obtiene el email del usuario
   Future<String?> getUserEmail() async {
-    return await _storage.read(key: _userEmailKey);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userEmailKey);
   }
 
-  /// Verifica si hay un token guardado
-  Future<bool> hasToken() async {
+  Future<bool> isAuthenticated() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
   }
 
-  /// Verifica si el usuario está autenticado
-  Future<bool> isAuthenticated() async {
-    return await hasToken();
-  }
-
-  /// Limpia todos los datos de autenticación (logout)
   Future<void> clearAuth() async {
-    await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _userIdKey);
-    await _storage.delete(key: _userEmailKey);
-  }
-
-  /// Limpia todo el storage
-  Future<void> clearAll() async {
-    await _storage.deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userIdKey);
+    await prefs.remove(_userEmailKey);
+    print('🗑️ Auth data eliminada');
   }
 }

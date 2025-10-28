@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/features/auth/presentation/widgets/recommendations_section.dart';
+import 'package:frontend_manteniapp/features/list_motorcicle/domain/entities/motorcycle_entity.dart';
 import '../widgets/indicator_row.dart';
 
 class BikeProfilePage extends StatelessWidget {
-  const BikeProfilePage({super.key});
+  const BikeProfilePage({super.key, required MotorcycleEntity motorcycle});
 
   @override
   Widget build(BuildContext context) {

@@ -22,8 +22,10 @@ dependencies:
   image_picker: ^1.1.1   # permite tomar o elegir fotos
   salomon_bottom_bar: ^3.3.2
   flutter_secure_storage: ^9.2.2  # Almacenamiento seguro para el JWT
-  intl: ^0.20.2  # Formateo de fechas y números
-  provider: ^6.1.1  # State management
+  shared_preferences: ^2.2.2
+  google_sign_in: ^6.1.5
+  app_links: ^6.4.1
+  url_launcher: ^6.2.2
 
 dev_dependencies:
   flutter_test:
