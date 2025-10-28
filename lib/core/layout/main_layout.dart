@@ -14,10 +14,17 @@ class MainLayout extends StatefulWidget {
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
+
+  //👇 Método estático para acceder al estado desde cualquier hijo
+  static _MainLayoutState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_MainLayoutState>();
+  }
+
 }
 
 class _MainLayoutState extends State<MainLayout> {
   late int _selectedIndex;
+  String? _selectedAlert;
 
   // 🔑 Claves para cada Navigator anidado
   final _navigatorKeys = [
@@ -31,7 +38,16 @@ class _MainLayoutState extends State<MainLayout> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    _selectedAlert = widget.selectedAlert;
   }
+
+  void switchTab(int index, {String? alert}) {
+    setState(() {
+      _selectedIndex = index;
+      _selectedAlert = alert;
+    });
+  }
+
 
   // 🔹 Páginas principales con navegadores anidados
   List<Widget> get _pages => [
