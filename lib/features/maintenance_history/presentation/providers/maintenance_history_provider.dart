@@ -1,16 +1,28 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/maintenance_entity.dart';
 import '../../domain/usecases/get_maintenance_history.dart';
+import '../../domain/usecases/update_maintenance.dart';
+import '../../domain/usecases/delete_maintenance.dart';
 
 class MaintenanceHistoryProvider extends ChangeNotifier {
   final GetMaintenanceHistory getMaintenanceHistoryUseCase;
+  final UpdateMaintenance updateMaintenanceUseCase;
+  final DeleteMaintenance deleteMaintenanceUseCase;
 
-  MaintenanceHistoryProvider({required this.getMaintenanceHistoryUseCase});
+  MaintenanceHistoryProvider({
+    required this.getMaintenanceHistoryUseCase,
+    required this.updateMaintenanceUseCase,
+    required this.deleteMaintenanceUseCase,
+  });
 
   // Estado
   List<MaintenanceEntity> _maintenances = [];
   bool _isLoading = false;
   String? _errorMessage;
+
+  // Timer para debounce
+  Timer? _debounceTimer;
 
   // Filtros
   DateTime? _selectedDate;
@@ -29,28 +41,21 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
 
   /// Cargar historial de mantenimientos con filtros aplicados
   Future<void> loadMaintenanceHistory() async {
+    // Evitar llamadas duplicadas mientras se está cargando
+    if (_isLoading) return;
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      // TODO: Descomentar cuando el backend esté listo
-      // _maintenances = await getMaintenanceHistoryUseCase(
-      //   startDate: _startDate,
-      //   endDate: _endDate,
-      //   minPrice: _minPrice,
-      //   maxPrice: _maxPrice,
-      //   motorcycleId: _selectedMotorcycleFilter,
-      // );
+      // Llamada real al backend
+      _maintenances = await getMaintenanceHistoryUseCase(
+        motorcycleId: _selectedMotorcycleFilter,
+      );
 
-      // MOCK DATA - Datos de prueba
-      await Future.delayed(
-        const Duration(milliseconds: 500),
-      ); // Simular delay de red
-      _maintenances = _getMockData();
-
-      // Aplicar filtros manualmente (solo para mock)
-      _maintenances = _applyMockFilters(_maintenances);
+      // Aplicar filtros locales (fecha y precio)
+      _maintenances = _applyLocalFilters(_maintenances);
 
       _isLoading = false;
       notifyListeners();
@@ -61,112 +66,8 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
     }
   }
 
-  /// Generar datos mock para pruebas
-  List<MaintenanceEntity> _getMockData() {
-    final now = DateTime.now();
-    return [
-      // Hoy
-      MaintenanceEntity(
-        id: '1',
-        type: 'General',
-        date: now,
-        cost: 150.00,
-        motorcycleName: 'Honda CB190R',
-        description: 'Cambio de aceite y filtros',
-        notes: 'Servicio completo realizado. Todo en buen estado.',
-      ),
-      MaintenanceEntity(
-        id: '2',
-        type: 'Eléctrico',
-        date: now.subtract(const Duration(hours: 3)),
-        cost: 320.50,
-        motorcycleName: 'Yamaha MT-07',
-        description: 'Revisión del sistema eléctrico',
-        notes: 'Se reemplazó la batería. Sistema funcionando correctamente.',
-      ),
-
-      // Ayer
-      MaintenanceEntity(
-        id: '3',
-        type: 'Mecánico',
-        date: now.subtract(const Duration(days: 1)),
-        cost: 450.00,
-        motorcycleName: 'Suzuki GSX-R600',
-        description: 'Ajuste de cadena y piñones',
-        notes: 'Cadena en buen estado, solo requirió ajuste y lubricación.',
-      ),
-      MaintenanceEntity(
-        id: '4',
-        type: 'General',
-        date: now.subtract(const Duration(days: 1, hours: 5)),
-        cost: 85.00,
-        motorcycleName: 'Honda CB190R',
-        description: 'Limpieza general y lubricación',
-        notes: 'Mantenimiento preventivo.',
-      ),
-
-      // Anteriores
-      MaintenanceEntity(
-        id: '5',
-        type: 'Mecánico',
-        date: now.subtract(const Duration(days: 3)),
-        cost: 680.00,
-        motorcycleName: 'Kawasaki Ninja 400',
-        description: 'Cambio de pastillas de freno',
-        notes:
-            'Se reemplazaron pastillas delanteras y traseras. Discos en buen estado.',
-      ),
-      MaintenanceEntity(
-        id: '6',
-        type: 'Eléctrico',
-        date: now.subtract(const Duration(days: 7)),
-        cost: 250.00,
-        motorcycleName: 'BMW S1000RR',
-        description: 'Reemplazo de luces LED',
-        notes: 'Se instalaron luces LED de alta calidad.',
-      ),
-      MaintenanceEntity(
-        id: '7',
-        type: 'General',
-        date: now.subtract(const Duration(days: 10)),
-        cost: 120.00,
-        motorcycleName: 'Yamaha MT-07',
-        description: 'Cambio de aceite',
-        notes: 'Servicio de 5,000 km.',
-      ),
-      MaintenanceEntity(
-        id: '8',
-        type: 'Mecánico',
-        date: now.subtract(const Duration(days: 15)),
-        cost: 890.00,
-        motorcycleName: 'Suzuki GSX-R600',
-        description: 'Revisión de suspensión',
-        notes:
-            'Se ajustó la suspensión delantera y trasera según peso del piloto.',
-      ),
-      MaintenanceEntity(
-        id: '9',
-        type: 'General',
-        date: now.subtract(const Duration(days: 20)),
-        cost: 95.00,
-        motorcycleName: 'Honda CB190R',
-        description: 'Limpieza de carburador',
-        notes: 'Carburador limpio y calibrado.',
-      ),
-      MaintenanceEntity(
-        id: '10',
-        type: 'Eléctrico',
-        date: now.subtract(const Duration(days: 25)),
-        cost: 420.00,
-        motorcycleName: 'Kawasaki Ninja 400',
-        description: 'Instalación de alarma',
-        notes: 'Sistema de alarma instalado y probado correctamente.',
-      ),
-    ];
-  }
-
-  /// Aplicar filtros a los datos mock
-  List<MaintenanceEntity> _applyMockFilters(List<MaintenanceEntity> data) {
+  /// Aplicar filtros locales (fecha y precio)
+  List<MaintenanceEntity> _applyLocalFilters(List<MaintenanceEntity> data) {
     var filtered = data;
 
     // Filtro por fecha (día completo)
@@ -190,44 +91,37 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
       filtered = filtered.where((m) => m.cost <= _maxPrice!).toList();
     }
 
-    // Filtro por motocicleta
-    if (_selectedMotorcycleFilter != null) {
-      // Convertir ID a nombre de moto (para el mock)
-      final motorcycleNames = {
-        '1': 'Honda CB190R',
-        '2': 'Yamaha MT-07',
-        '3': 'Suzuki GSX-R600',
-        '4': 'Kawasaki Ninja 400',
-        '5': 'BMW S1000RR',
-      };
-      final motorcycleName = motorcycleNames[_selectedMotorcycleFilter];
-      if (motorcycleName != null) {
-        filtered = filtered
-            .where((m) => m.motorcycleName == motorcycleName)
-            .toList();
-      }
-    }
-
     return filtered;
+  }
+
+  /// Método auxiliar para cargar con debounce (evitar múltiples llamadas rápidas)
+  void _loadWithDebounce() {
+    // Cancelar el timer anterior si existe
+    _debounceTimer?.cancel();
+
+    // Crear nuevo timer de 300ms
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      loadMaintenanceHistory();
+    });
   }
 
   /// Establecer filtro de fecha
   void setDateFilter(DateTime? date) {
     _selectedDate = date;
-    loadMaintenanceHistory();
+    _loadWithDebounce();
   }
 
   /// Establecer filtro de precio
   void setPriceFilter({double? minPrice, double? maxPrice}) {
     _minPrice = minPrice;
     _maxPrice = maxPrice;
-    loadMaintenanceHistory();
+    _loadWithDebounce();
   }
 
   /// Establecer filtro de motocicleta
   void setMotorcycleFilter(String? motorcycleId) {
     _selectedMotorcycleFilter = motorcycleId;
-    loadMaintenanceHistory();
+    loadMaintenanceHistory(); // Sin debounce para este filtro
   }
 
   /// Limpiar todos los filtros
@@ -245,18 +139,15 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Eliminar un mantenimiento (Mock - TODO: integrar con backend)
+  /// Eliminar un mantenimiento
   Future<void> deleteMaintenance(String id) async {
     try {
-      // TODO: Cuando el backend esté listo, descomentar:
-      // await deleteMaintenanceUseCase(id);
+      // Llamada real al backend
+      await deleteMaintenanceUseCase(id);
 
-      // Mock: Eliminar de la lista local
+      // Eliminar de la lista local después de confirmar la eliminación
       _maintenances = _maintenances.where((m) => m.id != id).toList();
       notifyListeners();
-
-      // Simular delay de red
-      await Future.delayed(const Duration(milliseconds: 300));
     } catch (e) {
       _errorMessage = 'Error al eliminar el mantenimiento: ${e.toString()}';
       notifyListeners();
@@ -264,27 +155,28 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
     }
   }
 
-  /// Editar un mantenimiento (Mock - TODO: integrar con backend)
+  /// Editar un mantenimiento
   Future<void> updateMaintenance(MaintenanceEntity updatedMaintenance) async {
     try {
-      // TODO: Cuando el backend esté listo, descomentar:
-      // await updateMaintenanceUseCase(updatedMaintenance);
+      // Llamada real al backend
+      final updated = await updateMaintenanceUseCase(updatedMaintenance);
 
-      // Mock: Actualizar en la lista local
-      final index = _maintenances.indexWhere(
-        (m) => m.id == updatedMaintenance.id,
-      );
+      // Actualizar en la lista local
+      final index = _maintenances.indexWhere((m) => m.id == updated.id);
       if (index != -1) {
-        _maintenances[index] = updatedMaintenance;
+        _maintenances[index] = updated;
         notifyListeners();
       }
-
-      // Simular delay de red
-      await Future.delayed(const Duration(milliseconds: 300));
     } catch (e) {
       _errorMessage = 'Error al actualizar el mantenimiento: ${e.toString()}';
       notifyListeners();
       rethrow;
     }
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import '../../../features/auth/presentation/pages/bike_profile_page.dart';
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
 import '../../../features/maintenance_history/presentation/pages/maintenance_history_page.dart';
 

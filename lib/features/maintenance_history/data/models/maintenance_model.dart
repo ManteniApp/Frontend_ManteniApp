@@ -14,6 +14,17 @@ class MaintenanceModel extends MaintenanceEntity {
     super.createdAt,
   });
 
+  /// Helper para parsear el costo que puede venir como número o string
+  static double _parseCost(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
+  }
+
   factory MaintenanceModel.fromJson(Map<String, dynamic> json) {
     return MaintenanceModel(
       id: json['id']?.toString(),
@@ -23,7 +34,9 @@ class MaintenanceModel extends MaintenanceEntity {
           : (json['fecha'] != null
                 ? DateTime.parse(json['fecha'])
                 : DateTime.now()),
-      cost: (json['cost'] ?? json['precio'] ?? json['monto'] ?? 0).toDouble(),
+      cost: _parseCost(
+        json['cost'] ?? json['costo'] ?? json['precio'] ?? json['monto'],
+      ),
       motorcycleName:
           json['motorcycleName'] ??
           json['nombreMoto'] ??
@@ -41,15 +54,28 @@ class MaintenanceModel extends MaintenanceEntity {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'tipo': type,
-      'fecha': date.toIso8601String(),
-      'precio': cost,
-      'nombreMoto': motorcycleName,
-      'motocicletaId': motorcycleId,
-      'descripcion': description,
-      'notas': notes,
-      'createdAt': createdAt?.toIso8601String(),
+      if (id != null) 'id': id,
+      'tipo': type, // Backend espera 'tipo'
+      'fecha': date.toIso8601String(), // Backend espera 'fecha'
+      'precio': cost, // Backend espera 'precio'
+      'nombreMoto': motorcycleName, // Backend espera 'nombreMoto'
+      if (motorcycleId != null)
+        'moto_id': int.parse(
+          motorcycleId!,
+        ), // Backend espera 'moto_id' como int
+      if (description != null)
+        'descripcion': description, // Backend espera 'descripcion'
+      if (notes != null) 'notas': notes, // Backend espera 'notas'
+      if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+    };
+  }
+
+  /// ⚠️ Solo para actualización - Backend solo acepta: descripcion y costo
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'costo': cost, // ⚠️ Backend espera 'costo' (no 'precio') en PUT
+      if (description != null)
+        'descripcion': description, // ✅ Descripción (permitido)
     };
   }
 

@@ -16,23 +16,10 @@ class FilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
+    return OutlinedButton(
       onPressed: onPressed,
-      icon: Icon(
-        icon,
-        size: 18,
-        color: isActive ? const Color(0xFF2196F3) : Colors.grey[700],
-      ),
-      label: Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: isActive ? const Color(0xFF2196F3) : Colors.grey[700],
-          fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         side: BorderSide(
           color: isActive ? const Color(0xFF2196F3) : Colors.grey[300]!,
           width: isActive ? 2 : 1,
@@ -41,6 +28,29 @@ class FilterButton extends StatelessWidget {
         backgroundColor: isActive
             ? const Color(0xFF2196F3).withOpacity(0.1)
             : Colors.white,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: isActive ? const Color(0xFF2196F3) : Colors.grey[700],
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 14,
+                color: isActive ? const Color(0xFF2196F3) : Colors.grey[700],
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

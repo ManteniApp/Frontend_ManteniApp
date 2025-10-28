@@ -24,15 +24,26 @@ Su diseño sigue una arquitectura **Clean Architecture**, promoviendo la escalab
 - Almacenamiento seguro de JWT
 
 ### ✅ Gestión de Motocicletas
-- Registro de motocicletas
-- Listado de motocicletas
-- Perfil de motocicleta
+- ✅ Registro de motocicletas
+- ✅ **Listado de motocicletas del usuario** (GET /motorcycles)
+- ✅ Perfil de motocicleta
 
 ### ✅ Historial de Mantenimientos
-- Visualización de mantenimientos agrupados por tiempo
-- Filtros por fecha, precio y motocicleta
-- Detalle completo de cada mantenimiento
-- Datos mock para pruebas sin backend
+- ✅ Visualización de mantenimientos con diseño personalizado
+- ✅ **Filtros avanzados:**
+  - Filtro por fecha (día específico)
+  - Filtro por rango de precio (mín/máx)
+  - **Filtro por motocicleta** (motos reales del usuario desde backend)
+- ✅ Detalle completo de cada mantenimiento en modal
+- ✅ **Editar** mantenimientos (PUT /maintenance/{id})
+- ✅ **Eliminar** mantenimientos con confirmación (DELETE /maintenance/{id})
+- ✅ Integración con backend real (GET /maintenance/{motoId})
+- ✅ **Verificación de autenticación** antes de cargar datos
+- ⏳ Crear nuevos mantenimientos (POST /maintenance) - Pendiente
+
+> 📄 **Documentación detallada:** Ver [BACKEND_INTEGRATION.md](./BACKEND_INTEGRATION.md)  
+> 🔐 **Fix de autenticación:** Ver [AUTHENTICATION_FIX.md](./AUTHENTICATION_FIX.md)  
+> 🏍️ **Fix filtro de motos:** Ver [MOTORCYCLE_FILTER_FIX.md](./MOTORCYCLE_FILTER_FIX.md)
 
 ---
 

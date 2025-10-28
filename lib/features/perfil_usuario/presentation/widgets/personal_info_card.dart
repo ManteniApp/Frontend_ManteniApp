@@ -10,7 +10,7 @@ class PersonalInfoCard extends StatelessWidget {
   final VoidCallback onSavePressed;
 
   const PersonalInfoCard({
-    Key? key,
+    super.key,
     required this.isEditing,
     required this.nameController,
     required this.phoneController,
@@ -18,7 +18,7 @@ class PersonalInfoCard extends StatelessWidget {
     required this.onEditPressed,
     required this.onCancelPressed,
     required this.onSavePressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

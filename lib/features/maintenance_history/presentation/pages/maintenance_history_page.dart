@@ -10,6 +10,8 @@ import '../widgets/price_filter_modal.dart';
 import '../widgets/motorcycle_filter_modal.dart';
 import '../widgets/edit_maintenance_modal.dart';
 import '../../domain/entities/maintenance_entity.dart';
+import '../../../../core/services/auth_storage_service.dart';
+import '../../../motorcycles/presentation/providers/motorcycle_provider.dart';
 
 class MaintenanceHistoryPage extends StatefulWidget {
   const MaintenanceHistoryPage({super.key});
@@ -20,11 +22,42 @@ class MaintenanceHistoryPage extends StatefulWidget {
 
 class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
   bool _isInitialized = false;
+  final AuthStorageService _authStorage = AuthStorageService();
 
   @override
   void initState() {
     super.initState();
-    _initializeDateFormatting();
+    _checkAuthenticationAndInitialize();
+  }
+
+  /// Verifica si el usuario está autenticado antes de cargar datos
+  Future<void> _checkAuthenticationAndInitialize() async {
+    // Verificar si hay un token guardado
+    final isAuthenticated = await _authStorage.isAuthenticated();
+
+    if (!mounted) return;
+
+    if (!isAuthenticated) {
+      // Si no está autenticado, mostrar mensaje y redirigir al login
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debes iniciar sesión para ver el historial'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+
+      // Redirigir al login después de un breve delay
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+      });
+      return;
+    }
+
+    // Si está autenticado, continuar con la inicialización normal
+    await _initializeDateFormatting();
   }
 
   Future<void> _initializeDateFormatting() async {
@@ -56,31 +89,35 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => EditMaintenanceModal(
+      builder: (modalContext) => EditMaintenanceModal(
         maintenance: maintenance,
         onSave: (updatedMaintenance) async {
-          Navigator.pop(context);
+          // ✅ Guardar referencia al ScaffoldMessenger ANTES de cerrar el modal
+          final scaffoldMessenger = ScaffoldMessenger.of(context);
+          final navigator = Navigator.of(modalContext);
+
+          // Cerrar modal
+          navigator.pop();
+
           try {
             await context.read<MaintenanceHistoryProvider>().updateMaintenance(
               updatedMaintenance,
             );
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Mantenimiento actualizado correctamente'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
+            // ✅ Usar la referencia guardada
+            scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text('Mantenimiento actualizado correctamente'),
+                backgroundColor: Colors.green,
+              ),
+            );
           } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error al actualizar: ${e.toString()}'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
+            // ✅ Usar la referencia guardada
+            scaffoldMessenger.showSnackBar(
+              SnackBar(
+                content: Text('Error al actualizar: ${e.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         },
       ),
@@ -90,7 +127,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
   void _confirmDeleteMaintenance(MaintenanceEntity maintenance) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Eliminar Mantenimiento'),
         content: Text(
           '¿Estás seguro de que deseas eliminar este mantenimiento?\n\n'
@@ -99,15 +136,21 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              // ✅ Guardar referencia al ScaffoldMessenger ANTES de cerrar el diálogo
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(dialogContext);
+
+              // Cerrar diálogo
+              navigator.pop();
+
               // Validar que el ID no sea nulo
               if (maintenance.id == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                scaffoldMessenger.showSnackBar(
                   const SnackBar(
                     content: Text('Error: ID de mantenimiento no válido'),
                     backgroundColor: Colors.red,
@@ -120,23 +163,21 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
                 await context
                     .read<MaintenanceHistoryProvider>()
                     .deleteMaintenance(maintenance.id!);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Mantenimiento eliminado correctamente'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
+                // ✅ Usar la referencia guardada
+                scaffoldMessenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Mantenimiento eliminado correctamente'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
               } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error al eliminar: ${e.toString()}'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
+                // ✅ Usar la referencia guardada
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Error al eliminar: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -202,6 +243,31 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
     );
   }
 
+  /// TODO: Implementar navegación a la pantalla de registrar mantenimiento
+  /// Esta funcionalidad debe ser implementada por el equipo encargado
+  ///
+  /// Requisitos:
+  /// 1. Crear la ruta en el sistema de navegación (ej: '/register-maintenance')
+  /// 2. Después de registrar un mantenimiento exitosamente, recargar el historial:
+  ///    context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
+  /// 3. Opcional: Pasar el ID de la moto seleccionada en el filtro actual para pre-seleccionarla:
+  ///    final selectedMotoId = context.read<MaintenanceHistoryProvider>().selectedMotorcycleFilter;
+  ///    Navigator.pushNamed(context, '/register-maintenance', arguments: selectedMotoId);
+  void _navigateToCreateMaintenance() {
+    // TODO: Implementar navegación
+    // Navigator.pushNamed(context, '/register-maintenance');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          '⚠️ Funcionalidad pendiente: Navegar a registrar mantenimiento',
+        ),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Mostrar loading mientras se inicializa el formateo de fechas
@@ -260,35 +326,102 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
           ),
         ],
       ),
+      // Botón para crear nuevo mantenimiento
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 70),
+        child: FloatingActionButton(
+          onPressed: _navigateToCreateMaintenance,
+          backgroundColor: const Color(0xFF2196F3), // Azul del proyecto
+          elevation: 6,
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   Widget _buildFilters() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FilterButton(
-            label: 'Moto',
-            icon: Icons.motorcycle,
-            onPressed: _showMotorcycleFilter,
+    return Consumer<MaintenanceHistoryProvider>(
+      builder: (context, maintenanceProvider, child) {
+        // Obtener el nombre de la moto seleccionada
+        String motorcycleLabel = 'Moto';
+
+        if (maintenanceProvider.selectedMotorcycleFilter != null) {
+          final motorcycleProvider = context.read<MotorcycleProvider>();
+          final selectedMoto = motorcycleProvider.motorcycles.firstWhere(
+            (m) => m.id == maintenanceProvider.selectedMotorcycleFilter,
+            orElse: () => motorcycleProvider.motorcycles.first,
+          );
+          motorcycleLabel = '${selectedMoto.brand} ${selectedMoto.model}';
+        }
+
+        // Obtener el label del filtro de fecha
+        String dateLabel = 'Fecha';
+        if (maintenanceProvider.selectedDate != null) {
+          final date = maintenanceProvider.selectedDate!;
+          dateLabel = '${date.day}/${date.month}/${date.year}';
+        }
+
+        // Obtener el label del filtro de precio
+        String priceLabel = 'Precio';
+        if (maintenanceProvider.minPrice != null ||
+            maintenanceProvider.maxPrice != null) {
+          if (maintenanceProvider.minPrice != null &&
+              maintenanceProvider.maxPrice != null) {
+            priceLabel =
+                '\$${maintenanceProvider.minPrice!.toInt()}-\$${maintenanceProvider.maxPrice!.toInt()}';
+          } else if (maintenanceProvider.minPrice != null) {
+            priceLabel = 'Min \$${maintenanceProvider.minPrice!.toInt()}';
+          } else if (maintenanceProvider.maxPrice != null) {
+            priceLabel = 'Max \$${maintenanceProvider.maxPrice!.toInt()}';
+          }
+        }
+
+        return Container(
+          color: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
+                    child: FilterButton(
+                      label: motorcycleLabel,
+                      icon: Icons.motorcycle,
+                      onPressed: _showMotorcycleFilter,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
+                    child: FilterButton(
+                      label: dateLabel,
+                      icon: Icons.calendar_today,
+                      onPressed: _showDateFilter,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
+                    child: FilterButton(
+                      label: priceLabel,
+                      icon: Icons.attach_money,
+                      onPressed: _showPriceFilter,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(width: 8),
-          FilterButton(
-            label: 'Fecha',
-            icon: Icons.calendar_today,
-            onPressed: _showDateFilter,
-          ),
-          const SizedBox(width: 8),
-          FilterButton(
-            label: 'Precio',
-            icon: Icons.attach_money,
-            onPressed: _showPriceFilter,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -332,18 +465,16 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         if (groupedMaintenances['Hoy']!.isNotEmpty) ...[
           _buildSectionHeader('Hoy'),
           const SizedBox(height: 12),
-          ...groupedMaintenances['Hoy']!
-              .map(
-                (m) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: MaintenanceCard(
-                    maintenance: m,
-                    onTap: () => _showMaintenanceDetail(m),
-                    onDelete: () => _confirmDeleteMaintenance(m),
-                  ),
-                ),
-              )
-              .toList(),
+          ...groupedMaintenances['Hoy']!.map(
+            (m) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: MaintenanceCard(
+                maintenance: m,
+                onTap: () => _showMaintenanceDetail(m),
+                onDelete: () => _confirmDeleteMaintenance(m),
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
         ],
 
@@ -351,18 +482,16 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         if (groupedMaintenances['Ayer']!.isNotEmpty) ...[
           _buildSectionHeader('Ayer'),
           const SizedBox(height: 12),
-          ...groupedMaintenances['Ayer']!
-              .map(
-                (m) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: MaintenanceCard(
-                    maintenance: m,
-                    onTap: () => _showMaintenanceDetail(m),
-                    onDelete: () => _confirmDeleteMaintenance(m),
-                  ),
-                ),
-              )
-              .toList(),
+          ...groupedMaintenances['Ayer']!.map(
+            (m) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: MaintenanceCard(
+                maintenance: m,
+                onTap: () => _showMaintenanceDetail(m),
+                onDelete: () => _confirmDeleteMaintenance(m),
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
         ],
 
@@ -370,18 +499,16 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         if (groupedMaintenances['Anteriores']!.isNotEmpty) ...[
           _buildSectionHeader('Anteriores'),
           const SizedBox(height: 12),
-          ...groupedMaintenances['Anteriores']!
-              .map(
-                (m) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: MaintenanceCard(
-                    maintenance: m,
-                    onTap: () => _showMaintenanceDetail(m),
-                    onDelete: () => _confirmDeleteMaintenance(m),
-                  ),
-                ),
-              )
-              .toList(),
+          ...groupedMaintenances['Anteriores']!.map(
+            (m) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: MaintenanceCard(
+                maintenance: m,
+                onTap: () => _showMaintenanceDetail(m),
+                onDelete: () => _confirmDeleteMaintenance(m),
+              ),
+            ),
+          ),
         ],
       ],
     );

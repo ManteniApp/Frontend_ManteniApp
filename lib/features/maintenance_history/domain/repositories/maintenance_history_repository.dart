@@ -16,4 +16,10 @@ abstract class MaintenanceHistoryRepository {
 
   /// Registra un nuevo mantenimiento
   Future<MaintenanceEntity> createMaintenance(MaintenanceEntity maintenance);
+
+  /// Actualiza un mantenimiento existente
+  Future<MaintenanceEntity> updateMaintenance(MaintenanceEntity maintenance);
+
+  /// Elimina un mantenimiento por su ID
+  Future<void> deleteMaintenance(String id);
 }

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_manteniapp/main.dart';
 
 class ManteniApp extends StatelessWidget {
-  const ManteniApp({Key? key}) : super(key: key);
+  const ManteniApp({super.key});
 
   @override
   Widget build(BuildContext context) {

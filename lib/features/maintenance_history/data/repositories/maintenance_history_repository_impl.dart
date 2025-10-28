@@ -36,7 +36,25 @@ class MaintenanceHistoryRepositoryImpl implements MaintenanceHistoryRepository {
   Future<MaintenanceEntity> createMaintenance(
     MaintenanceEntity maintenance,
   ) async {
-    // Por ahora no implementado
-    throw UnimplementedError('Crear mantenimiento aún no implementado');
+    final model = MaintenanceModel.fromEntity(maintenance);
+    final createdModel = await remoteDataSource.createMaintenance(model);
+    return createdModel.toEntity();
+  }
+
+  @override
+  Future<MaintenanceEntity> updateMaintenance(
+    MaintenanceEntity maintenance,
+  ) async {
+    final model = MaintenanceModel.fromEntity(maintenance);
+    final updatedModel = await remoteDataSource.updateMaintenance(
+      maintenance.id!,
+      model,
+    );
+    return updatedModel.toEntity();
+  }
+
+  @override
+  Future<void> deleteMaintenance(String id) async {
+    await remoteDataSource.deleteMaintenance(id);
   }
 }

@@ -5,10 +5,13 @@ import 'package:provider/provider.dart';
 // Imports de nuestro feature
 import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
 import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
+import 'features/motorcycles/domain/usecases/get_all_motorcycles.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 import 'features/maintenance_history/presentation/providers/maintenance_history_provider.dart';
 import 'features/maintenance_history/domain/usecases/get_maintenance_history.dart';
+import 'features/maintenance_history/domain/usecases/update_maintenance.dart';
+import 'features/maintenance_history/domain/usecases/delete_maintenance.dart';
 import 'features/maintenance_history/data/repositories/maintenance_history_repository_impl.dart';
 import 'features/maintenance_history/data/datasources/maintenance_history_remote_data_source.dart';
 import 'core/layout/main_layout.dart';
@@ -30,22 +33,29 @@ class ManteniApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => MotorcycleProvider(
-            registerMotorcycleUseCase: RegisterMotorcycleUseCase(
-              MotorcycleRepositoryImpl(
-                remoteDataSource: MotorcycleRemoteDataSourceImpl(),
+          create: (context) {
+            final motorcycleRepository = MotorcycleRepositoryImpl(
+              remoteDataSource: MotorcycleRemoteDataSourceImpl(),
+            );
+            return MotorcycleProvider(
+              registerMotorcycleUseCase: RegisterMotorcycleUseCase(
+                motorcycleRepository,
               ),
-            ),
-          ),
+              getAllMotorcyclesUseCase: GetAllMotorcycles(motorcycleRepository),
+            );
+          },
         ),
         ChangeNotifierProvider(
-          create: (context) => MaintenanceHistoryProvider(
-            getMaintenanceHistoryUseCase: GetMaintenanceHistory(
-              MaintenanceHistoryRepositoryImpl(
-                remoteDataSource: MaintenanceHistoryRemoteDataSourceImpl(),
-              ),
-            ),
-          ),
+          create: (context) {
+            final repository = MaintenanceHistoryRepositoryImpl(
+              remoteDataSource: MaintenanceHistoryRemoteDataSourceImpl(),
+            );
+            return MaintenanceHistoryProvider(
+              getMaintenanceHistoryUseCase: GetMaintenanceHistory(repository),
+              updateMaintenanceUseCase: UpdateMaintenance(repository),
+              deleteMaintenanceUseCase: DeleteMaintenance(repository),
+            );
+          },
         ),
       ],
       child: MaterialApp(
@@ -67,7 +77,7 @@ class ManteniApp extends StatelessWidget {
           fontFamily: 'Poppins',
         ),
         // Pantalla inicial - LoginPage
-        home: const MaintenanceHistoryPage(),
+        home: const LoginPage(),
         // Rutas de navegación
         routes: {
           '/home': (context) => const MainLayout(),

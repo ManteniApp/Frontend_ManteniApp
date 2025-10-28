@@ -20,7 +20,7 @@ class ApiConfig {
   static const String motorcyclesEndpoint = '/motorcycles';
 
   // Endpoints de historial de mantenimientos
-  static const String maintenanceHistoryEndpoint = '/maintenance-history';
+  static const String maintenanceHistoryEndpoint = '/maintenance';
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../motorcycles/presentation/providers/motorcycle_provider.dart';
+import '../../../motorcycles/domain/entities/motorcycle_entity.dart';
 
 class MotorcycleFilterModal extends StatefulWidget {
   final String? selectedMotorcycleId;
@@ -16,20 +19,24 @@ class MotorcycleFilterModal extends StatefulWidget {
 
 class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
   String? _selectedId;
-
-  // TODO: En el futuro, obtener esta lista del backend
-  final List<Map<String, String>> _motorcycles = [
-    {'id': '1', 'name': 'Honda CB190R'},
-    {'id': '2', 'name': 'Yamaha MT-07'},
-    {'id': '3', 'name': 'Suzuki GSX-R600'},
-    {'id': '4', 'name': 'Kawasaki Ninja 400'},
-    {'id': '5', 'name': 'BMW S1000RR'},
-  ];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _selectedId = widget.selectedMotorcycleId;
+    _loadMotorcycles();
+  }
+
+  /// Cargar las motocicletas del usuario desde el backend
+  Future<void> _loadMotorcycles() async {
+    final motorcycleProvider = context.read<MotorcycleProvider>();
+    await motorcycleProvider.loadMotorcycles();
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _clearSelection() {
@@ -73,77 +80,129 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
           const SizedBox(height: 16),
 
           // Lista de motocicletas
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.4,
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _motorcycles.length,
-              itemBuilder: (context, index) {
-                final motorcycle = _motorcycles[index];
-                final isSelected = _selectedId == motorcycle['id'];
-
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selectedId = motorcycle['id'];
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFF2196F3)
-                            : Colors.grey[300]!,
-                        width: isSelected ? 2 : 1,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      color: isSelected
-                          ? const Color(0xFF2196F3).withOpacity(0.1)
-                          : Colors.white,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.motorcycle,
-                          color: isSelected
-                              ? const Color(0xFF2196F3)
-                              : Colors.grey[600],
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            motorcycle['name']!,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isSelected
-                                  ? const Color(0xFF2196F3)
-                                  : Colors.black87,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                        if (isSelected)
-                          const Icon(
-                            Icons.check_circle,
-                            color: Color(0xFF2196F3),
-                          ),
-                      ],
-                    ),
+          _isLoading
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: CircularProgressIndicator(),
                   ),
-                );
-              },
-            ),
-          ),
+                )
+              : Consumer<MotorcycleProvider>(
+                  builder: (context, motorcycleProvider, child) {
+                    final motorcycles = motorcycleProvider.motorcycles;
+
+                    if (motorcycles.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.motorcycle_outlined,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No tienes motocicletas registradas',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.4,
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: motorcycles.length,
+                        itemBuilder: (context, index) {
+                          final motorcycle = motorcycles[index];
+                          final isSelected = _selectedId == motorcycle.id;
+
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedId = motorcycle.id;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xFF2196F3)
+                                      : Colors.grey[300]!,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                color: isSelected
+                                    ? const Color(0xFF2196F3).withOpacity(0.1)
+                                    : Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.motorcycle,
+                                    color: isSelected
+                                        ? const Color(0xFF2196F3)
+                                        : Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${motorcycle.brand} ${motorcycle.model}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: isSelected
+                                                ? const Color(0xFF2196F3)
+                                                : Colors.black87,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          motorcycle.licensePlate ??
+                                              'Sin placa',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF2196F3),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
           const SizedBox(height: 24),
 
           // Botones

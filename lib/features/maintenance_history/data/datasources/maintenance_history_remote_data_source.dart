@@ -13,6 +13,15 @@ abstract class MaintenanceHistoryRemoteDataSource {
   });
 
   Future<MaintenanceModel?> getMaintenanceById(String id);
+
+  Future<MaintenanceModel> createMaintenance(MaintenanceModel maintenance);
+
+  Future<MaintenanceModel> updateMaintenance(
+    String id,
+    MaintenanceModel maintenance,
+  );
+
+  Future<void> deleteMaintenance(String id);
 }
 
 class MaintenanceHistoryRemoteDataSourceImpl
@@ -31,33 +40,14 @@ class MaintenanceHistoryRemoteDataSourceImpl
     String? motorcycleId,
   }) async {
     try {
-      // Construir query parameters
-      final queryParams = <String, String>{};
-
-      if (startDate != null) {
-        queryParams['startDate'] = startDate.toIso8601String();
-      }
-      if (endDate != null) {
-        queryParams['endDate'] = endDate.toIso8601String();
-      }
-      if (minPrice != null) {
-        queryParams['minPrice'] = minPrice.toString();
-      }
-      if (maxPrice != null) {
-        queryParams['maxPrice'] = maxPrice.toString();
-      }
-      if (motorcycleId != null) {
-        queryParams['motorcycleId'] = motorcycleId;
+      // El motorcycleId es REQUERIDO según el backend
+      if (motorcycleId == null || motorcycleId.isEmpty) {
+        // Si no hay moto seleccionada, retornar lista vacía
+        return [];
       }
 
-      // Construir URL con query params
-      var url = ApiConfig.maintenanceHistoryEndpoint;
-      if (queryParams.isNotEmpty) {
-        final query = queryParams.entries
-            .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
-            .join('&');
-        url = '$url?$query';
-      }
+      // Construir URL con el ID de la moto en la ruta
+      final url = '${ApiConfig.maintenanceHistoryEndpoint}/$motorcycleId';
 
       final response = await apiClient.get(url, requiresAuth: true);
 
@@ -90,6 +80,74 @@ class MaintenanceHistoryRemoteDataSourceImpl
       } else {
         throw Exception(
           'Error al obtener mantenimiento: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+
+  @override
+  Future<MaintenanceModel> createMaintenance(
+    MaintenanceModel maintenance,
+  ) async {
+    try {
+      final response = await apiClient.post(
+        ApiConfig.maintenanceHistoryEndpoint,
+        body: maintenance.toJson(),
+        requiresAuth: true,
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return MaintenanceModel.fromJson(jsonData);
+      } else {
+        throw Exception(
+          'Error al crear mantenimiento: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+
+  @override
+  Future<MaintenanceModel> updateMaintenance(
+    String id,
+    MaintenanceModel maintenance,
+  ) async {
+    try {
+      final response = await apiClient.put(
+        '${ApiConfig.maintenanceHistoryEndpoint}/$id',
+        body: maintenance
+            .toUpdateJson(), // ⚠️ Solo campos permitidos: precio, descripcion
+        requiresAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return MaintenanceModel.fromJson(jsonData);
+      } else {
+        throw Exception(
+          'Error al actualizar mantenimiento: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteMaintenance(String id) async {
+    try {
+      final response = await apiClient.delete(
+        '${ApiConfig.maintenanceHistoryEndpoint}/$id',
+        requiresAuth: true,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception(
+          'Error al eliminar mantenimiento: ${response.statusCode}',
         );
       }
     } catch (e) {
