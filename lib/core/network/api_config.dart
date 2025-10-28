@@ -18,6 +18,9 @@ class ApiConfig {
   // Endpoints de motocicletas
   static const String motorcyclesEndpoint = '/motorcycles';
 
+  // Endpoints de historial de mantenimientos
+  static const String maintenanceHistoryEndpoint = '/maintenance';
+
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
