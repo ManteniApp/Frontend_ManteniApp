@@ -42,12 +42,13 @@ class AuthService {
 
         // Guardar token y datos del usuario
         await _authStorage.saveToken(loginResponse.accessToken);
-        
+
         // ✅ CORREGIDO: Manejar correctamente el userId
         if (loginResponse.userId != null && loginResponse.userId!.isNotEmpty) {
           await _authStorage.saveUserId(loginResponse.userId!);
           print('✅ UserId guardado: ${loginResponse.userId}');
-        } else if (loginResponse.user != null && loginResponse.user!['id'] != null) {
+        } else if (loginResponse.user != null &&
+            loginResponse.user!['id'] != null) {
           final userId = loginResponse.user!['id'].toString();
           await _authStorage.saveUserId(userId);
           print('✅ UserId guardado desde user object: $userId');
@@ -73,7 +74,9 @@ class AuthService {
       final Map<String, dynamic> formattedData = {
         'email': userData['email']?.toString().trim(),
         'password': userData['password']?.toString().trim(),
-        'nombre': userData['username']?.toString().trim(), // ← CAMBIAR 'username' por 'nombre'
+        'nombre': userData['username']
+            ?.toString()
+            .trim(), // ← CAMBIAR 'username' por 'nombre'
         'telefono': userData['phone']?.toString().trim(),
       };
 
@@ -89,22 +92,26 @@ class AuthService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
-        
+
         // Guardar token e ID después del registro
         if (data['accessToken'] != null) {
           await _authStorage.saveToken(data['accessToken']);
           print('✅ Token guardado después del registro');
         }
-        
+
         if (data['user']?['id'] != null) {
           await _authStorage.saveUserId(data['user']['id'].toString());
-          print('✅ UserId guardado después del registro: ${data['user']['id']}');
+          print(
+            '✅ UserId guardado después del registro: ${data['user']['id']}',
+          );
         }
-        
+
         return data;
       } else {
         final errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Error en registro: ${response.statusCode}');
+        throw Exception(
+          errorData['message'] ?? 'Error en registro: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('❌ Error en registro: $e');
@@ -114,8 +121,10 @@ class AuthService {
 
   Future<void> forgotPassword(String email) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/users/password/forgot?frontendUrl=http://192.168.0.20');
-      
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}/users/password/forgot?frontendUrl=http://localhost',
+      );
+
       print('📧 Enviando recuperación para: $email');
 
       final response = await http.post(
@@ -136,7 +145,9 @@ class AuthService {
         }
       } else {
         final errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Error HTTP ${response.statusCode}');
+        throw Exception(
+          errorData['message'] ?? 'Error HTTP ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('❌ Error en forgotPassword: $e');
@@ -148,10 +159,7 @@ class AuthService {
     try {
       final response = await _apiClient.post(
         ApiConfig.resetPasswordEndpoint,
-        body: {
-          'token': token,
-          'newPassword': newPassword,
-        },
+        body: {'token': token, 'newPassword': newPassword},
         requiresAuth: false,
       );
 

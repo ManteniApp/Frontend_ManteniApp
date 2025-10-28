@@ -1,10 +1,10 @@
 class ApiConfig {
   // ⚠️ IMPORTANTE: Cambiar esta URL según tu entorno
-  // Para desarrollo local: 'http://localhost:3000'
+  // Para desarrollo local (Chrome/Web): 'http://localhost:3000'
   // Para emulador Android: 'http://10.0.2.2:3000'
   // Para dispositivo físico: 'http://TU_IP_LOCAL:3000'
   // Para producción: 'https://tu-api.com'
-  static const String baseUrl = 'http://192.168.0.20:3000';
+  static const String baseUrl = 'http://localhost:3000';
 
   // Endpoints de autenticación
   static const String loginEndpoint = '/users/login';
@@ -21,9 +21,9 @@ class ApiConfig {
   // Endpoints de historial de mantenimientos
   static const String maintenanceHistoryEndpoint = '/maintenance';
 
-  // Timeouts
-  static const Duration connectionTimeout = Duration(seconds: 30);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  // Timeouts (⚠️ TEMPORALMENTE aumentado para debug - backend muy lento)
+  static const Duration connectionTimeout = Duration(seconds: 60);
+  static const Duration receiveTimeout = Duration(seconds: 60);
 
   // Headers comunes
   static Map<String, String> get defaultHeaders => {

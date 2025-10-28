@@ -19,25 +19,29 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-  final GoogleAuthService _googleAuthService = GoogleAuthService();
-  final AppLinks _appLinks = AppLinks(); 
+  GoogleAuthService? _googleAuthService; // ✅ Lazy initialization
+  final AppLinks _appLinks = AppLinks();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _isGoogleLoading = false;
-  
-  
 
   @override
   void initState() {
     super.initState();
-    _checkDeepLinks(); // Agregar esto
+    print('🚀 LoginPage initState ejecutándose');
+    // TEMPORALMENTE DESHABILITADO - Ejecutar deep links de forma asíncrona para no bloquear la UI
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _checkDeepLinks();
+    // });
   }
+
   void _checkDeepLinks() async {
-     try {
+    print('🔗 Iniciando verificación de deep links');
+    try {
       final prefs = await SharedPreferences.getInstance();
       final deepLinkHandled = prefs.getBool('deepLinkHandled') ?? false;
-      
+
       // Si ya se manejó un deep link en los últimos 5 segundos, ignorar
       if (deepLinkHandled) {
         print('🔗 Deep link ya fue manejado recientemente, ignorando...');
@@ -53,7 +57,6 @@ class _LoginPageState extends State<LoginPage> {
         await _handleDeepLink(initialUri.toString());
       }
 
-      
       _appLinks.uriLinkStream.listen((Uri uri) async {
         await _handleDeepLink(uri.toString());
       });
@@ -64,18 +67,17 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleDeepLink(String link) async {
     print('🔗 Deep link recibido: $link');
-    
+
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Marcar como manejado inmediatamente
     await prefs.setBool('deepLinkHandled', true);
-    
-    
+
     // Extraer token manualmente
     final token = _extractTokenFromLink(link);
     if (token != null && token.isNotEmpty && mounted) {
       print('✅ Navegando a reset password con token: $token');
-      
+
       if (mounted) {
         // Navegar a la pantalla de reset password
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
   String? _extractTokenFromLink(String link) {
     try {
       final uri = Uri.parse(link);
-      
+
       // Para links como: http://192.168.0.20/reset-password?token=abc123
       if (uri.path == '/reset-password') {
         final token = uri.queryParameters['token'];
@@ -105,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
           return token;
         }
       }
-      
+
       // Para links como: http://192.168.0.20/reset-password/abc123
       if (uri.path.startsWith('/reset-password/')) {
         final segments = uri.pathSegments;
@@ -122,10 +124,9 @@ class _LoginPageState extends State<LoginPage> {
       return null;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    print('✅ LoginPage se está construyendo'); // ← Agregar esto
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -135,7 +136,15 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 🟦 Logo y nombre de la app
-              Image.asset('assets/img/logo.png', width: 150, height: 150),
+              Image.asset(
+                'assets/img/logo.png',
+                width: 150,
+                height: 150,
+                errorBuilder: (context, error, stackTrace) {
+                  print('❌ Error cargando logo: $error');
+                  return const Icon(Icons.error, size: 150, color: Colors.red);
+                },
+              ),
               const SizedBox(height: 10),
 
               const Text.rich(
@@ -254,7 +263,9 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const ForgotPasswordPage(),
+                            ),
                           );
                         },
                         child: const Text(
@@ -265,7 +276,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 10),
 
-                     // 🟦 Botón Iniciar sesión
+                    // 🟦 Botón Iniciar sesión
                     CustomButton(
                       text: _isLoading ? "Iniciando..." : "Iniciar sesión",
                       icon: Icons.login,
@@ -281,14 +292,11 @@ class _LoginPageState extends State<LoginPage> {
                     // 🟦 Texto "Or continue with"
                     const Text(
                       'O continua con',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.black54, fontSize: 14),
                     ),
                     const SizedBox(height: 15),
 
-                    // Botón de Google 
+                    // Botón de Google
                     _isGoogleLoading
                         ? const CircularProgressIndicator()
                         : GestureDetector(
@@ -357,8 +365,11 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final result = await _googleAuthService.signInWithGoogle();
-      
+      // ✅ Inicialización lazy de GoogleAuthService
+      _googleAuthService ??= GoogleAuthService();
+
+      final result = await _googleAuthService!.signInWithGoogle();
+
       if (!mounted) return;
 
       if (result != null && result['success'] == true) {
@@ -471,7 +482,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
- @override
+  @override
   void dispose() {
     userController.dispose();
     passwordController.dispose();
