@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
 import 'package:provider/provider.dart';
 
 // Imports de nuestro feature
@@ -85,6 +86,7 @@ class ManteniApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
+          '/perfil': (context) => PerfilUser()
         },
       ),
     );
