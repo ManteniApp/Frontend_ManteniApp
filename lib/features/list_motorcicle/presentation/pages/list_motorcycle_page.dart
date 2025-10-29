@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/motorcycle_entity.dart';
+//import '../../domain/entities/motorcycle_entity.dart';
 import '../widgets/motorcycle_card.dart';
 import '../../../motorcycles/data/datasources/motorcycle_remote_data_source.dart';
+import '../../../motorcycles/domain/entities/motorcycle_entity.dart';
 
 class ListMotorcyclePage extends StatefulWidget {
   final void Function(MotorcycleEntity) onOpenProfile;
@@ -39,11 +40,16 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
         motorcycles = loadedMotorcycles
             .map(
               (model) => MotorcycleEntity(
-                id: model.id ?? '',
-                name: '${model.brand} ${model.model}',
-                imageUrl: '', // El backend no tiene imagen por ahora
+                id: model.id,
                 brand: model.brand,
                 model: model.model,
+                imageUrl: model.imageUrl,
+                licensePlate: model.licensePlate,
+                year: model.year ?? 0,
+                displacement: model.displacement ?? 0,
+                mileage: model.mileage ?? 0,
+                createdAt: model.createdAt,
+                updatedAt: model.updatedAt,
               ),
             )
             .toList();

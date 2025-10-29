@@ -76,6 +76,7 @@ class MotorcycleProvider extends ChangeNotifier {
     final motorcycle = MotorcycleEntity(
       brand: marca,
       model: modelo,
+      imageUrl: '', // Puedes ajustar esto según tus necesidades
       licensePlate: placa, // 👈 Agregado
       year: ano,
       displacement: int.tryParse(cilindraje.replaceAll('cc', '')) ?? 0,

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
 import '../../../features/auth/presentation/pages/bike_profile_page.dart';
-import '../../../features/list_motorcicle/domain/entities/motorcycle_entity.dart';
+import '../../../features/auth/presentation/pages/HomeOverviewPage.dart';
+//import '../../../features/list_motorcicle/domain/entities/motorcycle_entity.dart';
+import '../../../features/motorcycles/domain/entities/motorcycle_entity.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -19,7 +20,6 @@ class MainLayout extends StatefulWidget {
   static _MainLayoutState? of(BuildContext context) {
     return context.findAncestorStateOfType<_MainLayoutState>();
   }
-
 }
 
 class _MainLayoutState extends State<MainLayout> {
@@ -48,34 +48,30 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-
   // 🔹 Páginas principales con navegadores anidados
   List<Widget> get _pages => [
-        _buildTabNavigator(
-          key: _navigatorKeys[0],
-          child: const Center(child: Text('Inicio')),
-        ),
-        _buildTabNavigator(
-          key: _navigatorKeys[1],
-          child: ListMotorcyclePage(
-            onOpenProfile: (MotorcycleEntity moto) {
-              _navigatorKeys[1].currentState?.push(
-                MaterialPageRoute(
-                  builder: (_) => BikeProfilePage(motorcycle: moto),
-                ),
-              );
-            },
-          ),
-        ),
-        _buildTabNavigator(
-          key: _navigatorKeys[2],
-          child: const Center(child: Text('Reportes')),
-        ),
-        _buildTabNavigator(
-          key: _navigatorKeys[3],
-          child: const Center(child: Text('Alertas')),
-        ),
-      ];
+    _buildTabNavigator(key: _navigatorKeys[0], child: const HomeOverviewPage()),
+    _buildTabNavigator(
+      key: _navigatorKeys[1],
+      child: ListMotorcyclePage(
+        onOpenProfile: (MotorcycleEntity moto) {
+          _navigatorKeys[1].currentState?.push(
+            MaterialPageRoute(
+              builder: (_) => BikeProfilePage(motorcycle: moto),
+            ),
+          );
+        },
+      ),
+    ),
+    _buildTabNavigator(
+      key: _navigatorKeys[2],
+      child: const Center(child: Text('Reportes')),
+    ),
+    _buildTabNavigator(
+      key: _navigatorKeys[3],
+      child: const Center(child: Text('Alertas')),
+    ),
+  ];
 
   Widget _buildTabNavigator({
     required GlobalKey<NavigatorState> key,
@@ -84,9 +80,7 @@ class _MainLayoutState extends State<MainLayout> {
     return Navigator(
       key: key,
       onGenerateRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (_) => child,
-        );
+        return MaterialPageRoute(builder: (_) => child);
       },
     );
   }
@@ -129,13 +123,19 @@ class _MainLayoutState extends State<MainLayout> {
                                   Navigator.pushNamed(context, '/perfil');
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('No se encontró información del usuario')),
+                                    SnackBar(
+                                      content: Text(
+                                        'No se encontró información del usuario',
+                                      ),
+                                    ),
                                   );
                                 }
                               },
                               icon: const CircleAvatar(
                                 radius: 20,
-                                backgroundImage: AssetImage('assets/images/profile.png'),
+                                backgroundImage: AssetImage(
+                                  'assets/images/profile.png',
+                                ),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -146,10 +146,10 @@ class _MainLayoutState extends State<MainLayout> {
                                   _selectedIndex == 0
                                       ? 'Inicio'
                                       : _selectedIndex == 1
-                                          ? 'Motos'
-                                          : _selectedIndex == 2
-                                              ? 'Reportes'
-                                              : 'Alertas',
+                                      ? 'Motos'
+                                      : _selectedIndex == 2
+                                      ? 'Reportes'
+                                      : 'Alertas',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: Colors.black54,
@@ -161,10 +161,10 @@ class _MainLayoutState extends State<MainLayout> {
                                     _selectedIndex == 0
                                         ? 'Buenos días, Santiago!'
                                         : _selectedIndex == 1
-                                            ? 'Listado de Motos'
-                                            : _selectedIndex == 2
-                                                ? 'Mis Reportes'
-                                                : 'Mis Alertas',
+                                        ? 'Listado de Motos'
+                                        : _selectedIndex == 2
+                                        ? 'Mis Reportes'
+                                        : 'Mis Alertas',
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -178,8 +178,10 @@ class _MainLayoutState extends State<MainLayout> {
                         ),
                         IconButton(
                           onPressed: () {},
-                          icon: const Icon(Icons.notifications_none_rounded,
-                              size: 28),
+                          icon: const Icon(
+                            Icons.notifications_none_rounded,
+                            size: 28,
+                          ),
                         ),
                       ],
                     ),
@@ -220,8 +222,7 @@ class _MainLayoutState extends State<MainLayout> {
                     ),
                     child: SalomonBottomBar(
                       currentIndex: _selectedIndex,
-                      onTap: (index) =>
-                          setState(() => _selectedIndex = index),
+                      onTap: (index) => setState(() => _selectedIndex = index),
                       selectedItemColor: const Color(0xFF1976D2),
                       unselectedItemColor: Colors.black54,
                       itemPadding: const EdgeInsets.symmetric(
