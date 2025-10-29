@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
 import '../../../features/auth/presentation/pages/bike_profile_page.dart';
 import '../../../features/auth/presentation/pages/HomeOverviewPage.dart';
@@ -25,6 +26,7 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   late int _selectedIndex;
   String? _selectedAlert;
+  String? userName;
 
   // 🔑 Claves para cada Navigator anidado
   final _navigatorKeys = [
@@ -39,6 +41,14 @@ class _MainLayoutState extends State<MainLayout> {
     super.initState();
     _selectedIndex = widget.initialIndex;
     _selectedAlert = widget.selectedAlert;
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('userName') ?? "Usuario";
+    });
   }
 
   void switchTab(int index, {String? alert}) {
@@ -159,7 +169,7 @@ class _MainLayoutState extends State<MainLayout> {
                                   offset: const Offset(0, -5),
                                   child: Text(
                                     _selectedIndex == 0
-                                        ? 'Buenos días, Santiago!'
+                                        ? 'Buenos días, ${userName ?? ''} 👋'
                                         : _selectedIndex == 1
                                         ? 'Listado de Motos'
                                         : _selectedIndex == 2

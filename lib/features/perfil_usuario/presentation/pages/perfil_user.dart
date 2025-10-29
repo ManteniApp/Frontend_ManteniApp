@@ -7,8 +7,7 @@ import '../widgets/change_password_sheet.dart';
 import '../widgets/settings_tile.dart';
 import '../widgets/terminos_condiciones.dart';
 import '../widgets/profile_avatar.dart';
-import '../widgets/image_picker_sheet.dart'; 
-
+import '../widgets/image_picker_sheet.dart';
 
 class PerfilUser extends StatefulWidget {
   final String? userId;
@@ -50,7 +49,8 @@ class _PerfilUserState extends State<PerfilUser> {
     } else {
       setState(() {
         isLoading = false;
-        errorMessage = 'No se encontró información del usuario. Inicia sesión nuevamente.';
+        errorMessage =
+            'No se encontró información del usuario. Inicia sesión nuevamente.';
       });
       return;
     }
@@ -61,12 +61,19 @@ class _PerfilUserState extends State<PerfilUser> {
   Future<void> _loadUserData() async {
     try {
       final user = await _profileService.getUserProfile();
+
       setState(() {
         nameController.text = user.name;
         phoneController.text = user.phone;
         emailController.text = user.email;
         isLoading = false;
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'userName',
+        nameController.text,
+      ); // 👈 guardamos el nombre
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -101,8 +108,9 @@ class _PerfilUserState extends State<PerfilUser> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('Perfil actualizado correctamente')),
+            backgroundColor: Colors.green,
+            content: Text('Perfil actualizado correctamente'),
+          ),
         );
         setState(() => isEditing = false);
       } else {
@@ -110,10 +118,7 @@ class _PerfilUserState extends State<PerfilUser> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -144,7 +149,7 @@ class _PerfilUserState extends State<PerfilUser> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('userId');
       await prefs.remove('userToken');
-      
+
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
       }
@@ -157,7 +162,8 @@ class _PerfilUserState extends State<PerfilUser> {
       builder: (_) => AlertDialog(
         title: const Text('Eliminar cuenta'),
         content: const Text(
-            '¿Seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.'),
+          '¿Seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -181,9 +187,15 @@ class _PerfilUserState extends State<PerfilUser> {
     }
   }
 
-  Future<void> _changePassword(String currentPassword, String newPassword) async {
+  Future<void> _changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     try {
-      final success = await _profileService.changePassword(currentPassword, newPassword);
+      final success = await _profileService.changePassword(
+        currentPassword,
+        newPassword,
+      );
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -196,10 +208,7 @@ class _PerfilUserState extends State<PerfilUser> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
       rethrow;
     }
@@ -208,18 +217,13 @@ class _PerfilUserState extends State<PerfilUser> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (errorMessage != null) {
       return Scaffold(
         body: Center(
-          child: Text(
-            errorMessage!,
-            style: const TextStyle(color: Colors.red),
-          ),
+          child: Text(errorMessage!, style: const TextStyle(color: Colors.red)),
         ),
       );
     }
@@ -238,7 +242,9 @@ class _PerfilUserState extends State<PerfilUser> {
                   Container(
                     margin: const EdgeInsets.only(top: 70),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 30),
+                      horizontal: 20,
+                      vertical: 30,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: const BorderRadius.only(
@@ -270,7 +276,8 @@ class _PerfilUserState extends State<PerfilUser> {
                           phoneController: phoneController,
                           emailController: emailController,
                           onEditPressed: () => setState(() => isEditing = true),
-                          onCancelPressed: () => setState(() => isEditing = false),
+                          onCancelPressed: () =>
+                              setState(() => isEditing = false),
                           onSavePressed: _saveChanges,
                         ),
                         const SizedBox(height: 5),
@@ -279,7 +286,8 @@ class _PerfilUserState extends State<PerfilUser> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const TerminosCondiciones(),
+                                builder: (context) =>
+                                    const TerminosCondiciones(),
                               ),
                             );
                           },
