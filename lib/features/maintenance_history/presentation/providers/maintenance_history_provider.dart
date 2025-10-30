@@ -50,10 +50,19 @@ class MaintenanceHistoryProvider extends ChangeNotifier {
 
     try {
       // Llamada real al backend
+      // ✅ AGREGAR LOGS PARA DEBUG
+    print('🔄 Cargando historial de mantenimientos...');
+    print('🔍 Filtro de moto actual: $_selectedMotorcycleFilter');
+    print('🔍 Fecha seleccionada: $_selectedDate');
+    print('🔍 Precio min: $_minPrice, max: $_maxPrice');
       _maintenances = await getMaintenanceHistoryUseCase(
         motorcycleId: _selectedMotorcycleFilter,
       );
-
+    // ✅ LOG DEL RESULTADO
+    print('✅ Historial cargado: ${_maintenances.length} mantenimientos');
+    for (var maintenance in _maintenances) {
+      print('   - ${maintenance.id}: ${maintenance.type} - ${maintenance.motorcycleName} - \$${maintenance.cost}');
+    }
       // Aplicar filtros locales (fecha y precio)
       _maintenances = _applyLocalFilters(_maintenances);
 

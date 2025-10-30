@@ -2,7 +2,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/google_auth_service.dart';
 import 'package:frontend_manteniapp/features/auth_1/presentation/widgets/customButton.dart';
-import 'package:frontend_manteniapp/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:frontend_manteniapp/features/auth_1/presentation/widgets/custom_text_field.dart';
 import 'package:frontend_manteniapp/core/services/auth_service.dart';
 import 'package:frontend_manteniapp/features/auth_1/presentation/widgets/forgot_password_page.dart';
 import 'package:frontend_manteniapp/features/auth_1/presentation/widgets/reset_password_page.dart';
@@ -19,24 +19,98 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-  GoogleAuthService? _googleAuthService; // ✅ Lazy initialization
+  GoogleAuthService? _googleAuthService;
   final AppLinks _appLinks = AppLinks();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _isGoogleLoading = false;
+  
+  // Variables para manejar errores de validación
+  String? _userError;
+  String? _passwordError;
 
   @override
   void initState() {
     super.initState();
     print('🚀 LoginPage initState ejecutándose');
-    // TEMPORALMENTE DESHABILITADO - Ejecutar deep links de forma asíncrona para no bloquear la UI
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _checkDeepLinks();
-    // });
   }
 
-  void _checkDeepLinks() async {
+  // Método para validar el formato del correo electrónico
+  String? _validateEmail(String email) {
+    if (email.isEmpty) {
+      return 'El correo electrónico es requerido';
+    }
+    
+    // Expresión regular para validar formato de email
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    );
+    
+    if (!emailRegex.hasMatch(email)) {
+      return 'Ingresa un correo electrónico válido';
+    }
+    
+    return null;
+  }
+
+  // Método para validar la contraseña
+  String? _validatePassword(String password) {
+    if (password.isEmpty) {
+      return 'La contraseña es requerida';
+    }
+    
+    if (password.length < 6) {
+      return 'La contraseña debe tener al menos 6 caracteres';
+    }
+    
+    return null;
+  }
+
+  // Método para validar usuario (puede ser email o nombre de usuario)
+  String? _validateUser(String user) {
+    if (user.isEmpty) {
+      return 'El usuario es requerido';
+    }
+    
+    // Si parece ser un email, validar formato de email
+    if (user.contains('@')) {
+      return _validateEmail(user);
+    }
+    
+    // Validación para nombre de usuario
+    if (user.length < 3) {
+      return 'El usuario debe tener al menos 3 caracteres';
+    }
+    
+    return null;
+  }
+
+  // Método para limpiar errores
+  void _clearErrors() {
+    setState(() {
+      _userError = null;
+      _passwordError = null;
+    });
+  }
+
+  // Método para validar todos los campos
+  bool _validateForm() {
+    _clearErrors();
+    
+    final userError = _validateUser(userController.text.trim());
+    final passwordError = _validatePassword(passwordController.text.trim());
+    
+    setState(() {
+      _userError = userError;
+      _passwordError = passwordError;
+    });
+    
+    return userError == null && passwordError == null;
+  }
+
+   // ignore: unused_element
+   void _checkDeepLinks() async {
     print('🔗 Iniciando verificación de deep links');
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -65,6 +139,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  
   Future<void> _handleDeepLink(String link) async {
     print('🔗 Deep link recibido: $link');
 
@@ -94,12 +169,12 @@ class _LoginPageState extends State<LoginPage> {
       print('❌ No se pudo extraer token del link');
     }
   }
-
+  
   String? _extractTokenFromLink(String link) {
     try {
       final uri = Uri.parse(link);
 
-      // Para links como: http://192.168.0.20/reset-password?token=abc123
+      
       if (uri.path == '/reset-password') {
         final token = uri.queryParameters['token'];
         if (token != null && token.isNotEmpty) {
@@ -108,7 +183,6 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
 
-      // Para links como: http://192.168.0.20/reset-password/abc123
       if (uri.path.startsWith('/reset-password/')) {
         final segments = uri.pathSegments;
         if (segments.length >= 2) {
@@ -216,43 +290,92 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
-                    // 🟦 Campo usuario
-                    CustomTextField(
-                      hintText: "Usuario",
-                      icon: Icons.person,
-                      controller: userController,
+                    // 🟦 Campo usuario con validación
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          hintText: "Usuario o correo electrónico",
+                          icon: Icons.person,
+                          controller: userController,
+                          onChanged: (value) {
+                            // Limpiar error cuando el usuario empiece a escribir
+                            if (_userError != null) {
+                              setState(() {
+                                _userError = null;
+                              });
+                            }
+                          },
+                        ),
+                        if (_userError != null)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, top: 4),
+                            child: Text(
+                              _userError!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 10),
 
-                    // 🟦 Campo contraseña con ícono de ojo
-                    TextField(
-                      controller: passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: "Contraseña",
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
+                    // 🟦 Campo contraseña con validación
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: passwordController,
+                          obscureText: _obscurePassword,
+                          onChanged: (value) {
+                            // Limpiar error cuando el usuario empiece a escribir
+                            if (_passwordError != null) {
+                              setState(() {
+                                _passwordError = null;
+                              });
+                            }
                           },
+                          decoration: InputDecoration(
+                            hintText: "Contraseña",
+                            prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            errorText: _passwordError,
+                          ),
                         ),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
+                        if (_passwordError != null)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, top: 4),
+                            child: Text(
+                              _passwordError!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 10),
 
@@ -406,24 +529,21 @@ class _LoginPageState extends State<LoginPage> {
 
   // Método para manejar el inicio de sesión normal (existente)
   Future<void> _handleLogin() async {
+
+    if (!_validateForm()) {
+      return; // Detener si hay errores de validación
+    }
+
     final user = userController.text.trim();
     final pass = passwordController.text.trim();
-
-    if (user.isEmpty || pass.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Completa todos los campos"),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
 
     setState(() {
       _isLoading = true;
     });
 
     try {
+      print('🔵 Intentando login con usuario: $user');
+      
       final token = await _authService.login(user, pass);
 
       if (!mounted) return;
@@ -431,13 +551,6 @@ class _LoginPageState extends State<LoginPage> {
       if (token != null) {
         final userId = await _authService.getUserId();
         print('🔵 UserId desde AuthService: $userId');
-
-        try {
-          final response = await _authService.login(user, pass);
-          print('🔵 Respuesta completa del login: $response');
-        } catch (e) {
-          print('🔵 Error al obtener respuesta completa: $e');
-        }
 
         if (userId != null && userId.isNotEmpty && userId != 'null') {
           final prefs = await SharedPreferences.getInstance();
@@ -455,24 +568,49 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Credenciales incorrectas"),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error: ${e.toString()}"),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      print('❌ Error en login: $e');
+      
+      // Manejo ESPECÍFICO de errores
+      final errorString = e.toString();
+      
+      if (errorString.contains('USER_NOT_FOUND')) {
+        setState(() {
+          _userError = 'Usuario no encontrado';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text("Usuario no encontrado. Verifica tu correo electrónico."),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else if (errorString.contains('INCORRECT_PASSWORD')) {
+        setState(() {
+          _passwordError = 'Contraseña incorrecta';
+        });
+      } else {
+        // Manejo de otros errores
+        String errorMessage = "Error al iniciar sesión";
+        
+        if (errorString.contains('timeout') || errorString.contains('SocketException')) {
+          errorMessage = "Error de conexión. Verifica tu internet";
+        } else if (errorString.contains('SERVER_ERROR')) {
+          errorMessage = "Error del servidor. Intenta más tarde";
+        } else {
+          errorMessage = errorString.replaceAll('Exception: ', '');
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {

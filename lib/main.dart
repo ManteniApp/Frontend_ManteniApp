@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
+import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
 
 // Imports de nuestro feature
@@ -86,7 +87,16 @@ class ManteniApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
-          '/perfil': (context) => PerfilUser()
+          '/perfil': (context) => PerfilUser(),
+          '/register-maintenance': (context) {
+            final arguments = ModalRoute.of(context)!.settings.arguments;
+            if (arguments is List<Map<String, dynamic>>) {
+              return MaintenanceRegisterPage(motos: arguments);
+            } else {
+              // Fallback por si los argumentos no son correctos
+              return MaintenanceRegisterPage(motos: []);
+            }
+          },
         },
       ),
     );
