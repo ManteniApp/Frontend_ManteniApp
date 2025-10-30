@@ -32,7 +32,7 @@ class MaintenanceRegisterPage extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
-            'Registrar Mantenimiento',
+            'Registro Mantenimiento',
             style: TextStyle(
               color: Color(0xFF2c3e50),
               fontWeight: FontWeight.w700,
@@ -100,8 +100,7 @@ class _MaintenanceRegisterBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ELIMINADO: Se quitó completamente _buildHeader() que contenía "MantenlApp"
-                const SizedBox(height: 20), // Espacio reducido
+                const SizedBox(height: 10),
                 _buildFormCard(context, provider, motos),
               ],
             ),
@@ -117,7 +116,7 @@ class _MaintenanceRegisterBody extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: const Color(0xFF1E88E5).withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -142,7 +141,6 @@ class _MaintenanceRegisterBody extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  // ELIMINADO: Se quitó el título duplicado "Registrar Mantenimiento"
                   const SizedBox(height: 8),
                   MaintenanceForm(provider: provider, motos: motos),
                 ],

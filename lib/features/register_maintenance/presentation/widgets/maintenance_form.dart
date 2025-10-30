@@ -24,13 +24,17 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
     return SingleChildScrollView(
       child: Column(
         children: [
+          _buildHeaderImage(),
+          const SizedBox(height: 20),
+          _buildTitle(),
+          const SizedBox(height: 30),
           _buildMotoDropdown(),
           const SizedBox(height: 20),
           _buildTipoDropdown(),
           const SizedBox(height: 20),
-          _buildDatePicker(context),
-          const SizedBox(height: 20),
           _buildKilometrajeField(),
+          const SizedBox(height: 20),
+          _buildDatePicker(context),
           const SizedBox(height: 20),
           _buildCostoField(),
           const SizedBox(height: 20),
@@ -38,10 +42,69 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
           const SizedBox(height: 30),
           if (widget.provider.error != null) _buildErrorWidget(),
           const SizedBox(height: 10),
-          _buildSaveButton(context),
+          _buildConfirmButton(context),
           const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+
+  Widget _buildHeaderImage() {
+    return Container(
+      height: 120, // Reducido para mejor proporción
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E88E5).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Image.asset(
+          'assets/img/mecanico.png',
+          fit: BoxFit.contain, // Cambiado a contain para ver imagen completa
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[200],
+              child: const Icon(
+                Icons.two_wheeler,
+                size: 60,
+                color: Colors.grey,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return const Column(
+      children: [
+        Text(
+          'Registra Tu',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          'Mantenimiento',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 
@@ -52,9 +115,9 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF1E88E5).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -62,10 +125,10 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: DropdownButtonFormField<String>(
           value: widget.provider.selectedMotoId?.toString(),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Motocicleta',
-            labelStyle: TextStyle(color: Colors.grey[600]),
+            labelStyle: TextStyle(color: Colors.grey),
           ),
           items: widget.motos.map((moto) {
             return DropdownMenuItem<String>(
@@ -88,9 +151,9 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF1E88E5).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -98,10 +161,10 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: DropdownButtonFormField<String>(
           value: widget.provider.selectedTipo,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Tipo de mantenimiento',
-            labelStyle: TextStyle(color: Colors.grey[600]),
+            labelStyle: TextStyle(color: Colors.grey),
           ),
           items: widget.provider.tiposMantenimiento.map((String value) {
             return DropdownMenuItem<String>(
@@ -122,20 +185,21 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF1E88E5).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ListTile(
-        leading: Icon(Icons.calendar_today, color: Colors.grey[600]),
+        leading: const Icon(Icons.calendar_today, color: Colors.grey),
         title: Text(
           widget.provider.selectedDate != null
               ? DateFormat('dd/MM/yyyy').format(widget.provider.selectedDate!)
-              : 'Seleccionar fecha',
+              : 'Fecha',
           style: TextStyle(
             color: widget.provider.selectedDate != null ? Colors.black : Colors.grey,
+            fontSize: 16,
           ),
         ),
         trailing: const Icon(Icons.arrow_drop_down, color: Colors.grey),
@@ -151,9 +215,9 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF1E88E5).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -161,11 +225,12 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: TextFormField(
           keyboardType: TextInputType.number,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Kilometraje',
-            labelStyle: TextStyle(color: Colors.grey[600]),
+            labelStyle: TextStyle(color: Colors.grey),
             suffixText: 'km',
+            suffixStyle: TextStyle(color: Colors.grey),
           ),
           onChanged: (value) {
             if (value.isNotEmpty) {
@@ -186,9 +251,9 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF1E88E5).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -196,19 +261,23 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: TextFormField(
           keyboardType: TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Costo',
-            labelStyle: TextStyle(color: Colors.grey[600]),
-            prefixText: '\$',
+            labelStyle: TextStyle(color: Colors.grey),
+            prefixText: '\$ ',
+            prefixStyle: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           onChanged: (value) {
             if (value.isNotEmpty) {
-            final costo = double.tryParse(value.replaceAll(',', '.'));
-            widget.provider.setCosto(costo);
-            print('💰 Costo ingresado: "$value" -> $costo');
-          } else {
-            widget.provider.setCosto(null);
+              final costo = double.tryParse(value.replaceAll(',', '.'));
+              widget.provider.setCosto(costo);
+              print('💰 Costo ingresado: "$value" -> $costo');
+            } else {
+              widget.provider.setCosto(null);
             }
           },
         ),
@@ -223,9 +292,9 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF1E88E5).withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -233,10 +302,10 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: TextFormField(
           maxLines: 3,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             border: InputBorder.none,
-            labelText: 'Descripción del mantenimiento',
-            labelStyle: TextStyle(color: Colors.grey[600]),
+            labelText: 'Descripción',
+            labelStyle: TextStyle(color: Colors.grey),
             alignLabelWithHint: true,
           ),
           onChanged: widget.provider.setDescripcion,
@@ -252,19 +321,26 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
         color: Colors.red[50],
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.red),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Icon(Icons.error, color: Colors.red),
+          const Icon(Icons.error, color: Colors.red),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               widget.provider.error!,
-              style: TextStyle(color: Colors.red[700]),
+              style: const TextStyle(color: Colors.red),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.close, color: Colors.red),
+            icon: const Icon(Icons.close, color: Colors.red),
             onPressed: widget.provider.clearError,
           ),
         ],
@@ -272,8 +348,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
     );
   }
 
-  
-  Widget _buildSaveButton(BuildContext context) {
+  Widget _buildConfirmButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -281,15 +356,15 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
           backgroundColor: widget.provider.isFormValid && 
                          !widget.provider.isLoading && 
                          !_isProcessing
-              ? const Color(0xFF1E88E5) // ← CAMBIADO A AZUL
-              : Colors.grey.shade400,
-          foregroundColor: Colors.white, // ← CAMBIADO A BLANCO
+              ? const Color(0xFF1E88E5)
+              : Colors.grey,
+          foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.3),
+          elevation: 8,
+          shadowColor: const Color(0xFF1E88E5).withOpacity(0.5),
         ),
         onPressed: (widget.provider.isFormValid && 
                    !widget.provider.isLoading && 
@@ -314,7 +389,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Mantenimiento registrado exitosamente'),
-                      backgroundColor: Colors.green.shade600,
+                      backgroundColor: Colors.green,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -327,7 +402,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Error: ${widget.provider.error}'),
-                      backgroundColor: Colors.red.shade600,
+                      backgroundColor: Colors.red,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -347,7 +422,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
                 ),
               )
             : const Text(
-                'GUARDAR MANTENIMIENTO',
+                'Guardar Mantenimiento',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,

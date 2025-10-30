@@ -247,56 +247,51 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
   Future<void> _navigateToCreateMaintenance() async {
     try {
       final motorcycleProvider = context.read<MotorcycleProvider>();
-      final authStorage = AuthStorageService();
-      final token = await authStorage.getToken();
-      
-      print('🚀 INICIANDO NAVEGACIÓN A REGISTRO');
-      
-      // Verificación básica
-      if (token == null || token.isEmpty) {
-        print('❌ No hay token');
-        return;
-      }
       
       if (motorcycleProvider.motorcycles.isEmpty) {
-        print('❌ No hay motos disponibles');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No hay motocicletas registradas'),
+            backgroundColor: Colors.orange,
+          ),
+        );
         return;
       }
       
-      // Preparar argumentos SIMPLES para prueba
       List<Map<String, dynamic>> motosArgument = motorcycleProvider.motorcycles.map((moto) {
         return {
-          'id': int.tryParse(moto.id?.toString() ?? '') ?? 0,
+          'id': moto.id ?? 0,
           'marca': moto.brand,
           'modelo': moto.model,
         };
       }).toList();
       
-      print('📱 Navegando con argumentos: ${motosArgument.length} moto(s)');
+      print('📱 Navegando a registro con ${motosArgument.length} moto(s)');
       
-      
-      final result = await Navigator.push(
+      // ✅ Navegación simple - el usuario regresará manualmente con el botón back
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => MaintenanceRegisterPage(motos: motosArgument),
         ),
       );
       
-      // Recargar historial después de regresar
-      if (result == true) {
-        print('🔄 Recargando historial...');
+      // Esto se ejecuta cuando el usuario regresa manualmente
+      if (mounted) {
+        print('🔄 Usuario regresó - Recargando historial...');
         context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Mantenimiento registrado exitosamente'),
+            content: Text('Historial actualizado'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
         );
       }
+      
     } catch (e) {
-      print('💥 ERROR CRÍTICO en navegación: $e');
+      print('💥 ERROR en navegación: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -326,7 +321,15 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            // Siempre intentar pop dentro del Navigator anidado del historial
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              // Si no se puede pop, no hacer nada (quedarse en el historial)
+              print('ℹ️ Ya estás en la raíz del tab de historial');
+            }
+          },
         ),
         title: const Text(
           'Historial',
