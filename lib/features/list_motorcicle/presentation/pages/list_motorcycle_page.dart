@@ -106,9 +106,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
         children: [
           SafeArea(
             child: Column(
-              children: [
-                Expanded(child: _buildOverlayContainer()),
-              ],
+              children: [Expanded(child: _buildOverlayContainer())],
             ),
           ),
         ],
@@ -245,7 +243,11 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
   }
 
   void _addNewMotorcycle() {
-    Navigator.pushNamed(context, '/register-motorcycle').then((_) {
+    // ✅ Usar rootNavigator: true para acceder al Navigator raíz
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pushNamed('/register-motorcycle').then((_) {
       _loadMotorcycles();
     });
   }

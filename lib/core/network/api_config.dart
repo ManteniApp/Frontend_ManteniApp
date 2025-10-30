@@ -1,9 +1,6 @@
-/// Configuración de la API
-///
-/// Contiene las URLs base y endpoints de la API del backend
 class ApiConfig {
   // ⚠️ IMPORTANTE: Cambiar esta URL según tu entorno
-  // Para desarrollo local: 'http://localhost:3000'
+  // Para desarrollo local (Chrome/Web): 'http://localhost:3000'
   // Para emulador Android: 'http://10.0.2.2:3000'
   // Para dispositivo físico: 'http://TU_IP_LOCAL:3000'
   // Para producción: 'https://tu-api.com'
@@ -15,13 +12,18 @@ class ApiConfig {
   static const String googleLoginUrlEndpoint = '/users/google/login/url';
   static const String googleLoginCallbackEndpoint =
       '/users/google/login/callback';
+  static const String forgotPasswordEndpoint = '/users/password/forgot';
+  static const String resetPasswordEndpoint = '/users/password/reset';
 
   // Endpoints de motocicletas
   static const String motorcyclesEndpoint = '/motorcycles';
 
-  // Timeouts
-  static const Duration connectionTimeout = Duration(seconds: 30);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  // Endpoints de historial de mantenimientos
+  static const String maintenanceHistoryEndpoint = '/maintenance';
+
+  // Timeouts (⚠️ TEMPORALMENTE aumentado para debug - backend muy lento)
+  static const Duration connectionTimeout = Duration(seconds: 60);
+  static const Duration receiveTimeout = Duration(seconds: 60);
 
   // Headers comunes
   static Map<String, String> get defaultHeaders => {
