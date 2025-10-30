@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../providers/maintenance_history_provider.dart';
@@ -243,30 +244,70 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
     );
   }
 
-  /// TODO: Implementar navegación a la pantalla de registrar mantenimiento
-  /// Esta funcionalidad debe ser implementada por el equipo encargado
-  ///
-  /// Requisitos:
-  /// 1. Crear la ruta en el sistema de navegación (ej: '/register-maintenance')
-  /// 2. Después de registrar un mantenimiento exitosamente, recargar el historial:
-  ///    context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
-  /// 3. Opcional: Pasar el ID de la moto seleccionada en el filtro actual para pre-seleccionarla:
-  ///    final selectedMotoId = context.read<MaintenanceHistoryProvider>().selectedMotorcycleFilter;
-  ///    Navigator.pushNamed(context, '/register-maintenance', arguments: selectedMotoId);
-  void _navigateToCreateMaintenance() {
-    // TODO: Implementar navegación
-    // Navigator.pushNamed(context, '/register-maintenance');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          '⚠️ Funcionalidad pendiente: Navegar a registrar mantenimiento',
+  Future<void> _navigateToCreateMaintenance() async {
+    try {
+      final motorcycleProvider = context.read<MotorcycleProvider>();
+      final authStorage = AuthStorageService();
+      final token = await authStorage.getToken();
+      
+      print('🚀 INICIANDO NAVEGACIÓN A REGISTRO');
+      
+      // Verificación básica
+      if (token == null || token.isEmpty) {
+        print('❌ No hay token');
+        return;
+      }
+      
+      if (motorcycleProvider.motorcycles.isEmpty) {
+        print('❌ No hay motos disponibles');
+        return;
+      }
+      
+      // Preparar argumentos SIMPLES para prueba
+      List<Map<String, dynamic>> motosArgument = motorcycleProvider.motorcycles.map((moto) {
+        return {
+          'id': int.tryParse(moto.id?.toString() ?? '') ?? 0,
+          'marca': moto.brand,
+          'modelo': moto.model,
+        };
+      }).toList();
+      
+      print('📱 Navegando con argumentos: ${motosArgument.length} moto(s)');
+      
+      
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MaintenanceRegisterPage(motos: motosArgument),
         ),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 2),
-      ),
-    );
+      );
+      
+      // Recargar historial después de regresar
+      if (result == true) {
+        print('🔄 Recargando historial...');
+        context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Mantenimiento registrado exitosamente'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      print('💥 ERROR CRÍTICO en navegación: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
+  
 
   @override
   Widget build(BuildContext context) {
