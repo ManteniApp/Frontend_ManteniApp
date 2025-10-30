@@ -66,6 +66,38 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     }
   }
 
+  // NUEVO MÉTODO: Eliminar motocicleta del backend
+  Future<void> _deleteMotorcycleFromBackend(String motorcycleId, int index) async {
+    try {
+      // Llamar al método de eliminación del data source
+      await _dataSource.deleteMotorcycle(motorcycleId);
+      
+      // Si la eliminación en el backend es exitosa, eliminar localmente
+      setState(() {
+        motorcycles.removeAt(index);
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Motocicleta eliminada correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      // Manejar error en la eliminación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al eliminar motocicleta: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,8 +216,8 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       itemBuilder: (context, index) {
         return MotorcycleCard(
           motorcycle: motorcycles[index],
-          onDelete: () => _deleteMotorcycle(index),
-          onTap: () => widget.onOpenProfile(motorcycles[index]), // 👈 usa callback
+          onDelete: () => _deleteMotorcycleFromBackend(motorcycles[index].id, index),
+          onTap: () => widget.onOpenProfile(motorcycles[index]),
         );
       },
     );
@@ -208,19 +240,6 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
             style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],
-      ),
-    );
-  }
-
-  void _deleteMotorcycle(int index) {
-    setState(() {
-      motorcycles.removeAt(index);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Motocicleta eliminada correctamente'),
-        backgroundColor: Colors.green,
       ),
     );
   }
