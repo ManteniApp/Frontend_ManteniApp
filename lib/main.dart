@@ -21,6 +21,8 @@ import 'features/auth_1/presentation/pages/login_page.dart';
 import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
 import 'features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'features/motorcycles/presentation/pages/edit_motorcycle_page.dart';
+import 'features/motorcycles/data/models/motorcycle_model.dart';
 
 void main() {
   runApp(const ManteniApp());
@@ -96,6 +98,11 @@ class ManteniApp extends StatelessWidget {
               // Fallback por si los argumentos no son correctos
               return MaintenanceRegisterPage(motos: []);
             }
+          },
+          '/edit-motorcycle': (context) {
+            final motorcycle =
+                ModalRoute.of(context)!.settings.arguments as MotorcycleModel;
+            return EditMotorcyclePage(motorcycle: motorcycle);
           },
         },
       ),

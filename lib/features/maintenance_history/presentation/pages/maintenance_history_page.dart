@@ -247,7 +247,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
   Future<void> _navigateToCreateMaintenance() async {
     try {
       final motorcycleProvider = context.read<MotorcycleProvider>();
-      
+
       if (motorcycleProvider.motorcycles.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -257,17 +257,19 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         );
         return;
       }
-      
-      List<Map<String, dynamic>> motosArgument = motorcycleProvider.motorcycles.map((moto) {
-        return {
-          'id': moto.id ?? 0,
-          'marca': moto.brand,
-          'modelo': moto.model,
-        };
-      }).toList();
-      
+
+      List<Map<String, dynamic>> motosArgument = motorcycleProvider.motorcycles
+          .map((moto) {
+            return {
+              'id': moto.id ?? 0,
+              'marca': moto.brand,
+              'modelo': moto.model,
+            };
+          })
+          .toList();
+
       print('📱 Navegando a registro con ${motosArgument.length} moto(s)');
-      
+
       // ✅ Navegación simple - el usuario regresará manualmente con el botón back
       await Navigator.push(
         context,
@@ -275,12 +277,12 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
           builder: (context) => MaintenanceRegisterPage(motos: motosArgument),
         ),
       );
-      
+
       // Esto se ejecuta cuando el usuario regresa manualmente
       if (mounted) {
         print('🔄 Usuario regresó - Recargando historial...');
         context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Historial actualizado'),
@@ -289,7 +291,6 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
           ),
         );
       }
-      
     } catch (e) {
       print('💥 ERROR en navegación: $e');
       if (mounted) {
@@ -302,7 +303,6 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
       }
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -374,6 +374,7 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 70),
         child: FloatingActionButton(
+          heroTag: 'add_maintenance_fab',
           onPressed: _navigateToCreateMaintenance,
           backgroundColor: const Color(0xFF2196F3), // Azul del proyecto
           elevation: 6,
