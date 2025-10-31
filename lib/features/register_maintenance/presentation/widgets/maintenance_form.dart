@@ -124,7 +124,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: DropdownButtonFormField<String>(
-          value: widget.provider.selectedMotoId?.toString(),
+          initialValue: widget.provider.selectedMotoId?.toString(),
           decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Motocicleta',
@@ -160,7 +160,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: DropdownButtonFormField<String>(
-          value: widget.provider.selectedTipo,
+          initialValue: widget.provider.selectedTipo,
           decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Tipo de mantenimiento',

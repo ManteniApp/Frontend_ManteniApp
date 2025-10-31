@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../motorcycles/presentation/providers/motorcycle_provider.dart';
-import '../../../motorcycles/domain/entities/motorcycle_entity.dart';
 
 class MotorcycleFilterModal extends StatefulWidget {
   final String? selectedMotorcycleId;

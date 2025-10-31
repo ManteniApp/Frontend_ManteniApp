@@ -172,7 +172,7 @@ class _EditMaintenanceModalState extends State<EditMaintenanceModal> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[100],

@@ -2,22 +2,14 @@ import 'package:frontend_manteniapp/features/register_maintenance/domain/entitie
 
 class MaintenanceModel extends Maintenance {
   MaintenanceModel({
-    int? id,
-    required int motoId,
-    required DateTime fecha,
-    required String tipo,
-    String? descripcion,
-    int? kilometraje,
-    double? costo,
-  }) : super(
-          id: id,
-          motoId: motoId,
-          fecha: fecha,
-          tipo: tipo,
-          descripcion: descripcion,
-          kilometraje: kilometraje,
-          costo: costo,
-        );
+    super.id,
+    required super.motoId,
+    required super.fecha,
+    required super.tipo,
+    super.descripcion,
+    super.kilometraje,
+    super.costo,
+  });
 
   factory MaintenanceModel.fromJson(Map<String, dynamic> json) {
     return MaintenanceModel(
@@ -27,10 +19,11 @@ class MaintenanceModel extends Maintenance {
       tipo: json['tipo'],
       descripcion: json['descripcion'],
       kilometraje: json['kilometraje'],
-      costo: json['costo'] != null ? json['costo'].toDouble() : null,
+      costo: json['costo']?.toDouble(),
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
