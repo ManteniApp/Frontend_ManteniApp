@@ -4,12 +4,14 @@ import '../../domain/entities/motorcycle_entity.dart';
 class MotorcycleCard extends StatelessWidget {
   final MotorcycleEntity motorcycle;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
   final VoidCallback? onTap;
 
   const MotorcycleCard({
     super.key,
     required this.motorcycle,
     this.onDelete,
+    this.onEdit,
     this.onTap,
   });
 
@@ -57,7 +59,7 @@ class MotorcycleCard extends StatelessWidget {
                                   return _buildPlaceholderImage();
                                 },
                               )
-                            // TODO: Cuando el backend esté listo, reemplazar Image.asset por Image.network
+                              // TODO: Cuando el backend esté listo, reemplazar Image.asset por Image.network
                             // usando motorcycle.imageUrl y restaurar el loadingBuilder
                             /* Image.network(
                                 motorcycle.imageUrl,
@@ -99,25 +101,50 @@ class MotorcycleCard extends StatelessWidget {
                   ),
                 ],
               ),
-              // Icono de eliminar en la esquina superior derecha
-              if (onDelete != null)
+              // Iconos de acciones en la esquina superior derecha
+              if (onDelete != null || onEdit != null)
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: GestureDetector(
-                    onTap: () => _showDeleteConfirmation(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline,
-                        color: Color(0xFFE57373),
-                        size: 20,
-                      ),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Icono de editar
+                      if (onEdit != null)
+                        GestureDetector(
+                          onTap: () => onEdit!.call(),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            margin: const EdgeInsets.only(right: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(
+                              Icons.edit_outlined,
+                              color: Color(0xFF2196F3),
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      // Icono de eliminar
+                      if (onDelete != null)
+                        GestureDetector(
+                          onTap: () => _showDeleteConfirmation(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline,
+                              color: Color(0xFFE57373),
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
             ],
