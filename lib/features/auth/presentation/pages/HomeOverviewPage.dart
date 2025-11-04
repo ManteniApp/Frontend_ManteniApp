@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/features/auth/presentation/pages/bike_profile_page.dart';
 import 'package:frontend_manteniapp/features/motorcycles/domain/entities/motorcycle_entity.dart';
 import 'package:frontend_manteniapp/features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 import 'package:frontend_manteniapp/features/auth/presentation/widgets/recommendation_card.dart';
@@ -80,12 +81,12 @@ class _HomeOverviewPageState extends State<HomeOverviewPage> {
               ////////////////////////////////////// SECCIÓN MOTOS
               _buildSectionContainer(
                 title: "Motos",
-                onSeeAll: () => MainLayout.of(context)?.switchTab(1),
+                onSeeAll: () {
+                  MainLayout.of(context)?.switchTab(1); // 👈 ir al tab de Motos
+                },
                 child: SizedBox(
                   height: 140,
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : motorcycles.isEmpty
+                  child: motorcycles.isEmpty
                       ? const Center(
                           child: Text(
                             "No hay motos registradas",
@@ -94,78 +95,103 @@ class _HomeOverviewPageState extends State<HomeOverviewPage> {
                         )
                       : ListView.builder(
                           scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           itemCount: motorcycles.length,
                           itemBuilder: (context, index) {
                             final moto = motorcycles[index];
-                            return Container(
-                              width: 110,
-                              margin: const EdgeInsets.only(right: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 3),
+                            return GestureDetector(
+                              onTap: () {
+                                final layoutState = MainLayout.of(context);
+                                final motosNavigator =
+                                    layoutState?.navigatorKeys[1];
+
+                                // 👇 Primero abrimos el perfil dentro del tab de Motos
+                                motosNavigator?.currentState?.push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        BikeProfilePage(motorcycle: moto),
                                   ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child:
-                                        moto.imageUrl != null &&
-                                            moto.imageUrl!.isNotEmpty
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                const BorderRadius.vertical(
-                                                  top: Radius.circular(12),
-                                                ),
-                                            child: Image.network(
-                                              moto.imageUrl!,
-                                              fit: BoxFit.cover,
-                                              width: double.infinity,
-                                            ),
-                                          )
-                                        : Container(
-                                            color: Colors.grey[200],
-                                            child: const Center(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons.motorcycle,
-                                                    size: 40,
-                                                    color: Colors.grey,
+                                );
+
+                                // 👇 Luego cambiamos la pestaña activa al tab de Motos
+                                Future.delayed(
+                                  const Duration(milliseconds: 150),
+                                  () {
+                                    layoutState?.switchTab(1);
+                                  },
+                                );
+                              },
+                              child: Container(
+                                width: 110,
+                                margin: const EdgeInsets.only(right: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.08),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          moto.imageUrl != null &&
+                                              moto.imageUrl!.isNotEmpty
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  const BorderRadius.vertical(
+                                                    top: Radius.circular(12),
                                                   ),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    "Sin imagen",
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.grey,
+                                              child: Image.network(
+                                                moto.imageUrl!,
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                              ),
+                                            )
+                                          : Container(
+                                              color: Colors.white,
+                                              child: const Center(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.motorcycle,
+                                                      size: 40,
+                                                      color: Colors.lightBlue,
                                                     ),
-                                                  ),
-                                                ],
+                                                    SizedBox(height: 4),
+                                                    Text(
+                                                      "Sin imagen",
+                                                      style: TextStyle(
+                                                        fontSize: 11,
+                                                        color: Colors.lightBlue,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: Text(
-                                      moto.fullName,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(6.0),
+                                      child: Text(
+                                        moto.fullName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },

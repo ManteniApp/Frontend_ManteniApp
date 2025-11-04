@@ -29,12 +29,10 @@ class _MainLayoutState extends State<MainLayout> {
   String? userName;
 
   // 🔑 Claves para cada Navigator anidado
-  final _navigatorKeys = [
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-  ];
+  final List<GlobalKey<NavigatorState>> navigatorKeys = List.generate(
+    4,
+    (_) => GlobalKey<NavigatorState>(),
+  );
 
   @override
   void initState() {
@@ -60,12 +58,12 @@ class _MainLayoutState extends State<MainLayout> {
 
   // 🔹 Páginas principales con navegadores anidados
   List<Widget> get _pages => [
-    _buildTabNavigator(key: _navigatorKeys[0], child: const HomeOverviewPage()),
+    _buildTabNavigator(key: navigatorKeys[0], child: const HomeOverviewPage()),
     _buildTabNavigator(
-      key: _navigatorKeys[1],
+      key: navigatorKeys[1],
       child: ListMotorcyclePage(
         onOpenProfile: (MotorcycleEntity moto) {
-          _navigatorKeys[1].currentState?.push(
+          navigatorKeys[1].currentState?.push(
             MaterialPageRoute(
               builder: (_) => BikeProfilePage(motorcycle: moto),
             ),
@@ -74,11 +72,11 @@ class _MainLayoutState extends State<MainLayout> {
       ),
     ),
     _buildTabNavigator(
-      key: _navigatorKeys[2],
+      key: navigatorKeys[2],
       child: const Center(child: Text('Reportes')),
     ),
     _buildTabNavigator(
-      key: _navigatorKeys[3],
+      key: navigatorKeys[3],
       child: const Center(child: Text('Alertas')),
     ),
   ];
@@ -100,7 +98,7 @@ class _MainLayoutState extends State<MainLayout> {
     return WillPopScope(
       // 🔹 Permite que el botón "atrás" retroceda dentro del tab actual
       onWillPop: () async {
-        final nav = _navigatorKeys[_selectedIndex].currentState!;
+        final nav = navigatorKeys[_selectedIndex].currentState!;
         if (nav.canPop()) {
           nav.pop();
           return false;

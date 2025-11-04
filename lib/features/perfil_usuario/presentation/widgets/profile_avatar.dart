@@ -9,11 +9,11 @@ class ProfileAvatar extends StatefulWidget {
   final bool editable;
 
   const ProfileAvatar({
-    Key? key,
+    super.key,
     this.size = 100,
     this.onTap,
     this.editable = false,
-  }) : super(key: key);
+  });
 
   @override
   ProfileAvatarState createState() => ProfileAvatarState(); // Cambiado a pública

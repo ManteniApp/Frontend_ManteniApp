@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/features/motorcycles/domain/entities/motorcycle_entity.dart';
 import 'package:frontend_manteniapp/features/auth/presentation/widgets/recommendations_section.dart';
+import 'package:frontend_manteniapp/features/auth/presentation/widgets/MotorcycleInfoDialog.dart';
 import '../widgets/indicator_row.dart';
 
 class BikeProfilePage extends StatelessWidget {
@@ -50,7 +51,13 @@ class BikeProfilePage extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) =>
+                                MotorcycleInfoDialog(motorcycle: motorcycle),
+                          );
+                        },
                         icon: const Icon(
                           Icons.info_outline,
                           size: 20,
@@ -88,11 +95,11 @@ class BikeProfilePage extends StatelessWidget {
 
   /// 🔹 Método que decide qué mostrar según si hay imagen o no
   Widget _buildMotorcycleImage(MotorcycleEntity moto) {
-    if (moto.imageUrl != null && moto.imageUrl!.isNotEmpty) {
+    if (moto.imageUrl.isNotEmpty) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Image.network(
-          moto.imageUrl!,
+          moto.imageUrl,
           height: 180,
           width: double.infinity,
           fit: BoxFit.cover,
@@ -122,7 +129,7 @@ class BikeProfilePage extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             "Imagen no disponible",
-            style: TextStyle(color: Colors.blue, fontSize: 12 ),
+            style: TextStyle(color: Colors.blue, fontSize: 12),
           ),
         ],
       ),

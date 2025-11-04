@@ -4,7 +4,7 @@ import 'package:frontend_manteniapp/core/services/profile_image_service.dart';
 class ImagePickerSheet extends StatelessWidget {
   final Function() onImageUpdated;
 
-  const ImagePickerSheet({Key? key, required this.onImageUpdated}) : super(key: key);
+  const ImagePickerSheet({super.key, required this.onImageUpdated});
 
   Future<void> _handleImageSelection(Future<String?> imageFuture, BuildContext context) async {
     try {

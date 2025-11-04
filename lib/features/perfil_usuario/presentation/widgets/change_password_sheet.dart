@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ChangePasswordSheet extends StatefulWidget {
   final Future<void> Function(String currentPassword, String newPassword) onPasswordChanged;
 
-  const ChangePasswordSheet({Key? key, required this.onPasswordChanged}) : super(key: key);
+  const ChangePasswordSheet({super.key, required this.onPasswordChanged});
 
   @override
   State<ChangePasswordSheet> createState() => _ChangePasswordSheetState();

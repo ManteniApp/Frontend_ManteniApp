@@ -11,7 +11,7 @@ import '../widgets/image_picker_sheet.dart';
 
 class PerfilUser extends StatefulWidget {
   final String? userId;
-  const PerfilUser({Key? key, this.userId}) : super(key: key);
+  const PerfilUser({super.key, this.userId});
 
   @override
   State<PerfilUser> createState() => _PerfilUserState();
