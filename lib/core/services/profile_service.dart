@@ -52,7 +52,7 @@ class ProfileService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
-      final token = prefs.getString('auth_token'); // ← Cambiar a 'auth_token'
+      final token = prefs.getString('auth_token'); 
       
       print('🔍 Debug - UserId: $userId');
       print('🔍 Debug - Token: $token');
@@ -127,14 +127,63 @@ class ProfileService {
   }
 
   Future<bool> deleteAccount() async {
-    final authStorage = AuthStorageService();
-    final userId = await authStorage.getUserId();
+    try {
+      // Obtener el userId y token
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+      final token = prefs.getString('auth_token');
 
-    if (userId == null || userId.isEmpty) {
-      throw Exception('⚠️ No hay usuario autenticado');
+      
+      if (userId == null || token == null) {
+        throw Exception('Usuario no autenticado');
+      }
+
+      // Validar que el ID sea numérico
+      final numericId = int.tryParse(userId);
+      if (numericId == null) {
+        throw Exception('ID de usuario inválido');
+      }
+
+      final url = Uri.parse('$baseUrl/$numericId');
+      
+      print('🗑️ DELETE: $url');
+      print('📤 UserId: $numericId');
+      print('📤 Token: ${token.substring(0, 20)}...');
+
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📥 Status: ${response.statusCode}');
+      print('📥 Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('✅ Cuenta eliminada exitosamente');
+        return true;
+      } else if (response.statusCode == 401) {
+        throw Exception('No autorizado para eliminar esta cuenta');
+      } else if (response.statusCode == 404) {
+        throw Exception('Usuario no encontrado');
+      } else {
+        // Intentar obtener mensaje de error del backend
+        try {
+          final errorData = jsonDecode(response.body);
+          final errorMessage = errorData['message'] ?? 
+                              errorData['error'] ?? 
+                              'Error del servidor: ${response.statusCode}';
+          throw Exception(errorMessage);
+        } catch (_) {
+          throw Exception('Error del servidor: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      print('❌ Error en deleteAccount: $e');
+      rethrow;
     }
-
-    return _remoteDataSource.deleteUserAccount(userId);
   }
 
   /// ✅ Obtener el userId directamente desde AuthStorage
@@ -142,4 +191,5 @@ class ProfileService {
     final authStorage = AuthStorageService();
     return await authStorage.getUserId();
   }
+  
 }

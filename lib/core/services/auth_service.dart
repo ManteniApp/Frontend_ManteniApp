@@ -59,8 +59,43 @@ class AuthService {
         await _authStorage.saveUserEmail(email);
         return loginResponse.accessToken;
       } else {
-        final errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Error en login');
+        // Manejar el caso cuando el servidor devuelve HTML en lugar de JSON
+        final responseBody = response.body;
+        
+        // Verificar si es HTML
+        if (responseBody.trim().startsWith('<!DOCTYPE') || 
+            responseBody.trim().startsWith('<html>')) {
+          print('⚠️ El servidor devolvió HTML en lugar de JSON');
+          
+          // Analizar el HTML para extraer el mensaje de error
+          if (responseBody.contains('Invalid credentials')) {
+            throw Exception('INCORRECT_PASSWORD: Contraseña incorrecta');
+          } else if (responseBody.contains('user not found') ||
+                    responseBody.contains('email not found')) {
+            throw Exception('USER_NOT_FOUND: Usuario no encontrado');
+          } else {
+            throw Exception('SERVER_ERROR: Error del servidor - Respuesta HTML inesperada');
+          }
+        }
+        
+        // Si no es HTML, intentar decodificar como JSON
+        try {
+          final errorData = json.decode(responseBody);
+          final errorMessage = errorData['message']?.toString().toLowerCase() ?? '';
+          
+          if (errorMessage.contains('invalid credentials') ||
+              errorMessage.contains('incorrect password')) {
+            throw Exception('INCORRECT_PASSWORD: Contraseña incorrecta');
+          } else if (errorMessage.contains('user not found') ||
+                    errorMessage.contains('email not found')) {
+            throw Exception('USER_NOT_FOUND: Usuario no encontrado');
+          } else {
+            throw Exception(errorMessage.isNotEmpty ? errorMessage : 'Error en login');
+          }
+        } catch (jsonError) {
+          // Si falla el JSON, usar el mensaje directo
+          throw Exception('Error HTTP ${response.statusCode}');
+        }
       }
     } catch (e) {
       print('❌ Error en login: $e');
@@ -175,6 +210,7 @@ class AuthService {
       rethrow;
     }
   }
+  
 
   Future<void> logout() async {
     await _authStorage.clearAuth();

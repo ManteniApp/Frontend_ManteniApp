@@ -16,7 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? phone;
 
   final AuthController _authController = AuthController();
-  bool _obscurePassword = true;
+  final bool _obscurePassword = true;
 
   // ✅ Funciones de validación
   bool _isValidEmail(String email) {

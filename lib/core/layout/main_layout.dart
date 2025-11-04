@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
+import 'package:frontend_manteniapp/features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
@@ -72,9 +75,9 @@ class _MainLayoutState extends State<MainLayout> {
       ),
     ),
     _buildTabNavigator(
-      key: navigatorKeys[2],
-      child: const Center(child: Text('Reportes')),
-    ),
+          key: _navigatorKeys[2],
+          child: const MaintenanceHistoryPage(),
+        ),
     _buildTabNavigator(
       key: navigatorKeys[3],
       child: const Center(child: Text('Alertas')),
@@ -93,6 +96,15 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
+   void _loadMotorcycles() {
+    // Cargar motos cuando se inicialice el layout
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final motorcycleProvider = context.read<MotorcycleProvider>();
+      motorcycleProvider.loadMotorcycles();
+    });
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -154,10 +166,10 @@ class _MainLayoutState extends State<MainLayout> {
                                   _selectedIndex == 0
                                       ? 'Inicio'
                                       : _selectedIndex == 1
-                                      ? 'Motos'
-                                      : _selectedIndex == 2
-                                      ? 'Reportes'
-                                      : 'Alertas',
+                                          ? 'Motos'
+                                          : _selectedIndex == 2
+                                              ? 'Historial'
+                                              : 'Alertas',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: Colors.black54,
@@ -169,10 +181,10 @@ class _MainLayoutState extends State<MainLayout> {
                                     _selectedIndex == 0
                                         ? 'Buenos días, ${userName ?? ''} 👋'
                                         : _selectedIndex == 1
-                                        ? 'Listado de Motos'
-                                        : _selectedIndex == 2
-                                        ? 'Mis Reportes'
-                                        : 'Mis Alertas',
+                                            ? 'Listado de Motos'
+                                            : _selectedIndex == 2
+                                                ? 'Historial de Mantenimientos'
+                                                : 'Mis Alertas',
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -247,8 +259,8 @@ class _MainLayoutState extends State<MainLayout> {
                           title: const Text("Motos"),
                         ),
                         SalomonBottomBarItem(
-                          icon: const Icon(Icons.insert_chart_outlined_rounded),
-                          title: const Text("Reportes"),
+                          icon: const Icon(Icons.history_rounded),
+                          title: const Text("Historial"),
                         ),
                         SalomonBottomBarItem(
                           icon: const Icon(Icons.notifications_outlined),

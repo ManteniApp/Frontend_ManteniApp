@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:frontend_manteniapp/main.dart';
 
 class ManteniApp extends StatelessWidget {
   const ManteniApp({super.key});

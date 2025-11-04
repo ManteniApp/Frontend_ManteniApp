@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
+import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
 
 // Imports de nuestro feature
@@ -20,6 +21,8 @@ import 'features/auth_1/presentation/pages/login_page.dart';
 import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
 import 'features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'features/motorcycles/presentation/pages/edit_motorcycle_page.dart';
+import 'features/motorcycles/data/models/motorcycle_model.dart';
 
 void main() {
   runApp(const ManteniApp());
@@ -86,7 +89,21 @@ class ManteniApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
-          '/perfil': (context) => PerfilUser()
+          '/perfil': (context) => PerfilUser(),
+          '/register-maintenance': (context) {
+            final arguments = ModalRoute.of(context)!.settings.arguments;
+            if (arguments is List<Map<String, dynamic>>) {
+              return MaintenanceRegisterPage(motos: arguments);
+            } else {
+              // Fallback por si los argumentos no son correctos
+              return MaintenanceRegisterPage(motos: []);
+            }
+          },
+          '/edit-motorcycle': (context) {
+            final motorcycle =
+                ModalRoute.of(context)!.settings.arguments as MotorcycleModel;
+            return EditMotorcyclePage(motorcycle: motorcycle);
+          },
         },
       ),
     );

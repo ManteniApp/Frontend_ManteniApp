@@ -18,6 +18,8 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       MotorcycleRemoteDataSourceImpl();
 
   List<MotorcycleEntity> motorcycles = [];
+  Map<String, dynamic> _motorcycleModelsById =
+      {}; // Almacenar modelos completos
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -37,6 +39,12 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       final loadedMotorcycles = await _dataSource.getAllMotorcycles();
 
       setState(() {
+        // Almacenar modelos completos por ID
+        _motorcycleModelsById = {
+          for (var model in loadedMotorcycles)
+            if (model.id != null) model.id!: model,
+        };
+
         motorcycles = loadedMotorcycles
             .map(
               (model) => MotorcycleEntity(
@@ -65,6 +73,41 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al cargar motocicletas: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // NUEVO MÉTODO: Eliminar motocicleta del backend
+  Future<void> _deleteMotorcycleFromBackend(
+    String motorcycleId,
+    int index,
+  ) async {
+    try {
+      // Llamar al método de eliminación del data source
+      await _dataSource.deleteMotorcycle(motorcycleId);
+
+      // Si la eliminación en el backend es exitosa, eliminar localmente
+      setState(() {
+        motorcycles.removeAt(index);
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Motocicleta eliminada correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      // Manejar error en la eliminación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al eliminar motocicleta: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -132,6 +175,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
             bottom: 20,
             right: 20,
             child: FloatingActionButton(
+              heroTag: 'add_motorcycle_fab',
               onPressed: _addNewMotorcycle,
               backgroundColor: const Color(0xFF2196F3),
               shape: RoundedRectangleBorder(
@@ -188,9 +232,10 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       itemBuilder: (context, index) {
         return MotorcycleCard(
           motorcycle: motorcycles[index],
-          onDelete: () => _deleteMotorcycle(index),
-          onTap: () =>
-              widget.onOpenProfile(motorcycles[index]), // 👈 usa callback
+          onDelete: () =>
+              _deleteMotorcycleFromBackend(motorcycles[index].id, index),
+          onEdit: () => _editMotorcycle(motorcycles[index]),
+          onTap: () => widget.onOpenProfile(motorcycles[index]),
         );
       },
     );
@@ -217,19 +262,6 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     );
   }
 
-  void _deleteMotorcycle(int index) {
-    setState(() {
-      motorcycles.removeAt(index);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Motocicleta eliminada correctamente'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
   void _addNewMotorcycle() {
     // ✅ Usar rootNavigator: true para acceder al Navigator raíz
     Navigator.of(
@@ -237,6 +269,29 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
       rootNavigator: true,
     ).pushNamed('/register-motorcycle').then((_) {
       _loadMotorcycles();
+    });
+  }
+
+  // NUEVO MÉTODO: Editar motocicleta
+  void _editMotorcycle(MotorcycleEntity motorcycle) {
+    // Obtener el modelo completo almacenado
+    final fullModel = _motorcycleModelsById[motorcycle.id];
+
+    if (fullModel == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error: No se pudo cargar los datos de la motocicleta'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pushNamed('/edit-motorcycle', arguments: fullModel).then((_) {
+      _loadMotorcycles(); // Recargar lista después de editar
     });
   }
 }

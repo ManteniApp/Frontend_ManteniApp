@@ -64,6 +64,7 @@ class MotorcycleProvider extends ChangeNotifier {
     }
   }
 
+
   // Sobrecarga del método para aceptar parámetros individuales
   Future<bool> registerMotorcycleWithParams({
     required String marca,
@@ -84,6 +85,27 @@ class MotorcycleProvider extends ChangeNotifier {
     );
 
     return await registerMotorcycle(motorcycle);
+  }
+
+  // Versión temporal en el provider
+  Future<bool> updateMotorcycleWithParams({
+    required String id,
+    required String marca,
+    required String modelo,
+    required String placa,
+    required int ano,
+    required String cilindraje,
+    required int kilometraje,
+  }) async {
+    // Por ahora, usa el mismo método que registro
+    return await registerMotorcycleWithParams(
+      marca: marca,
+      modelo: modelo,
+      placa: placa,
+      ano: ano,
+      cilindraje: cilindraje,
+      kilometraje: kilometraje,
+    );
   }
 
   // Limpiar mensajes

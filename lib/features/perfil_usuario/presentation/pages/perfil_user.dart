@@ -97,8 +97,6 @@ class _PerfilUserState extends State<PerfilUser> {
     );
   }
 
-  // ... (mantén el resto de tus métodos _saveChanges, _logout, _deleteAccount, _changePassword igual)
-
   Future<void> _saveChanges() async {
     try {
       final success = await _profileService.updateBasicProfile(
@@ -178,11 +176,49 @@ class _PerfilUserState extends State<PerfilUser> {
     );
 
     if (confirm == true) {
-      await _profileService.deleteAccount();
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+      // Mostrar loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      try {
+        await _profileService.deleteAccount();
+        
+        // Cerrar el loading
+        if (mounted) Navigator.pop(context);
+        
+        // Limpiar datos locales
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        
+        // Navegar al login
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('Cuenta eliminada exitosamente'),
+            ),
+          );
+          
+          Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+        }
+      } catch (e) {
+        // Cerrar el loading
+        if (mounted) Navigator.pop(context);
+        
+        // Mostrar error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('Error al eliminar cuenta: $e'),
+            ),
+          );
+        }
       }
     }
   }
@@ -222,6 +258,13 @@ class _PerfilUserState extends State<PerfilUser> {
 
     if (errorMessage != null) {
       return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('Perfil'),
+        ),
         body: Center(
           child: Text(errorMessage!, style: const TextStyle(color: Colors.red)),
         ),
@@ -230,12 +273,21 @@ class _PerfilUserState extends State<PerfilUser> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 100),
+              const SizedBox(height: 20),
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -322,6 +374,7 @@ class _PerfilUserState extends State<PerfilUser> {
                           textColor: Colors.white,
                           onPressed: _deleteAccount,
                         ),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
