@@ -5,6 +5,7 @@ class MotorcycleModel extends MotorcycleEntity {
     super.id,
     required super.brand,
     required super.model,
+    required super.imageUrl,
     super.licensePlate, // 👈 Agregado
     required super.year,
     required super.displacement,
@@ -18,6 +19,7 @@ class MotorcycleModel extends MotorcycleEntity {
       id: json['id']?.toString(),
       brand: json['brand'] ?? json['marca'] ?? '', // 👈 Soporte para 'marca'
       model: json['model'] ?? json['modelo'] ?? '', // 👈 Soporte para 'modelo'
+      imageUrl: json['imageUrl'] ?? '', // Agregado para imageUrl
       licensePlate:
           json['licensePlate'] ?? json['placa'], // 👈 Soporte para 'placa'
       year: json['year'] ?? json['anio'] ?? 0, // 👈 Soporte para 'anio'
@@ -57,6 +59,7 @@ class MotorcycleModel extends MotorcycleEntity {
       id: entity.id,
       brand: entity.brand,
       model: entity.model,
+      imageUrl: entity.imageUrl,
       licensePlate: entity.licensePlate, // 👈 Agregado
       year: entity.year,
       displacement: entity.displacement,
@@ -71,6 +74,7 @@ class MotorcycleModel extends MotorcycleEntity {
       id: id,
       brand: brand,
       model: model,
+      imageUrl: imageUrl,
       licensePlate: licensePlate, // 👈 Agregado
       year: year,
       displacement: displacement,

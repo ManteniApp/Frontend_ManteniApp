@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/motorcycle_entity.dart';
+//import '../../domain/entities/motorcycle_entity.dart';
+import '../../../motorcycles/domain/entities/motorcycle_entity.dart';
 
 class MotorcycleCard extends StatelessWidget {
   final MotorcycleEntity motorcycle;

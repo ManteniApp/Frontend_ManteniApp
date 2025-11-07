@@ -4,10 +4,12 @@ import 'package:frontend_manteniapp/features/maintenance_history/presentation/pa
 import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
 import '../../../features/auth/presentation/pages/bike_profile_page.dart';
-import '../../../features/list_motorcicle/domain/entities/motorcycle_entity.dart';
+import '../../../features/auth/presentation/pages/HomeOverviewPage.dart';
+//import '../../../features/list_motorcicle/domain/entities/motorcycle_entity.dart';
+import '../../../features/motorcycles/domain/entities/motorcycle_entity.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -17,53 +19,70 @@ class MainLayout extends StatefulWidget {
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
+
+  //👇 Método estático para acceder al estado desde cualquier hijo
+  static _MainLayoutState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_MainLayoutState>();
+  }
 }
 
 class _MainLayoutState extends State<MainLayout> {
   late int _selectedIndex;
+  String? _selectedAlert;
+  String? userName;
 
   // 🔑 Claves para cada Navigator anidado
-  final _navigatorKeys = [
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-  ];
+  final List<GlobalKey<NavigatorState>> navigatorKeys = List.generate(
+    4,
+    (_) => GlobalKey<NavigatorState>(),
+  );
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
-    _loadMotorcycles();
+    _selectedAlert = widget.selectedAlert;
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('userName') ?? "Usuario";
+    });
+  }
+
+  void switchTab(int index, {String? alert}) {
+    setState(() {
+      _selectedIndex = index;
+      _selectedAlert = alert;
+    });
   }
 
   // 🔹 Páginas principales con navegadores anidados
   List<Widget> get _pages => [
-        _buildTabNavigator(
-          key: _navigatorKeys[0],
-          child: const Center(child: Text('Inicio')),
-        ),
-        _buildTabNavigator(
-          key: _navigatorKeys[1],
-          child: ListMotorcyclePage(
-            onOpenProfile: (MotorcycleEntity moto) {
-              _navigatorKeys[1].currentState?.push(
-                MaterialPageRoute(
-                  builder: (_) => BikeProfilePage(motorcycle: moto),
-                ),
-              );
-            },
-          ),
-        ),
-        _buildTabNavigator(
+    _buildTabNavigator(key: navigatorKeys[0], child: const HomeOverviewPage()),
+    _buildTabNavigator(
+      key: navigatorKeys[1],
+      child: ListMotorcyclePage(
+        onOpenProfile: (MotorcycleEntity moto) {
+          navigatorKeys[1].currentState?.push(
+            MaterialPageRoute(
+              builder: (_) => BikeProfilePage(motorcycle: moto),
+            ),
+          );
+        },
+      ),
+    ),
+    _buildTabNavigator(
           key: _navigatorKeys[2],
           child: const MaintenanceHistoryPage(),
         ),
-        _buildTabNavigator(
-          key: _navigatorKeys[3],
-          child: const Center(child: Text('Alertas')),
-        ),
-      ];
+    _buildTabNavigator(
+      key: navigatorKeys[3],
+      child: const Center(child: Text('Alertas')),
+    ),
+  ];
 
   Widget _buildTabNavigator({
     required GlobalKey<NavigatorState> key,
@@ -72,9 +91,7 @@ class _MainLayoutState extends State<MainLayout> {
     return Navigator(
       key: key,
       onGenerateRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (_) => child,
-        );
+        return MaterialPageRoute(builder: (_) => child);
       },
     );
   }
@@ -93,7 +110,7 @@ class _MainLayoutState extends State<MainLayout> {
     return WillPopScope(
       // 🔹 Permite que el botón "atrás" retroceda dentro del tab actual
       onWillPop: () async {
-        final nav = _navigatorKeys[_selectedIndex].currentState!;
+        final nav = navigatorKeys[_selectedIndex].currentState!;
         if (nav.canPop()) {
           nav.pop();
           return false;
@@ -126,13 +143,19 @@ class _MainLayoutState extends State<MainLayout> {
                                   Navigator.pushNamed(context, '/perfil');
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('No se encontró información del usuario')),
+                                    SnackBar(
+                                      content: Text(
+                                        'No se encontró información del usuario',
+                                      ),
+                                    ),
                                   );
                                 }
                               },
                               icon: const CircleAvatar(
                                 radius: 20,
-                                backgroundImage: AssetImage('assets/images/profile.png'),
+                                backgroundImage: AssetImage(
+                                  'assets/images/profile.png',
+                                ),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -156,7 +179,7 @@ class _MainLayoutState extends State<MainLayout> {
                                   offset: const Offset(0, -5),
                                   child: Text(
                                     _selectedIndex == 0
-                                        ? 'Buenos días, Santiago!'
+                                        ? 'Buenos días, ${userName ?? ''} 👋'
                                         : _selectedIndex == 1
                                             ? 'Listado de Motos'
                                             : _selectedIndex == 2
@@ -175,8 +198,10 @@ class _MainLayoutState extends State<MainLayout> {
                         ),
                         IconButton(
                           onPressed: () {},
-                          icon: const Icon(Icons.notifications_none_rounded,
-                              size: 28),
+                          icon: const Icon(
+                            Icons.notifications_none_rounded,
+                            size: 28,
+                          ),
                         ),
                       ],
                     ),
@@ -217,8 +242,7 @@ class _MainLayoutState extends State<MainLayout> {
                     ),
                     child: SalomonBottomBar(
                       currentIndex: _selectedIndex,
-                      onTap: (index) =>
-                          setState(() => _selectedIndex = index),
+                      onTap: (index) => setState(() => _selectedIndex = index),
                       selectedItemColor: const Color(0xFF1976D2),
                       unselectedItemColor: Colors.black54,
                       itemPadding: const EdgeInsets.symmetric(
