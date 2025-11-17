@@ -1,5 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_page.dart';
+import 'package:frontend_manteniapp/features/alerts/state/alert_provider.dart';
+import 'package:frontend_manteniapp/features/notifications/state/notification_provier.dart';
 import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
 import 'package:provider/provider.dart';
 
@@ -33,6 +38,8 @@ class ManteniApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AlertProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(
           create: (context) {
             final motorcycleRepository = MotorcycleRepositoryImpl(
@@ -86,7 +93,8 @@ class ManteniApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
-          '/perfil': (context) => PerfilUser()
+          '/perfil': (context) => PerfilUser(),
+          '/alerts': (context) => AlertsPage(),
         },
       ),
     );

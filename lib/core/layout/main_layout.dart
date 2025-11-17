@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
+import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_page.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
@@ -57,7 +58,7 @@ class _MainLayoutState extends State<MainLayout> {
         ),
         _buildTabNavigator(
           key: _navigatorKeys[3],
-          child: const Center(child: Text('Alertas')),
+          child: AlertsPage(),
         ),
       ];
 

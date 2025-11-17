@@ -36,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     // });
   }
 
+  // ignore: unused_element
   void _checkDeepLinks() async {
     print('🔗 Iniciando verificación de deep links');
     try {

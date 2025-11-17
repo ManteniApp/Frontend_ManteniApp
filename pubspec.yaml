@@ -26,6 +26,13 @@ dependencies:
   google_sign_in: ^6.1.5
   app_links: ^6.4.1
   url_launcher: ^6.2.2
+  provider: ^6.0.5
+  dio: ^5.0.0
+  intl: ^0.20.1
+
+  firebase_core: ^4.2.1
+  firebase_messaging: ^16.0.4
+  flutter_local_notifications: ^19.5.0
 
 dev_dependencies:
   flutter_test:
