@@ -53,9 +53,9 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
                 model: model.model,
                 imageUrl: model.imageUrl,
                 licensePlate: model.licensePlate,
-                year: model.year ?? 0,
-                displacement: model.displacement ?? 0,
-                mileage: model.mileage ?? 0,
+                year: model.year,
+                displacement: model.displacement,
+                mileage: model.mileage,
                 createdAt: model.createdAt,
                 updatedAt: model.updatedAt,
               ),
@@ -82,9 +82,22 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
 
   // NUEVO MÉTODO: Eliminar motocicleta del backend
   Future<void> _deleteMotorcycleFromBackend(
-    String motorcycleId,
+    String? motorcycleId,
     int index,
   ) async {
+    // Validar que el ID no sea null
+    if (motorcycleId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: ID de motocicleta no válido'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
     try {
       // Llamar al método de eliminación del data source
       await _dataSource.deleteMotorcycle(motorcycleId);
@@ -236,6 +249,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
               _deleteMotorcycleFromBackend(motorcycles[index].id, index),
           onEdit: () => _editMotorcycle(motorcycles[index]),
           onTap: () => widget.onOpenProfile(motorcycles[index]),
+          onRecommendations: () => _openRecommendations(motorcycles[index]),
         );
       },
     );
@@ -293,5 +307,16 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     ).pushNamed('/edit-motorcycle', arguments: fullModel).then((_) {
       _loadMotorcycles(); // Recargar lista después de editar
     });
+  }
+
+  // NUEVO MÉTODO: Abrir recomendaciones
+  void _openRecommendations(MotorcycleEntity motorcycle) {
+    Navigator.of(context, rootNavigator: true).pushNamed(
+      '/maintenance-recommendations',
+      arguments: {
+        'motorcycleId': motorcycle.id,
+        'motorcycleName': motorcycle.fullName,
+      },
+    );
   }
 }
