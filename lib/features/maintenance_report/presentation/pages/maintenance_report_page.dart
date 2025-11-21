@@ -8,6 +8,7 @@ import '../widgets/frequent_services_card.dart';
 import '../widgets/date_range_filter_modal.dart';
 import '../widgets/report_states.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../motorcycles/presentation/providers/motorcycle_provider.dart';
 
 class MaintenanceReportPage extends StatefulWidget {
   const MaintenanceReportPage({super.key});
@@ -20,9 +21,15 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
   @override
   void initState() {
     super.initState();
-    // Cargar el reporte al iniciar la página
+    print('🎬 [MaintenanceReportPage] initState ejecutado');
+    // Cargar motos y reporte al iniciar la página
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('🎬 [MaintenanceReportPage] addPostFrameCallback ejecutándose');
+      // Cargar lista de motos
+      context.read<MotorcycleProvider>().loadMotorcycles();
+      // Cargar reporte inicial (todas las motos)
       context.read<MaintenanceReportProvider>().loadReport();
+      print('🎬 [MaintenanceReportPage] loadReport() llamado');
     });
   }
 
@@ -38,6 +45,135 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
         initialEndDate: provider.endDate,
         onApply: (startDate, endDate) {
           provider.setDateRange(startDate, endDate);
+        },
+      ),
+    );
+  }
+
+  void _showMotorcycleSelector() {
+    final reportProvider = context.read<MaintenanceReportProvider>();
+    final motorcycleProvider = context.read<MotorcycleProvider>();
+
+    // Validar si hay motos
+    if (motorcycleProvider.motorcycles.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No tienes motocicletas registradas'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) {
+          return Column(
+            children: [
+              // Handle
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Título
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Filtrar por motocicleta',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              // Lista de opciones
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: [
+                    // Opción: Todas las motos
+                    ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.motorcycle,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      title: const Text(
+                        'Todas las motocicletas',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: const Text('Ver reporte general'),
+                      trailing: reportProvider.selectedMotorcycleId == null
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: AppTheme.primaryColor,
+                            )
+                          : null,
+                      onTap: () {
+                        reportProvider.setMotorcycle(null);
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Divider(indent: 72),
+                    // Lista de motos
+                    ...motorcycleProvider.motorcycles.map((motorcycle) {
+                      final isSelected =
+                          reportProvider.selectedMotorcycleId == motorcycle.id;
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: motorcycle.imageUrl.isNotEmpty
+                              ? NetworkImage(motorcycle.imageUrl)
+                              : const AssetImage(
+                                      'assets/images/default_bike.png',
+                                    )
+                                    as ImageProvider,
+                        ),
+                        title: Text(
+                          '${motorcycle.brand} ${motorcycle.model}',
+                          style: TextStyle(
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        subtitle: Text(
+                          motorcycle.licensePlate ?? '${motorcycle.year}',
+                        ),
+                        trailing: isSelected
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: AppTheme.primaryColor,
+                              )
+                            : null,
+                        onTap: () {
+                          reportProvider.setMotorcycle(motorcycle.id);
+                          Navigator.pop(context);
+                        },
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+            ],
+          );
         },
       ),
     );
@@ -161,6 +297,76 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Selector de motocicleta
+                  Consumer<MotorcycleProvider>(
+                    builder: (context, motorcycleProvider, _) {
+                      final selectedMoto = provider.selectedMotorcycleId != null
+                          ? motorcycleProvider.motorcycles.firstWhere(
+                              (m) => m.id == provider.selectedMotorcycleId,
+                              orElse: () =>
+                                  motorcycleProvider.motorcycles.first,
+                            )
+                          : null;
+
+                      return Card(
+                        elevation: 0,
+                        color: AppTheme.primaryColor.withOpacity(0.05),
+                        child: InkWell(
+                          onTap: _showMotorcycleSelector,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  selectedMoto != null
+                                      ? Icons.two_wheeler
+                                      : Icons.motorcycle,
+                                  color: AppTheme.primaryColor,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        selectedMoto != null
+                                            ? '${selectedMoto.brand} ${selectedMoto.model}'
+                                            : 'Todas las motocicletas',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.textPrimaryColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        selectedMoto != null
+                                            ? 'Reporte individual'
+                                            : 'Reporte general',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
                   // Información de filtros activos
                   if (provider.startDate != null || provider.endDate != null)
                     Card(

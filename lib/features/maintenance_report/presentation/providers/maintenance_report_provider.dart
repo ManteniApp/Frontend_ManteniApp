@@ -42,22 +42,39 @@ class MaintenanceReportProvider extends ChangeNotifier {
 
   /// Carga el reporte con los filtros actuales
   Future<void> loadReport() async {
+    print('🔄 [ReportProvider] Iniciando carga de reporte...');
+    print('🔄 [ReportProvider] Estado actual: $_status');
     _status = ReportStatus.loading;
     _errorMessage = null;
     notifyListeners();
+    print(
+      '🔄 [ReportProvider] Estado cambiado a loading, notificando listeners...',
+    );
 
     try {
+      print('🔄 [ReportProvider] Llamando al use case...');
       _report = await getMaintenanceReportUseCase(
         startDate: _startDate,
         endDate: _endDate,
         motorcycleId: _selectedMotorcycleId,
       );
+      print('✅ [ReportProvider] Reporte obtenido exitosamente');
+      print(
+        '✅ [ReportProvider] Total mantenimientos: ${_report?.totalMaintenances}',
+      );
       _status = ReportStatus.loaded;
       notifyListeners();
+      print(
+        '✅ [ReportProvider] Estado cambiado a loaded, notificando listeners...',
+      );
     } catch (e) {
+      print('❌ [ReportProvider] Error al cargar reporte: $e');
       _errorMessage = e.toString();
       _status = ReportStatus.error;
       notifyListeners();
+      print(
+        '❌ [ReportProvider] Estado cambiado a error, notificando listeners...',
+      );
     }
   }
 

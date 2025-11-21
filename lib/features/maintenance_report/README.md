@@ -5,18 +5,56 @@ Este feature permite a los usuarios ver un reporte resumen de sus mantenimientos
 
 ## ✨ Funcionalidades Implementadas
 
-### Frontend (Completado)
+### Frontend (Completado ✅)
 - ✅ Pantalla "Reporte de mantenimientos"
 - ✅ Métricas principales (total de mantenimientos, costo total, costo promedio)
 - ✅ Visualización de la fecha del último mantenimiento
 - ✅ Gráfico de servicios más frecuentes con barras de progreso
 - ✅ Filtros por rango de fechas
+- ✅ **Selector de motocicleta** (Ver reporte general o por moto específica)
 - ✅ Botón de descarga/exportación a PDF
 - ✅ Mensajes de estado (sin datos, cargando, error)
 - ✅ Actualización automática mediante RefreshIndicator
 - ✅ Integración completa con la navegación de la app
+- ✅ **Datos mockeados para desarrollo (hasta que backend esté listo)**
 
-### Backend (Pendiente)
+## 🏍️ Selector de Motocicleta
+
+El reporte es **versátil** y permite ver estadísticas de dos formas:
+
+### 📊 Reporte General (Predeterminado)
+- Muestra estadísticas consolidadas de **todas las motocicletas** del usuario
+- Ideal para ver el panorama completo de gastos y mantenimientos
+
+### 🔍 Reporte Individual
+- Filtra los datos por una motocicleta específica
+- Selecciona desde el chip selector en la parte superior
+- Las estadísticas se actualizan automáticamente
+
+**Uso:**
+1. Presiona el chip selector "Todas las motocicletas" en la parte superior
+2. Selecciona una moto específica o "Todas las motocicletas"
+3. El reporte se actualiza automáticamente
+
+## 🎭 Modo MOCK Activado
+
+Actualmente el feature está usando **datos simulados** porque el backend aún no ha implementado los endpoints necesarios.
+
+### ⚙️ Cómo cambiar entre MOCK y REAL:
+
+**Archivo:** `lib/features/maintenance_report/data/repositories/maintenance_report_repository_impl.dart`
+
+```dart
+/// ⚠️ CONFIGURACIÓN: Cambiar a false cuando el backend esté listo
+const bool USE_MOCK_DATA = true;  // ← Cambiar a false para usar datos reales
+```
+
+**Cuando cambiar a datos reales:**
+1. El backend implementa los endpoints (SCRUM-209, SCRUM-210)
+2. Cambiar `USE_MOCK_DATA = false` en el archivo mencionado
+3. ¡Listo! El feature usará automáticamente los datos del backend
+
+### Backend (Pendiente ⏳)
 ⚠️ **El backend debe implementar los siguientes endpoints:**
 
 #### 1. GET `/maintenance/report`

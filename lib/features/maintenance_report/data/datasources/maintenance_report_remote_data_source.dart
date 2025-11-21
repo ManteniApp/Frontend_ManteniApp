@@ -39,12 +39,15 @@ class MaintenanceReportRemoteDataSourceImpl
     String? motorcycleId,
   }) async {
     try {
+      print('🔍 [MaintenanceReport] Iniciando solicitud de reporte...');
       final token = await authStorage.getToken();
       if (token == null) {
+        print('❌ [MaintenanceReport] No hay token de autenticación');
         throw Exception('No hay token de autenticación');
       }
+      print('✅ [MaintenanceReport] Token obtenido');
 
-      // Construir query parameters
+      // Construir query parameters - solo incluir parámetros con valores válidos
       final queryParams = <String, String>{};
       if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
@@ -52,23 +55,36 @@ class MaintenanceReportRemoteDataSourceImpl
       if (endDate != null) {
         queryParams['endDate'] = endDate.toIso8601String();
       }
-      if (motorcycleId != null) {
+      // Solo agregar motorcycleId si no está vacío
+      if (motorcycleId != null && motorcycleId.isNotEmpty) {
         queryParams['motorcycleId'] = motorcycleId;
       }
 
       final uri = Uri.parse(
         '${ApiConfig.baseUrl}/maintenance/report',
-      ).replace(queryParameters: queryParams);
+      ).replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+
+      print('📡 [MaintenanceReport] URL: $uri');
+      print(
+        '🔑 [MaintenanceReport] Headers: ${ApiConfig.getAuthHeaders(token)}',
+      );
 
       final response = await client
           .get(uri, headers: ApiConfig.getAuthHeaders(token))
           .timeout(ApiConfig.receiveTimeout);
 
+      print('📨 [MaintenanceReport] Status Code: ${response.statusCode}');
+      print('📦 [MaintenanceReport] Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
+        print('✅ [MaintenanceReport] Reporte parseado correctamente');
         return MaintenanceReportModel.fromJson(jsonData);
       } else if (response.statusCode == 404) {
         // No hay datos, devolver reporte vacío
+        print(
+          '⚠️ [MaintenanceReport] No hay datos (404), devolviendo reporte vacío',
+        );
         return const MaintenanceReportModel(
           totalMaintenances: 0,
           totalCost: 0.0,
@@ -76,9 +92,11 @@ class MaintenanceReportRemoteDataSourceImpl
           mostFrequentServices: [],
         );
       } else {
+        print('❌ [MaintenanceReport] Error: ${response.statusCode}');
         throw Exception('Error al obtener el reporte: ${response.statusCode}');
       }
     } catch (e) {
+      print('💥 [MaintenanceReport] Exception: $e');
       throw Exception('Error al obtener el reporte: $e');
     }
   }
@@ -95,7 +113,7 @@ class MaintenanceReportRemoteDataSourceImpl
         throw Exception('No hay token de autenticación');
       }
 
-      // Construir query parameters
+      // Construir query parameters - solo incluir parámetros con valores válidos
       final queryParams = <String, String>{};
       if (startDate != null) {
         queryParams['startDate'] = startDate.toIso8601String();
@@ -103,13 +121,14 @@ class MaintenanceReportRemoteDataSourceImpl
       if (endDate != null) {
         queryParams['endDate'] = endDate.toIso8601String();
       }
-      if (motorcycleId != null) {
+      // Solo agregar motorcycleId si no está vacío
+      if (motorcycleId != null && motorcycleId.isNotEmpty) {
         queryParams['motorcycleId'] = motorcycleId;
       }
 
       final uri = Uri.parse(
         '${ApiConfig.baseUrl}/maintenance/report/pdf',
-      ).replace(queryParameters: queryParams);
+      ).replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
 
       final response = await client
           .get(uri, headers: ApiConfig.getAuthHeaders(token))

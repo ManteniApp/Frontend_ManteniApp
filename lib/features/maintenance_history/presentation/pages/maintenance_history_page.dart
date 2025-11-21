@@ -345,7 +345,11 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
           IconButton(
             icon: const Icon(Icons.assessment, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, '/maintenance-report');
+              // Usar rootNavigator para acceder a las rutas globales
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pushNamed('/maintenance-report');
             },
             tooltip: 'Ver reporte',
           ),
