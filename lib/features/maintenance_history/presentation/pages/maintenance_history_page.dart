@@ -340,6 +340,16 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
           ),
         ),
         centerTitle: true, // Centrar el título
+        actions: [
+          // Botón para ir al reporte
+          IconButton(
+            icon: const Icon(Icons.assessment, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, '/maintenance-report');
+            },
+            tooltip: 'Ver reporte',
+          ),
+        ],
       ),
       body: Column(
         children: [

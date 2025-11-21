@@ -63,6 +63,7 @@ class _EditMotorcyclePageState extends State<EditMotorcyclePage> {
         id: _motorcycle.id,
         brand: _marcaController.text.trim(),
         model: _modeloController.text.trim(),
+        imageUrl: _motorcycle.imageUrl, // Preservar imagen original
         licensePlate: _placaController.text.trim().isEmpty
             ? null
             : _placaController.text.trim(),

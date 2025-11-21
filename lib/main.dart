@@ -16,11 +16,17 @@ import 'features/maintenance_history/domain/usecases/update_maintenance.dart';
 import 'features/maintenance_history/domain/usecases/delete_maintenance.dart';
 import 'features/maintenance_history/data/repositories/maintenance_history_repository_impl.dart';
 import 'features/maintenance_history/data/datasources/maintenance_history_remote_data_source.dart';
+import 'features/maintenance_report/presentation/providers/maintenance_report_provider.dart';
+import 'features/maintenance_report/domain/usecases/get_maintenance_report.dart';
+import 'features/maintenance_report/domain/usecases/export_report_to_pdf.dart';
+import 'features/maintenance_report/data/repositories/maintenance_report_repository_impl.dart';
+import 'features/maintenance_report/data/datasources/maintenance_report_remote_data_source.dart';
 import 'core/layout/main_layout.dart';
 import 'features/auth_1/presentation/pages/login_page.dart';
 import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
 import 'features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'features/maintenance_report/presentation/pages/maintenance_report_page.dart';
 import 'features/motorcycles/presentation/pages/edit_motorcycle_page.dart';
 import 'features/motorcycles/data/models/motorcycle_model.dart';
 
@@ -61,6 +67,17 @@ class ManteniApp extends StatelessWidget {
             );
           },
         ),
+        ChangeNotifierProvider(
+          create: (context) {
+            final repository = MaintenanceReportRepositoryImpl(
+              remoteDataSource: MaintenanceReportRemoteDataSourceImpl(),
+            );
+            return MaintenanceReportProvider(
+              getMaintenanceReportUseCase: GetMaintenanceReport(repository),
+              exportReportToPdfUseCase: ExportReportToPdf(repository),
+            );
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'ManteniApp',
@@ -89,6 +106,7 @@ class ManteniApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
+          '/maintenance-report': (context) => const MaintenanceReportPage(),
           '/perfil': (context) => PerfilUser(),
           '/register-maintenance': (context) {
             final arguments = ModalRoute.of(context)!.settings.arguments;
