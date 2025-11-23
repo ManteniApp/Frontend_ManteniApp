@@ -75,9 +75,9 @@ class _MainLayoutState extends State<MainLayout> {
       ),
     ),
     _buildTabNavigator(
-          key: _navigatorKeys[2],
-          child: const MaintenanceHistoryPage(),
-        ),
+      key: navigatorKeys[2],
+      child: const MaintenanceHistoryPage(),
+    ),
     _buildTabNavigator(
       key: navigatorKeys[3],
       child: const Center(child: Text('Alertas')),
@@ -96,7 +96,7 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
-   void _loadMotorcycles() {
+  void _loadMotorcycles() {
     // Cargar motos cuando se inicialice el layout
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final motorcycleProvider = context.read<MotorcycleProvider>();
@@ -104,7 +104,6 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -166,10 +165,10 @@ class _MainLayoutState extends State<MainLayout> {
                                   _selectedIndex == 0
                                       ? 'Inicio'
                                       : _selectedIndex == 1
-                                          ? 'Motos'
-                                          : _selectedIndex == 2
-                                              ? 'Historial'
-                                              : 'Alertas',
+                                      ? 'Motos'
+                                      : _selectedIndex == 2
+                                      ? 'Historial'
+                                      : 'Alertas',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: Colors.black54,
@@ -181,10 +180,10 @@ class _MainLayoutState extends State<MainLayout> {
                                     _selectedIndex == 0
                                         ? 'Buenos días, ${userName ?? ''} 👋'
                                         : _selectedIndex == 1
-                                            ? 'Listado de Motos'
-                                            : _selectedIndex == 2
-                                                ? 'Historial de Mantenimientos'
-                                                : 'Mis Alertas',
+                                        ? 'Listado de Motos'
+                                        : _selectedIndex == 2
+                                        ? 'Historial de Mantenimientos'
+                                        : 'Mis Alertas',
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,

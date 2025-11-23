@@ -139,15 +139,14 @@ class _HomeOverviewPageState extends State<HomeOverviewPage> {
                                   children: [
                                     Expanded(
                                       child:
-                                          moto.imageUrl != null &&
-                                              moto.imageUrl!.isNotEmpty
+                                          moto.imageUrl.isNotEmpty
                                           ? ClipRRect(
                                               borderRadius:
                                                   const BorderRadius.vertical(
                                                     top: Radius.circular(12),
                                                   ),
                                               child: Image.network(
-                                                moto.imageUrl!,
+                                                moto.imageUrl,
                                                 fit: BoxFit.cover,
                                                 width: double.infinity,
                                               ),

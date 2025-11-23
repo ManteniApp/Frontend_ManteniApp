@@ -9,10 +9,10 @@ class MaintenanceRecommendationsPage extends StatefulWidget {
   final String? motorcycleName;
 
   const MaintenanceRecommendationsPage({
-    Key? key,
+    super.key,
     this.motorcycleId,
     this.motorcycleName,
-  }) : super(key: key);
+  });
 
   @override
   State<MaintenanceRecommendationsPage> createState() =>

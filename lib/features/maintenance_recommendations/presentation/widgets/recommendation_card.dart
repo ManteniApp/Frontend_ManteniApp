@@ -5,8 +5,7 @@ import '../../domain/entities/recommendation_entity.dart';
 class RecommendationCard extends StatelessWidget {
   final MaintenanceRecommendationEntity recommendation;
 
-  const RecommendationCard({Key? key, required this.recommendation})
-    : super(key: key);
+  const RecommendationCard({super.key, required this.recommendation});
 
   @override
   Widget build(BuildContext context) {
