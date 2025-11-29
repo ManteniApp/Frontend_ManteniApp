@@ -11,7 +11,7 @@ class CustomTextField extends StatelessWidget {
     required this.hintText,
     required this.icon,
     required this.controller,
-    this.isPassword = false,
+    this.isPassword = false, required Null Function(dynamic value) onChanged,
   });
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../providers/maintenance_history_provider.dart';
@@ -243,30 +244,65 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
     );
   }
 
-  /// TODO: Implementar navegación a la pantalla de registrar mantenimiento
-  /// Esta funcionalidad debe ser implementada por el equipo encargado
-  ///
-  /// Requisitos:
-  /// 1. Crear la ruta en el sistema de navegación (ej: '/register-maintenance')
-  /// 2. Después de registrar un mantenimiento exitosamente, recargar el historial:
-  ///    context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
-  /// 3. Opcional: Pasar el ID de la moto seleccionada en el filtro actual para pre-seleccionarla:
-  ///    final selectedMotoId = context.read<MaintenanceHistoryProvider>().selectedMotorcycleFilter;
-  ///    Navigator.pushNamed(context, '/register-maintenance', arguments: selectedMotoId);
-  void _navigateToCreateMaintenance() {
-    // TODO: Implementar navegación
-    // Navigator.pushNamed(context, '/register-maintenance');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          '⚠️ Funcionalidad pendiente: Navegar a registrar mantenimiento',
+  Future<void> _navigateToCreateMaintenance() async {
+    try {
+      final motorcycleProvider = context.read<MotorcycleProvider>();
+      
+      if (motorcycleProvider.motorcycles.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No hay motocicletas registradas'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+      
+      List<Map<String, dynamic>> motosArgument = motorcycleProvider.motorcycles.map((moto) {
+        return {
+          'id': moto.id ?? 0,
+          'marca': moto.brand,
+          'modelo': moto.model,
+        };
+      }).toList();
+      
+      print('📱 Navegando a registro con ${motosArgument.length} moto(s)');
+      
+      // ✅ Navegación simple - el usuario regresará manualmente con el botón back
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MaintenanceRegisterPage(motos: motosArgument),
         ),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 2),
-      ),
-    );
+      );
+      
+      // Esto se ejecuta cuando el usuario regresa manualmente
+      if (mounted) {
+        print('🔄 Usuario regresó - Recargando historial...');
+        context.read<MaintenanceHistoryProvider>().loadMaintenanceHistory();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Historial actualizado'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      
+    } catch (e) {
+      print('💥 ERROR en navegación: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +321,15 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            // Siempre intentar pop dentro del Navigator anidado del historial
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              // Si no se puede pop, no hacer nada (quedarse en el historial)
+              print('ℹ️ Ya estás en la raíz del tab de historial');
+            }
+          },
         ),
         title: const Text(
           'Historial',

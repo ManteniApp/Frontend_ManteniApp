@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
 import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_page.dart';
+import 'package:frontend_manteniapp/features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import '../../../features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
@@ -32,6 +35,7 @@ class _MainLayoutState extends State<MainLayout> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    _loadMotorcycles();
   }
 
   // 🔹 Páginas principales con navegadores anidados
@@ -54,7 +58,7 @@ class _MainLayoutState extends State<MainLayout> {
         ),
         _buildTabNavigator(
           key: _navigatorKeys[2],
-          child: const Center(child: Text('Reportes')),
+          child: const MaintenanceHistoryPage(),
         ),
         _buildTabNavigator(
           key: _navigatorKeys[3],
@@ -76,6 +80,15 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
+   void _loadMotorcycles() {
+    // Cargar motos cuando se inicialice el layout
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final motorcycleProvider = context.read<MotorcycleProvider>();
+      motorcycleProvider.loadMotorcycles();
+    });
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -133,7 +146,7 @@ class _MainLayoutState extends State<MainLayout> {
                                       : _selectedIndex == 1
                                           ? 'Motos'
                                           : _selectedIndex == 2
-                                              ? 'Reportes'
+                                              ? 'Historial'
                                               : 'Alertas',
                                   style: const TextStyle(
                                     fontSize: 13,
@@ -148,7 +161,7 @@ class _MainLayoutState extends State<MainLayout> {
                                         : _selectedIndex == 1
                                             ? 'Listado de Motos'
                                             : _selectedIndex == 2
-                                                ? 'Mis Reportes'
+                                                ? 'Historial de Mantenimientos'
                                                 : 'Mis Alertas',
                                     style: const TextStyle(
                                       fontSize: 20,
@@ -223,8 +236,8 @@ class _MainLayoutState extends State<MainLayout> {
                           title: const Text("Motos"),
                         ),
                         SalomonBottomBarItem(
-                          icon: const Icon(Icons.insert_chart_outlined_rounded),
-                          title: const Text("Reportes"),
+                          icon: const Icon(Icons.history_rounded),
+                          title: const Text("Historial"),
                         ),
                         SalomonBottomBarItem(
                           icon: const Icon(Icons.notifications_outlined),

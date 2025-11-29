@@ -6,6 +6,7 @@ import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_pa
 import 'package:frontend_manteniapp/features/alerts/state/alert_provider.dart';
 import 'package:frontend_manteniapp/features/notifications/state/notification_provier.dart';
 import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
+import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
 
 // Imports de nuestro feature
@@ -95,6 +96,15 @@ class ManteniApp extends StatelessWidget {
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
           '/perfil': (context) => PerfilUser(),
           '/alerts': (context) => AlertsPage(),
+          '/register-maintenance': (context) {
+            final arguments = ModalRoute.of(context)!.settings.arguments;
+            if (arguments is List<Map<String, dynamic>>) {
+              return MaintenanceRegisterPage(motos: arguments);
+            } else {
+              // Fallback por si los argumentos no son correctos
+              return MaintenanceRegisterPage(motos: []);
+            }
+          },
         },
       ),
     );

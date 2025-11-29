@@ -14,6 +14,12 @@ class GetMaintenanceHistory {
     double? maxPrice,
     String? motorcycleId,
   }) async {
+
+    print('🎯 GetMaintenanceHistory llamado con:');
+    print('   - motorcycleId: $motorcycleId');
+    print('   - startDate: $startDate');
+    print('   - endDate: $endDate');
+    
     return await repository.getMaintenanceHistory(
       startDate: startDate,
       endDate: endDate,
