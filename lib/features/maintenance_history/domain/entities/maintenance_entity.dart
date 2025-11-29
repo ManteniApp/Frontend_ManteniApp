@@ -62,4 +62,10 @@ class MaintenanceEntity {
 
   @override
   int get hashCode => id.hashCode ^ type.hashCode ^ motorcycleName.hashCode;
+
+  int? get nextMaintenanceKm => null;
+
+  int? get nextMaintenanceMonths => null;
+
+  int? get currentKm => null;
 }

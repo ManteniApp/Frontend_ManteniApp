@@ -3,6 +3,7 @@ class AppNotification {
   final String titulo;
   final String descripcion;
   final DateTime fecha;
+  final String tipo;
   bool leida;
 
   AppNotification({
@@ -10,6 +11,7 @@ class AppNotification {
     required this.titulo,
     required this.descripcion,
     required this.fecha,
+    required this.tipo,
     this.leida = false,
   });
 }

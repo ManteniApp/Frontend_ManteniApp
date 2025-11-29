@@ -21,4 +21,15 @@ class NotificationProvider extends ChangeNotifier {
     _notificaciones.removeWhere((n) => n.id == id);
     notifyListeners();
   }
+
+  void limpiarNotificacionesLeidas() {
+    _notificaciones.removeWhere((n) => n.leida);
+    notifyListeners();
+  }
+
+  void limpiarTodasLasNotificaciones() {
+    _notificaciones.clear();
+    notifyListeners();
+  }
+
 }

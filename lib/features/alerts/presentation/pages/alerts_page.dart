@@ -1,9 +1,10 @@
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/alert_evalution_service.dart';
 import 'package:frontend_manteniapp/core/services/firebase_push_service.dart';
 import 'package:frontend_manteniapp/features/alerts/data/alert_model.dart';
+import 'package:frontend_manteniapp/features/alerts/presentation/widgets/alerta_ditail_dialog.dart';
 import 'package:frontend_manteniapp/features/maintenance_history/presentation/providers/maintenance_history_provider.dart';
+import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
 import 'package:frontend_manteniapp/features/notifications/data/notification_model.dart';
 import 'package:frontend_manteniapp/features/notifications/state/notification_provier.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +25,8 @@ class _AlertsPageState extends State<AlertsPage> {
   @override
   void initState() {
     super.initState();
-    _alertService = AlertEvaluationService(context);
-    
-    // 🔥 EVALUAR MANTENIMIENTOS AUTOMÁTICAMENTE AL INICIAR
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _alertService = AlertEvaluationService(context);
       _evaluateExistingMaintenances(context);
     });
   }
@@ -41,15 +40,19 @@ class _AlertsPageState extends State<AlertsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Alertas activas (${alerts.length})"),
+        backgroundColor: const Color.fromARGB(255, 30, 125, 202),
+        foregroundColor: Colors.white,
+        elevation: 3,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () {
               _evaluateExistingMaintenances(context);
             },
+            tooltip: 'Actualizar',
           ),
           IconButton(
-            icon: const Icon(Icons.auto_awesome),
+            icon: const Icon(Icons.auto_awesome, color: Colors.white),
             onPressed: () {
               _autoEvaluateAlerts(context);
             },
@@ -57,38 +60,34 @@ class _AlertsPageState extends State<AlertsPage> {
           ),
         ],
       ),
-      // 🔥 CAMBIO PRINCIPAL: Usar SingleChildScrollView en lugar de Column
       body: _buildScrollableContent(alerts, alertProvider, notificationProvider),
-      // 🔥 BOTÓN FLOTANTE PARA PRUEBAS
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showTestOptions(context);
         },
-        child: const Icon(Icons.build),
+        backgroundColor: const Color.fromARGB(255, 30, 125, 202),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        child: const Icon(Icons.build_circle),
       ),
     );
   }
 
-  // 🔥 NUEVO MÉTODO: Contenido scrollable
   Widget _buildScrollableContent(
     List<AlertModel> alerts, 
     AlertProvider alertProvider, 
     NotificationProvider notificationProvider
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 80), // 🔥 Espacio para el footer
+      padding: const EdgeInsets.only(bottom: 80),
       child: Column(
         children: [
-          // 🔥 SECCIÓN DE PRUEBAS - Solo visible si no hay alertas
           if (alerts.isEmpty) _buildTestSection(),
           
-          // 🔥 SECCIÓN DE ESTADÍSTICAS
           _buildStatsCard(alertProvider, notificationProvider),
           
-          // 🔥 LISTA DE ALERTAS
           _buildAlertsSection(alerts),
           
-          // 🔥 ESPACIO EXTRA PARA EVITAR CHOQUE CON FOOTER
           const SizedBox(height: 20),
         ],
       ),
@@ -96,102 +95,231 @@ class _AlertsPageState extends State<AlertsPage> {
   }
 
   Widget _buildTestSection() {
-    return Card(
+    return Container(
       margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Icon(Icons.auto_awesome_motion, size: 48, color: Colors.blue),
-            const SizedBox(height: 10),
-            const Text(
-              'Sistema de Alertas Automáticas',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'El sistema evaluará automáticamente tus mantenimientos y creará alertas cuando sea necesario.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 15),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _evaluateExistingMaintenances(context),
-                  icon: const Icon(Icons.search),
-                  label: const Text('Evaluar Mantenimientos'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => _loadRealTestData(context),
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Datos de Prueba'),
-                ),
-              ],
-            ),
-          ],
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.blue.shade50, Colors.grey.shade100],
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.shade100, width: 1),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.auto_awesome_motion, size: 36, color: Colors.blue),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Sistema de Alertas Automáticas',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.blueGrey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'El sistema evaluará automáticamente tus mantenimientos y creará alertas cuando sea necesario.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+          const SizedBox(height: 20),
+          // En la sección de botones, reemplaza con:
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              _buildActionButton(
+                icon: Icons.search,
+                label: 'Evaluar Mantenimientos',
+                color: Colors.blue,
+                onPressed: () => _evaluateExistingMaintenances(context),
+              ),
+              _buildActionButton(
+                icon: Icons.auto_awesome,
+                label: 'Actualizar Alertas',
+                color: Colors.green,
+                onPressed: () => _refreshAlerts(context),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  
+  // Agrega este método:
+  void _refreshAlerts(BuildContext context) {
+    final alertProvider = Provider.of<AlertProvider>(context, listen: false);
+      final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
+            
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('🔄 Actualizando estado de alertas...')),           );
+
+            // Re-evaluar las alertas existentes
+      alertProvider.evaluarTodasLasAlertas(
+        notificationProvider,
+        kmActual: _getCurrentKmFromProvider(context),
+        fechaActual: DateTime.now(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Alertas actualizadas'),
+          backgroundColor: Colors.green,
+       ),
+      );
+    }
+    int _getCurrentKmFromProvider(BuildContext context) {
+      final motorcycleProvider = context.read<MotorcycleProvider>();
+        if (motorcycleProvider.motorcycles.isNotEmpty) {
+          return motorcycleProvider.motorcycles.first.mileage;
+       }
+     return 0;
+    }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 8),
+          Text(label, style: const TextStyle(fontSize: 14)),
+        ],
       ),
     );
   }
 
   Widget _buildStatsCard(AlertProvider alertProvider, NotificationProvider notificationProvider) {
-    return Card(
+    final alertasActivas = alertProvider.alertasActivas.length;
+    final totalNotificaciones = notificationProvider.notificaciones.length;
+    final notificacionesNoLeidas = notificationProvider.notificaciones.where((n) => !n.leida).length;
+
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            const Text(
-              '📊 Resumen',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            const Row(
+              children: [
+                Icon(Icons.analytics, size: 20, color: Colors.blueGrey),
+                SizedBox(width: 8),
+                Text(
+                  'Resumen del Sistema',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueGrey),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
                   'Alertas Activas', 
-                  '${alertProvider.alertasActivas.length}',
-                  alertProvider.alertasActivas.isNotEmpty ? Colors.orange : Colors.grey
+                  '$alertasActivas',
+                  alertasActivas > 0 ? Colors.orange : Colors.green,
+                  alertasActivas > 0 ? Icons.warning : Icons.check_circle,
                 ),
                 _buildStatItem(
-                  'Total Notificaciones', 
-                  '${notificationProvider.notificaciones.length}',
-                  Colors.blue
+                  'Notificaciones', 
+                  '$totalNotificaciones',
+                  totalNotificaciones > 0 ? Colors.blue : Colors.grey,
+                  Icons.notifications,
                 ),
                 _buildStatItem(
                   'Por Leer', 
-                  '${notificationProvider.notificaciones.where((n) => !n.leida).length}',
-                  notificationProvider.notificaciones.any((n) => !n.leida) ? Colors.red : Colors.green
+                  '$notificacionesNoLeidas',
+                  notificacionesNoLeidas > 0 ? Colors.red : Colors.green,
+                  Icons.mark_email_unread,
                 ),
               ],
             ),
+            if (alertasActivas == 0) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.shade100),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '¡Todo al día! No hay alertas pendientes',
+                        style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color) {
+  Widget _buildStatItem(String label, String value, Color color, IconData icon) {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             shape: BoxShape.circle,
+            border: Border.all(color: color.withOpacity(0.3), width: 2),
           ),
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+          child: Icon(icon, size: 20, color: color),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
           ),
         ),
         const SizedBox(height: 4),
@@ -206,18 +334,28 @@ class _AlertsPageState extends State<AlertsPage> {
 
   Widget _buildAlertsSection(List<AlertModel> alerts) {
     if (alerts.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(32.0),
+      return Container(
+        margin: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.green.shade50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.green.shade100),
+        ),
         child: Column(
           children: [
-            Icon(Icons.check_circle, size: 64, color: Colors.green),
-            SizedBox(height: 16),
+            Icon(Icons.check_circle, size: 64, color: Colors.green.shade600),
+            const SizedBox(height: 16),
             Text(
               '¡Todo al día!',
-              style: TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20, 
+                color: Colors.green.shade700, 
+                fontWeight: FontWeight.bold
+              ),
             ),
-            SizedBox(height: 8),
-            Text(
+            const SizedBox(height: 8),
+            const Text(
               'No hay alertas activas en este momento.',
               style: TextStyle(color: Colors.grey),
               textAlign: TextAlign.center,
@@ -227,143 +365,52 @@ class _AlertsPageState extends State<AlertsPage> {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Alertas Activas',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListView.builder(
-          shrinkWrap: true, // 🔥 IMPORTANTE: Para scroll anidado
-          physics: const NeverScrollableScrollPhysics(), // 🔥 Evitar conflicto de scroll
-          itemCount: alerts.length,
-          itemBuilder: (_, i) => AlertTile(alerta: alerts[i]),
-        ),
-      ],
-    );
-  }
-
-  void _showTestOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Opciones de Prueba',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
               children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _createDirectTestAlert(context);
-                  },
-                  icon: const Icon(Icons.add_alert),
-                  label: const Text('Alerta Directa'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _createTestNotification(context);
-                  },
-                  icon: const Icon(Icons.notifications),
-                  label: const Text('Notificación'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _evaluateExistingMaintenances(context);
-                  },
-                  icon: const Icon(Icons.search),
-                  label: const Text('Evaluar Mantenimientos'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _loadRealTestData(context);
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Datos Reales'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showDebugInfo(context);
-                  },
-                  icon: const Icon(Icons.bug_report),
-                  label: const Text('Debug'),
+                Icon(Icons.warning_amber, size: 20, color: Colors.orange),
+                SizedBox(width: 8),
+                Text(
+                  'Alertas Activas',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          ...alerts.map((alert) => 
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: AlertTile(
+                alerta: alert,
+                onMarcarLeida: () {
+                  context.read<AlertProvider>().marcarComoLeida(alert.id);
+                },
+                onResolver: () {
+                  context.read<AlertProvider>().marcarComoResuelta(alert.id);
+                },
+                onVerDetalle: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDetailDialog(
+                      alerta: alert,
+                    ),
+                  );
+                },
+              ),
+            )
+          ).toList(),
+        ],
       ),
     );
   }
 
-  // 🔥 MÉTODOS DE PRUEBA
-  void _createDirectTestAlert(BuildContext context) {
-    final alertProvider = Provider.of<AlertProvider>(context, listen: false);
-    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
-
-    final testAlert = AlertModel(
-      id: 'direct_test_${DateTime.now().millisecondsSinceEpoch}',
-      tipo: AlertType.fecha,
-      descripcion: '🚨 ALERTA DE PRUEBA: Creada el ${DateFormat('HH:mm:ss').format(DateTime.now())}',
-      fechaObjetivo: DateTime.now().add(const Duration(days: 5)),
-      estado: AlertStatus.proxima,
-    );
-
-    alertProvider.agregarAlerta(testAlert);
-
-    final notification = AppNotification(
-      id: 'direct_notif_${DateTime.now().millisecondsSinceEpoch}',
-      titulo: '🔔 Alerta de Prueba',
-      descripcion: testAlert.descripcion,
-      fecha: DateTime.now(),
-    );
-
-    notificationProvider.agregarNotificacion(notification);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ Alerta de prueba creada')),
-    );
-  }
-
-  void _createTestNotification(BuildContext context) {
-    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
-
-    final notification = AppNotification(
-      id: 'test_notif_${DateTime.now().millisecondsSinceEpoch}',
-      titulo: '📢 Notificación de Prueba',
-      descripcion: 'Creada el ${DateFormat('HH:mm:ss').format(DateTime.now())}',
-      fecha: DateTime.now(),
-    );
-
-    notificationProvider.agregarNotificacion(notification);
-
-    FirebasePushService.showMaintenanceAlert(
-      title: '📢 Notificación de Prueba',
-      body: 'Esta es una notificación de prueba del sistema',
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ Notificación de prueba creada')),
-    );
-  }
-
-  // 🔥 EVALUACIÓN AUTOMÁTICA DE MANTENIMIENTOS
   void _evaluateExistingMaintenances(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('🔍 Evaluando mantenimientos existentes...')),
@@ -371,12 +418,21 @@ class _AlertsPageState extends State<AlertsPage> {
 
     _alertService.evaluateExistingMaintenances().then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Mantenimientos evaluados - Alertas generadas automáticamente')),
+        const SnackBar(
+          content: Text('✅ Mantenimientos evaluados - Alertas generadas automáticamente'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
     });
   }
 
-  // 🔥 EVALUACIÓN AUTOMÁTICA COMPLETA
   void _autoEvaluateAlerts(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('🤖 Ejecutando evaluación automática...')),
@@ -384,7 +440,17 @@ class _AlertsPageState extends State<AlertsPage> {
 
     _alertService.evaluateMaintenanceAlerts().then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Evaluación automática completada')),
+        const SnackBar(
+          content: Text('✅ Evaluación automática completada'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
     });
   }
@@ -396,9 +462,67 @@ class _AlertsPageState extends State<AlertsPage> {
 
     _alertService.createRealTestData().then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Datos reales de prueba creados')),
+        const SnackBar(
+          content: Text('✅ Datos reales de prueba creados'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
     });
+  }
+
+  void _createDirectTestAlert(BuildContext context) {
+    final alertProvider = Provider.of<AlertProvider>(context, listen: false);
+    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
+
+    alertProvider.crearAlertaDirectaPrueba();
+
+    final notification = AppNotification(
+      id: 'direct_notif_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: '🔔 Alerta de Prueba Directa',
+      descripcion: 'Alerta de prueba creada directamente',
+      fecha: DateTime.now(), tipo: 'test',
+    );
+
+    notificationProvider.agregarNotificacion(notification);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Alerta de prueba directa creada'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _createTestNotification(BuildContext context) {
+    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
+
+    final notification = AppNotification(
+      id: 'test_notif_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: '📢 Notificación de Prueba',
+      descripcion: 'Creada el ${DateFormat('HH:mm:ss').format(DateTime.now())}',
+      fecha: DateTime.now(), tipo: 'test',
+    );
+
+    notificationProvider.agregarNotificacion(notification);
+
+    FirebasePushService.showMaintenanceAlert(
+      title: '📢 Notificación de Prueba',
+      body: 'Esta es una notificación de prueba del sistema',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Notificación de prueba creada'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   void _showDebugInfo(BuildContext context) {
@@ -408,22 +532,32 @@ class _AlertsPageState extends State<AlertsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('🔍 Información de Debug'),
+        title: const Row(
+          children: [
+            Icon(Icons.bug_report, color: Colors.purple),
+            SizedBox(width: 8),
+            Text('Información de Debug'),
+          ],
+        ),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('📊 Alertas totales: ${alertProvider.alerts.length}'),
-              Text('🚨 Alertas activas: ${alertProvider.alertasActivas.length}'),
-              Text('📋 Mantenimientos: ${maintenanceProvider.maintenances.length}'),
+              _buildDebugItem('📊 Alertas totales', '${alertProvider.alerts.length}'),
+              _buildDebugItem('🚨 Alertas activas', '${alertProvider.alertasActivas.length}'),
+              _buildDebugItem('📋 Mantenimientos', '${maintenanceProvider.maintenances.length}'),
               const SizedBox(height: 16),
-              const Text('📝 Lista de alertas:'),
-              ...alertProvider.alerts.map((alert) => Text(
-                ' - ${alert.descripcion} (${alert.estado})',
+              const Text('📝 Lista de alertas:', style: TextStyle(fontWeight: FontWeight.bold)),
+              ...alertProvider.alerts.take(5).map((alert) => Text(
+                ' • ${alert.descripcion} (${alert.estado})',
                 style: TextStyle(
-                  color: alert.estado == AlertStatus.actual ? Colors.grey : Colors.black,
+                  color: alert.estado == AlertStatus.actual ? Colors.grey : 
+                         alert.estado == AlertStatus.proxima ? Colors.orange : 
+                         alert.estado == AlertStatus.vencida ? Colors.red : Colors.green,
                 ),
               )).toList(),
+              if (alertProvider.alerts.length > 5)
+                Text('... y ${alertProvider.alerts.length - 5} más'),
             ],
           ),
         ),
@@ -436,4 +570,161 @@ class _AlertsPageState extends State<AlertsPage> {
       ),
     );
   }
+
+  Widget _buildDebugItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  // 🔥 PANEL DE OPCIONES DE PRUEBA COMPLETO
+  void _showTestOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Header del panel
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.blueGrey[800],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.build_circle, color: Colors.white, size: 24),
+                  SizedBox(width: 12),
+                  Text(
+                    'Opciones de Prueba',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Grid de opciones
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.2,
+                  children: [
+                    _buildTestOptionCard(
+                      icon: Icons.add_alert,
+                      title: 'Alerta Directa',
+                      description: 'Crear alerta de prueba inmediata',
+                      color: Colors.red,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _createDirectTestAlert(context);
+                      },
+                    ),
+                    _buildTestOptionCard(
+                      icon: Icons.notifications,
+                      title: 'Notificación',
+                      description: 'Enviar notificación de prueba',
+                      color: Colors.blue,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _createTestNotification(context);
+                      },
+                    ),
+                    _buildTestOptionCard(
+                      icon: Icons.search,
+                      title: 'Evaluar Mantenimientos',
+                      description: 'Revisar mantenimientos pendientes',
+                      color: Colors.orange,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _evaluateExistingMaintenances(context);
+                      },
+                    ),
+                    _buildTestOptionCard(
+                      icon: Icons.play_arrow,
+                      title: 'Datos Reales',
+                      description: 'Cargar datos de prueba realistas',
+                      color: Colors.green,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _loadRealTestData(context);
+                      },
+                    ),
+                    _buildTestOptionCard(
+                      icon: Icons.bug_report,
+                      title: 'Debug Info', description: '', onTap: () {  }, color: Colors.purple,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  _buildTestOptionCard({required IconData icon, required String title, required String description, required Null Function() onTap, required MaterialColor color }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: color.withOpacity(0.1),
+                child: Icon(icon, size: 28, color: color),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+  
