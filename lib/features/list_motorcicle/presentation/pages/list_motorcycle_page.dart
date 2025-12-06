@@ -85,14 +85,16 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     String? motorcycleId,
     int index,
   ) async {
-    // Validar que el ID no sea nulo
+    // Validar que el ID no sea null
     if (motorcycleId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error: La motocicleta no tiene un ID válido'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: ID de motocicleta no válido'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
@@ -247,6 +249,7 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
               _deleteMotorcycleFromBackend(motorcycles[index].id, index),
           onEdit: () => _editMotorcycle(motorcycles[index]),
           onTap: () => widget.onOpenProfile(motorcycles[index]),
+          onRecommendations: () => _openRecommendations(motorcycles[index]),
         );
       },
     );
@@ -304,5 +307,16 @@ class _ListMotorcyclePageState extends State<ListMotorcyclePage> {
     ).pushNamed('/edit-motorcycle', arguments: fullModel).then((_) {
       _loadMotorcycles(); // Recargar lista después de editar
     });
+  }
+
+  // NUEVO MÉTODO: Abrir recomendaciones
+  void _openRecommendations(MotorcycleEntity motorcycle) {
+    Navigator.of(context, rootNavigator: true).pushNamed(
+      '/maintenance-recommendations',
+      arguments: {
+        'motorcycleId': motorcycle.id,
+        'motorcycleName': motorcycle.fullName,
+      },
+    );
   }
 }

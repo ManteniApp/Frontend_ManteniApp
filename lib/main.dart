@@ -21,6 +21,21 @@ import 'features/maintenance_report/domain/usecases/get_maintenance_report.dart'
 import 'features/maintenance_report/domain/usecases/export_report_to_pdf.dart';
 import 'features/maintenance_report/data/repositories/maintenance_report_repository_impl.dart';
 import 'features/maintenance_report/data/datasources/maintenance_report_remote_data_source.dart';
+import 'features/maintenance_recommendations/presentation/providers/recommendation_provider.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_general_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_motorcycle_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_all_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_technical_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_safety_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_performance_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_recommendations_by_category.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_recommendations_by_priority.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_upcoming_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/delete_recommendation.dart';
+import 'features/maintenance_recommendations/data/repositories/recommendation_repository_impl.dart';
+import 'features/maintenance_recommendations/data/datasources/recommendation_remote_data_source.dart';
+import 'features/maintenance_recommendations/presentation/pages/maintenance_recommendations_page.dart';
+import 'features/maintenance_recommendations/presentation/pages/test_recommendations_page.dart';
 import 'core/layout/main_layout.dart';
 import 'features/auth_1/presentation/pages/login_page.dart';
 import 'features/Register_User/presentation/pages/register_user.dart';
@@ -75,6 +90,35 @@ class ManteniApp extends StatelessWidget {
             return MaintenanceReportProvider(
               getMaintenanceReportUseCase: GetMaintenanceReport(repository),
               exportReportToPdfUseCase: ExportReportToPdf(repository),
+            final repository = MaintenanceRecommendationRepositoryImpl(
+              remoteDataSource: RecommendationRemoteDataSourceImpl(),
+            );
+            return MaintenanceRecommendationProvider(
+              getGeneralRecommendationsUseCase: GetGeneralRecommendations(
+                repository,
+              ),
+              getMotorcycleRecommendationsUseCase: GetMotorcycleRecommendations(
+                repository,
+              ),
+              getAllRecommendationsUseCase: GetAllRecommendations(repository),
+              getTechnicalRecommendationsUseCase: GetTechnicalRecommendations(
+                repository,
+              ),
+              getSafetyRecommendationsUseCase: GetSafetyRecommendations(
+                repository,
+              ),
+              getPerformanceRecommendationsUseCase:
+                  GetPerformanceRecommendations(repository),
+              getRecommendationsByCategoryUseCase: GetRecommendationsByCategory(
+                repository,
+              ),
+              getRecommendationsByPriorityUseCase: GetRecommendationsByPriority(
+                repository,
+              ),
+              getUpcomingRecommendationsUseCase: GetUpcomingRecommendations(
+                repository,
+              ),
+              deleteRecommendationUseCase: DeleteRecommendation(repository),
             );
           },
         ),
@@ -113,6 +157,15 @@ class ManteniApp extends StatelessWidget {
             return MaintenanceReportPage(initialMotorcycleId: motorcycleId);
           },
           '/perfil': (context) => PerfilUser(),
+          '/maintenance-recommendations': (context) {
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            return MaintenanceRecommendationsPage(
+              motorcycleId: args?['motorcycleId'] as String?,
+              motorcycleName: args?['motorcycleName'] as String?,
+            );
+          },
           '/register-maintenance': (context) {
             final arguments = ModalRoute.of(context)!.settings.arguments;
             if (arguments is List<Map<String, dynamic>>) {
@@ -127,6 +180,7 @@ class ManteniApp extends StatelessWidget {
                 ModalRoute.of(context)!.settings.arguments as MotorcycleModel;
             return EditMotorcyclePage(motorcycle: motorcycle);
           },
+          '/test-recommendations': (context) => const TestRecommendationsPage(),
         },
       ),
     );

@@ -7,6 +7,7 @@ class MotorcycleCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
   final VoidCallback? onTap;
+  final VoidCallback? onRecommendations;
 
   const MotorcycleCard({
     super.key,
@@ -14,6 +15,7 @@ class MotorcycleCard extends StatelessWidget {
     this.onDelete,
     this.onEdit,
     this.onTap,
+    this.onRecommendations,
   });
 
   @override
@@ -60,7 +62,7 @@ class MotorcycleCard extends StatelessWidget {
                                   return _buildPlaceholderImage();
                                 },
                               )
-                              // TODO: Cuando el backend esté listo, reemplazar Image.asset por Image.network
+                            // TODO: Cuando el backend esté listo, reemplazar Image.asset por Image.network
                             // usando motorcycle.imageUrl y restaurar el loadingBuilder
                             /* Image.network(
                                 motorcycle.imageUrl,
@@ -103,46 +105,86 @@ class MotorcycleCard extends StatelessWidget {
                 ],
               ),
               // Iconos de acciones en la esquina superior derecha
-              if (onDelete != null || onEdit != null)
+              if (onDelete != null ||
+                  onEdit != null ||
+                  onRecommendations != null)
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Icono de editar
-                      if (onEdit != null)
-                        GestureDetector(
-                          onTap: () => onEdit!.call(),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            margin: const EdgeInsets.only(right: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Icon(
-                              Icons.edit_outlined,
-                              color: Color(0xFF2196F3),
-                              size: 18,
-                            ),
+                  child: PopupMenuButton<String>(
+                    icon: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.more_vert,
+                        color: Color(0xFF212121),
+                        size: 18,
+                      ),
+                    ),
+                    onSelected: (value) {
+                      if (value == 'edit' && onEdit != null) {
+                        onEdit!.call();
+                      } else if (value == 'delete' && onDelete != null) {
+                        _showDeleteConfirmation(context);
+                      } else if (value == 'recommendations' &&
+                          onRecommendations != null) {
+                        onRecommendations!.call();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (onRecommendations != null)
+                        const PopupMenuItem(
+                          value: 'recommendations',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.lightbulb_outline,
+                                color: Color(0xFF2196F3),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Recomendaciones'),
+                            ],
                           ),
                         ),
-                      // Icono de eliminar
+                      if (onEdit != null)
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.edit_outlined,
+                                color: Color(0xFF2196F3),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Editar'),
+                            ],
+                          ),
+                        ),
                       if (onDelete != null)
-                        GestureDetector(
-                          onTap: () => _showDeleteConfirmation(context),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Icon(
-                              Icons.delete_outline,
-                              color: Color(0xFFE57373),
-                              size: 18,
-                            ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                color: Color(0xFFE57373),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Eliminar'),
+                            ],
                           ),
                         ),
                     ],

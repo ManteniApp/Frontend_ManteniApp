@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
 import 'package:frontend_manteniapp/features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'package:frontend_manteniapp/features/maintenance_recommendations/presentation/pages/maintenance_recommendations_page.dart';
 import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -80,7 +81,7 @@ class _MainLayoutState extends State<MainLayout> {
     ),
     _buildTabNavigator(
       key: navigatorKeys[3],
-      child: const Center(child: Text('Alertas')),
+      child: const MaintenanceRecommendationsPage(),
     ),
   ];
 
