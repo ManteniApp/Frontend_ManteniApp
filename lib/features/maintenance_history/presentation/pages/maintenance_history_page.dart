@@ -340,6 +340,29 @@ class _MaintenanceHistoryPageState extends State<MaintenanceHistoryPage> {
           ),
         ),
         centerTitle: true, // Centrar el título
+        actions: [
+          // Botón para ir al reporte
+          IconButton(
+            icon: const Icon(Icons.assessment, color: Colors.black),
+            onPressed: () {
+              // Obtener el motorcycleId seleccionado del filtro
+              final provider = context.read<MaintenanceHistoryProvider>();
+              final selectedMotorcycleId = provider.selectedMotorcycleFilter;
+
+              print(
+                '🚀 [Historia] Navegando a reporte con moto: $selectedMotorcycleId',
+              );
+
+              // Usar rootNavigator para acceder a las rutas globales
+              // Pasar el motorcycleId como argumento
+              Navigator.of(context, rootNavigator: true).pushNamed(
+                '/maintenance-report',
+                arguments: selectedMotorcycleId,
+              );
+            },
+            tooltip: 'Ver reporte',
+          ),
+        ],
       ),
       body: Column(
         children: [

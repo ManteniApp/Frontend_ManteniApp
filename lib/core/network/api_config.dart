@@ -21,6 +21,11 @@ class ApiConfig {
   // Endpoints de historial de mantenimientos
   static const String maintenanceHistoryEndpoint = '/maintenance';
 
+  // Endpoints de reporte de mantenimientos
+  static const String maintenanceSummaryEndpoint = '/maintenance-summary';
+  static const String maintenanceSummaryPdfEndpoint =
+      '/maintenance-summary/pdf';
+
   // Timeouts (⚠️ TEMPORALMENTE aumentado para debug - backend muy lento)
   static const Duration connectionTimeout = Duration(seconds: 60);
   static const Duration receiveTimeout = Duration(seconds: 60);

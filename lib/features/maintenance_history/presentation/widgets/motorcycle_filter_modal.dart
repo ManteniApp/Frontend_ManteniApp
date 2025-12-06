@@ -52,7 +52,7 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 100),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -202,7 +202,7 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
                     );
                   },
                 ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Botones
           Row(
