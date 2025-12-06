@@ -90,6 +90,11 @@ class ManteniApp extends StatelessWidget {
             return MaintenanceReportProvider(
               getMaintenanceReportUseCase: GetMaintenanceReport(repository),
               exportReportToPdfUseCase: ExportReportToPdf(repository),
+            );
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) {
             final repository = MaintenanceRecommendationRepositoryImpl(
               remoteDataSource: RecommendationRemoteDataSourceImpl(),
             );
