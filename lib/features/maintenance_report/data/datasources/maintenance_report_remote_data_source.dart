@@ -47,22 +47,36 @@ class MaintenanceReportRemoteDataSourceImpl
       }
       print('✅ [MaintenanceReport] Token obtenido');
 
-      // Construir query parameters - solo incluir parámetros con valores válidos
+      // Construir query parameters según la API del backend
       final queryParams = <String, String>{};
-      if (startDate != null) {
-        queryParams['startDate'] = startDate.toIso8601String();
-      }
-      if (endDate != null) {
-        queryParams['endDate'] = endDate.toIso8601String();
-      }
-      // Solo agregar motorcycleId si no está vacío
+
+      // motoId es requerido según la API
       if (motorcycleId != null && motorcycleId.isNotEmpty) {
-        queryParams['motorcycleId'] = motorcycleId;
+        queryParams['motoId'] = motorcycleId;
+      } else {
+        throw Exception('motoId es requerido');
       }
 
+      // startDate es requerido
+      if (startDate != null) {
+        queryParams['startDate'] = startDate.toIso8601String().split('T')[0];
+      } else {
+        throw Exception('startDate es requerido');
+      }
+
+      // endDate es requerido
+      if (endDate != null) {
+        queryParams['endDate'] = endDate.toIso8601String().split('T')[0];
+      } else {
+        throw Exception('endDate es requerido');
+      }
+
+      // tipo es requerido (puede ser 'preventivo', 'correctivo', o 'todos')
+      queryParams['tipo'] = 'todos';
+
       final uri = Uri.parse(
-        '${ApiConfig.baseUrl}/maintenance/report',
-      ).replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+        '${ApiConfig.baseUrl}${ApiConfig.maintenanceSummaryEndpoint}',
+      ).replace(queryParameters: queryParams);
 
       print('📡 [MaintenanceReport] URL: $uri');
       print(
@@ -80,10 +94,11 @@ class MaintenanceReportRemoteDataSourceImpl
         final jsonData = json.decode(response.body);
         print('✅ [MaintenanceReport] Reporte parseado correctamente');
         return MaintenanceReportModel.fromJson(jsonData);
-      } else if (response.statusCode == 404) {
-        // No hay datos, devolver reporte vacío
+      } else if (response.statusCode == 404 || response.statusCode == 400) {
+        // No hay datos (404) o no se encontraron mantenimientos con los filtros (400)
+        // Devolver reporte vacío en lugar de error
         print(
-          '⚠️ [MaintenanceReport] No hay datos (404), devolviendo reporte vacío',
+          '⚠️ [MaintenanceReport] No hay datos (${response.statusCode}), devolviendo reporte vacío',
         );
         return const MaintenanceReportModel(
           totalMaintenances: 0,
@@ -113,22 +128,36 @@ class MaintenanceReportRemoteDataSourceImpl
         throw Exception('No hay token de autenticación');
       }
 
-      // Construir query parameters - solo incluir parámetros con valores válidos
+      // Construir query parameters según la API del backend
       final queryParams = <String, String>{};
-      if (startDate != null) {
-        queryParams['startDate'] = startDate.toIso8601String();
-      }
-      if (endDate != null) {
-        queryParams['endDate'] = endDate.toIso8601String();
-      }
-      // Solo agregar motorcycleId si no está vacío
+
+      // motoId es requerido según la API
       if (motorcycleId != null && motorcycleId.isNotEmpty) {
-        queryParams['motorcycleId'] = motorcycleId;
+        queryParams['motoId'] = motorcycleId;
+      } else {
+        throw Exception('motoId es requerido');
       }
 
+      // startDate es requerido
+      if (startDate != null) {
+        queryParams['startDate'] = startDate.toIso8601String().split('T')[0];
+      } else {
+        throw Exception('startDate es requerido');
+      }
+
+      // endDate es requerido
+      if (endDate != null) {
+        queryParams['endDate'] = endDate.toIso8601String().split('T')[0];
+      } else {
+        throw Exception('endDate es requerido');
+      }
+
+      // tipo es requerido (puede ser 'preventivo', 'correctivo', o 'todos')
+      queryParams['tipo'] = 'todos';
+
       final uri = Uri.parse(
-        '${ApiConfig.baseUrl}/maintenance/report/pdf',
-      ).replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+        '${ApiConfig.baseUrl}${ApiConfig.maintenanceSummaryPdfEndpoint}',
+      ).replace(queryParameters: queryParams);
 
       final response = await client
           .get(uri, headers: ApiConfig.getAuthHeaders(token))

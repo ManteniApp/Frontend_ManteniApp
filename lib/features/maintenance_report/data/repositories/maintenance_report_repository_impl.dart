@@ -4,7 +4,7 @@ import '../datasources/maintenance_report_remote_data_source.dart';
 import '../datasources/maintenance_report_mock_data_source.dart';
 
 /// ⚠️ CONFIGURACIÓN: Cambiar a false cuando el backend esté listo
-const bool USE_MOCK_DATA = true;
+const bool USE_MOCK_DATA = false;
 
 /// Implementación del repositorio de reportes de mantenimiento
 class MaintenanceReportRepositoryImpl implements MaintenanceReportRepository {

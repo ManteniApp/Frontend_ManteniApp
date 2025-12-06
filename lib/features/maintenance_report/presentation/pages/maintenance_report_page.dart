@@ -11,7 +11,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../motorcycles/presentation/providers/motorcycle_provider.dart';
 
 class MaintenanceReportPage extends StatefulWidget {
-  const MaintenanceReportPage({super.key});
+  final String? initialMotorcycleId;
+
+  const MaintenanceReportPage({super.key, this.initialMotorcycleId});
 
   @override
   State<MaintenanceReportPage> createState() => _MaintenanceReportPageState();
@@ -22,14 +24,47 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
   void initState() {
     super.initState();
     print('🎬 [MaintenanceReportPage] initState ejecutado');
-    // Cargar motos y reporte al iniciar la página
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Cargar motos y configurar reporte inicial
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       print('🎬 [MaintenanceReportPage] addPostFrameCallback ejecutándose');
-      // Cargar lista de motos
-      context.read<MotorcycleProvider>().loadMotorcycles();
-      // Cargar reporte inicial (todas las motos)
-      context.read<MaintenanceReportProvider>().loadReport();
-      print('🎬 [MaintenanceReportPage] loadReport() llamado');
+
+      final motorcycleProvider = context.read<MotorcycleProvider>();
+      final reportProvider = context.read<MaintenanceReportProvider>();
+
+      // Primero cargar las motocicletas
+      await motorcycleProvider.loadMotorcycles();
+
+      // Determinar qué moto seleccionar
+      String? motorcycleToSelect;
+
+      if (widget.initialMotorcycleId != null) {
+        // Si se pasó un ID inicial, verificar que exista en la lista
+        final exists = motorcycleProvider.motorcycles.any(
+          (m) => m.id == widget.initialMotorcycleId,
+        );
+        if (exists) {
+          motorcycleToSelect = widget.initialMotorcycleId;
+          print(
+            '🎬 [MaintenanceReportPage] Usando moto del filtro: $motorcycleToSelect',
+          );
+        }
+      }
+
+      // Si no hay ID inicial o no existe, usar la primera disponible
+      if (motorcycleToSelect == null &&
+          motorcycleProvider.motorcycles.isNotEmpty) {
+        motorcycleToSelect = motorcycleProvider.motorcycles.first.id;
+        print(
+          '🎬 [MaintenanceReportPage] Seleccionando primera moto: $motorcycleToSelect',
+        );
+      }
+
+      // Seleccionar la moto y cargar el reporte
+      if (motorcycleToSelect != null) {
+        await reportProvider.setMotorcycle(motorcycleToSelect);
+      } else {
+        print('⚠️ [MaintenanceReportPage] No hay motocicletas disponibles');
+      }
     });
   }
 
@@ -107,32 +142,6 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
                   controller: scrollController,
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    // Opción: Todas las motos
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                        child: const Icon(
-                          Icons.motorcycle,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                      title: const Text(
-                        'Todas las motocicletas',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text('Ver reporte general'),
-                      trailing: reportProvider.selectedMotorcycleId == null
-                          ? const Icon(
-                              Icons.check_circle,
-                              color: AppTheme.primaryColor,
-                            )
-                          : null,
-                      onTap: () {
-                        reportProvider.setMotorcycle(null);
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Divider(indent: 72),
                     // Lista de motos
                     ...motorcycleProvider.motorcycles.map((motorcycle) {
                       final isSelected =
@@ -334,7 +343,7 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
                                       Text(
                                         selectedMoto != null
                                             ? '${selectedMoto.brand} ${selectedMoto.model}'
-                                            : 'Todas las motocicletas',
+                                            : 'Seleccionar motocicleta',
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
@@ -344,8 +353,8 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
                                       const SizedBox(height: 2),
                                       Text(
                                         selectedMoto != null
-                                            ? 'Reporte individual'
-                                            : 'Reporte general',
+                                            ? 'Reporte de esta moto'
+                                            : 'Toca para elegir',
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[600],

@@ -106,7 +106,12 @@ class ManteniApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
           '/maintenance-history': (context) => const MaintenanceHistoryPage(),
-          '/maintenance-report': (context) => const MaintenanceReportPage(),
+          '/maintenance-report': (context) {
+            // Obtener el motorcycleId si se pasó como argumento
+            final motorcycleId =
+                ModalRoute.of(context)?.settings.arguments as String?;
+            return MaintenanceReportPage(initialMotorcycleId: motorcycleId);
+          },
           '/perfil': (context) => PerfilUser(),
           '/register-maintenance': (context) {
             final arguments = ModalRoute.of(context)!.settings.arguments;

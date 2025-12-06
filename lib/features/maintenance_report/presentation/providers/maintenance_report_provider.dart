@@ -44,6 +44,29 @@ class MaintenanceReportProvider extends ChangeNotifier {
   Future<void> loadReport() async {
     print('🔄 [ReportProvider] Iniciando carga de reporte...');
     print('🔄 [ReportProvider] Estado actual: $_status');
+
+    // Validar que tenemos los datos requeridos por la API
+    if (_selectedMotorcycleId == null || _selectedMotorcycleId!.isEmpty) {
+      print(
+        '⚠️ [ReportProvider] No hay motocicleta seleccionada, no se puede cargar el reporte',
+      );
+      _status = ReportStatus.error;
+      _errorMessage = 'Por favor selecciona una motocicleta';
+      notifyListeners();
+      return;
+    }
+
+    // Establecer fechas por defecto si no están definidas
+    final now = DateTime.now();
+    final effectiveStartDate =
+        _startDate ?? DateTime(now.year, 1, 1); // Inicio del año actual
+    final effectiveEndDate = _endDate ?? now; // Fecha actual
+
+    print('🔄 [ReportProvider] Parámetros:');
+    print('  - Motocicleta: $_selectedMotorcycleId');
+    print('  - Fecha inicio: $effectiveStartDate');
+    print('  - Fecha fin: $effectiveEndDate');
+
     _status = ReportStatus.loading;
     _errorMessage = null;
     notifyListeners();
@@ -54,8 +77,8 @@ class MaintenanceReportProvider extends ChangeNotifier {
     try {
       print('🔄 [ReportProvider] Llamando al use case...');
       _report = await getMaintenanceReportUseCase(
-        startDate: _startDate,
-        endDate: _endDate,
+        startDate: effectiveStartDate,
+        endDate: effectiveEndDate,
         motorcycleId: _selectedMotorcycleId,
       );
       print('✅ [ReportProvider] Reporte obtenido exitosamente');
@@ -111,6 +134,19 @@ class MaintenanceReportProvider extends ChangeNotifier {
       return;
     }
 
+    // Validar que tenemos los datos requeridos por la API
+    if (_selectedMotorcycleId == null || _selectedMotorcycleId!.isEmpty) {
+      _errorMessage = 'Por favor selecciona una motocicleta';
+      _status = ReportStatus.error;
+      notifyListeners();
+      return;
+    }
+
+    // Establecer fechas por defecto si no están definidas
+    final now = DateTime.now();
+    final effectiveStartDate = _startDate ?? DateTime(now.year, 1, 1);
+    final effectiveEndDate = _endDate ?? now;
+
     _status = ReportStatus.exporting;
     _pdfUrl = null;
     _errorMessage = null;
@@ -118,8 +154,8 @@ class MaintenanceReportProvider extends ChangeNotifier {
 
     try {
       _pdfUrl = await exportReportToPdfUseCase(
-        startDate: _startDate,
-        endDate: _endDate,
+        startDate: effectiveStartDate,
+        endDate: effectiveEndDate,
         motorcycleId: _selectedMotorcycleId,
       );
       _status = ReportStatus.exported;

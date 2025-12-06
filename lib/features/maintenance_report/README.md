@@ -20,33 +20,45 @@ Este feature permite a los usuarios ver un reporte resumen de sus mantenimientos
 
 ## 🏍️ Selector de Motocicleta
 
-El reporte es **versátil** y permite ver estadísticas de dos formas:
+El reporte requiere que selecciones **una motocicleta específica** para ver sus estadísticas:
 
-### 📊 Reporte General (Predeterminado)
-- Muestra estadísticas consolidadas de **todas las motocicletas** del usuario
-- Ideal para ver el panorama completo de gastos y mantenimientos
-
-### 🔍 Reporte Individual
-- Filtra los datos por una motocicleta específica
-- Selecciona desde el chip selector en la parte superior
-- Las estadísticas se actualizan automáticamente
+### 🔍 Funcionamiento
+- Al abrir la pantalla, se selecciona automáticamente la primera motocicleta disponible
+- Puedes cambiar de motocicleta usando el chip selector en la parte superior
+- El reporte se actualiza automáticamente al cambiar de moto
+- **No es posible ver un reporte consolidado de todas las motos** (limitación del backend)
 
 **Uso:**
-1. Presiona el chip selector "Todas las motocicletas" en la parte superior
-2. Selecciona una moto específica o "Todas las motocicletas"
-3. El reporte se actualiza automáticamente
+1. La app selecciona automáticamente tu primera moto al entrar
+2. Si quieres ver otra moto, presiona el chip selector
+3. Elige la motocicleta deseada de la lista
+4. El reporte se actualiza automáticamente
 
-## 🎭 Modo MOCK Activado
+## ✅ Backend Conectado
 
-Actualmente el feature está usando **datos simulados** porque el backend aún no ha implementado los endpoints necesarios.
+El feature está **conectado al backend real** y consume los siguientes endpoints:
+
+### 📡 Endpoints Implementados:
+
+**1. Obtener Resumen de Mantenimientos**
+- **Endpoint:** `GET /maintenance-summary`
+- **Parámetros requeridos:**
+  - `motoId` (number): ID de la motocicleta
+  - `startDate` (string): Fecha de inicio (formato: YYYY-MM-DD)
+  - `endDate` (string): Fecha de fin (formato: YYYY-MM-DD)
+  - `tipo` (string): Tipo de mantenimiento ('preventivo', 'correctivo', 'todos')
+
+**2. Exportar Reporte a PDF**
+- **Endpoint:** `GET /maintenance-summary/pdf`
+- **Parámetros requeridos:** Los mismos que el endpoint anterior
 
 ### ⚙️ Cómo cambiar entre MOCK y REAL:
 
 **Archivo:** `lib/features/maintenance_report/data/repositories/maintenance_report_repository_impl.dart`
 
 ```dart
-/// ⚠️ CONFIGURACIÓN: Cambiar a false cuando el backend esté listo
-const bool USE_MOCK_DATA = true;  // ← Cambiar a false para usar datos reales
+/// ⚠️ CONFIGURACIÓN: Cambiar a true para usar datos mock
+const bool USE_MOCK_DATA = false;  // false = datos reales del backend
 ```
 
 **Cuando cambiar a datos reales:**
