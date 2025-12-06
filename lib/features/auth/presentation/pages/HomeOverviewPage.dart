@@ -138,8 +138,7 @@ class _HomeOverviewPageState extends State<HomeOverviewPage> {
                                 child: Column(
                                   children: [
                                     Expanded(
-                                      child:
-                                          moto.imageUrl.isNotEmpty
+                                      child: moto.imageUrl.isNotEmpty
                                           ? ClipRRect(
                                               borderRadius:
                                                   const BorderRadius.vertical(

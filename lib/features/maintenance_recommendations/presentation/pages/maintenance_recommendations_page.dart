@@ -34,7 +34,8 @@ class _MaintenanceRecommendationsPageState
     if (widget.motorcycleId != null) {
       provider.loadMotorcycleRecommendations(widget.motorcycleId!);
     } else {
-      provider.loadGeneralRecommendations();
+      // Cargar todas las recomendaciones disponibles
+      provider.loadAllRecommendations();
     }
   }
 
