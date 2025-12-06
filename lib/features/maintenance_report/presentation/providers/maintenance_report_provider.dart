@@ -56,16 +56,15 @@ class MaintenanceReportProvider extends ChangeNotifier {
       return;
     }
 
-    // Establecer fechas por defecto si no están definidas
-    final now = DateTime.now();
-    final effectiveStartDate =
-        _startDate ?? DateTime(now.year, 1, 1); // Inicio del año actual
-    final effectiveEndDate = _endDate ?? now; // Fecha actual
+    // Las fechas son opcionales - si no se proporcionan, el backend devuelve todos los datos
+    // Si el usuario ha seleccionado fechas específicas, las usamos como filtros
+    final DateTime? effectiveStartDate = _startDate;
+    final DateTime? effectiveEndDate = _endDate;
 
     print('🔄 [ReportProvider] Parámetros:');
     print('  - Motocicleta: $_selectedMotorcycleId');
-    print('  - Fecha inicio: $effectiveStartDate');
-    print('  - Fecha fin: $effectiveEndDate');
+    print('  - Fecha inicio: ${effectiveStartDate ?? "Sin filtro"}');
+    print('  - Fecha fin: ${effectiveEndDate ?? "Sin filtro"}');
 
     _status = ReportStatus.loading;
     _errorMessage = null;
@@ -142,10 +141,15 @@ class MaintenanceReportProvider extends ChangeNotifier {
       return;
     }
 
-    // Establecer fechas por defecto si no están definidas
-    final now = DateTime.now();
-    final effectiveStartDate = _startDate ?? DateTime(now.year, 1, 1);
-    final effectiveEndDate = _endDate ?? now;
+    print('📄 [Provider] Iniciando exportación a PDF...');
+    print('📄 [Provider] MotoId: $_selectedMotorcycleId');
+    print('📄 [Provider] StartDate: $_startDate');
+    print('📄 [Provider] EndDate: $_endDate');
+
+    // Las fechas son opcionales - si el usuario las seleccionó, las usamos
+    // Si no, el backend generará el PDF con todos los datos
+    final DateTime? effectiveStartDate = _startDate;
+    final DateTime? effectiveEndDate = _endDate;
 
     _status = ReportStatus.exporting;
     _pdfUrl = null;
@@ -158,9 +162,11 @@ class MaintenanceReportProvider extends ChangeNotifier {
         endDate: effectiveEndDate,
         motorcycleId: _selectedMotorcycleId,
       );
+      print('✅ [Provider] PDF URL obtenida: $_pdfUrl');
       _status = ReportStatus.exported;
       notifyListeners();
     } catch (e) {
+      print('❌ [Provider] Error al exportar PDF: $e');
       _errorMessage = e.toString();
       _status = ReportStatus.error;
       notifyListeners();

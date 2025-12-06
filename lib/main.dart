@@ -36,6 +36,7 @@ import 'features/maintenance_recommendations/data/repositories/recommendation_re
 import 'features/maintenance_recommendations/data/datasources/recommendation_remote_data_source.dart';
 import 'features/maintenance_recommendations/presentation/pages/maintenance_recommendations_page.dart';
 import 'features/maintenance_recommendations/presentation/pages/test_recommendations_page.dart';
+import 'test_pages/api_test_page.dart';
 import 'core/layout/main_layout.dart';
 import 'features/auth_1/presentation/pages/login_page.dart';
 import 'features/Register_User/presentation/pages/register_user.dart';
@@ -186,6 +187,7 @@ class ManteniApp extends StatelessWidget {
             return EditMotorcyclePage(motorcycle: motorcycle);
           },
           '/test-recommendations': (context) => const TestRecommendationsPage(),
+          '/api-test': (context) => const ApiTestPage(),
         },
       ),
     );

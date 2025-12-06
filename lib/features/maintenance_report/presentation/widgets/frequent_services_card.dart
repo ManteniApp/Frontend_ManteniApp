@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/maintenance_report_entity.dart';
 
@@ -69,6 +70,8 @@ class FrequentServicesCard extends StatelessWidget {
                   (service) => _ServiceItem(
                     serviceName: service.serviceName,
                     count: service.count,
+                    totalCost: service.totalCost,
+                    averageCost: service.averageCost,
                     maxCount: services.first.count,
                   ),
                 ),
@@ -82,20 +85,28 @@ class FrequentServicesCard extends StatelessWidget {
 class _ServiceItem extends StatelessWidget {
   final String serviceName;
   final int count;
+  final double? totalCost;
+  final double? averageCost;
   final int maxCount;
 
   const _ServiceItem({
     required this.serviceName,
     required this.count,
+    this.totalCost,
+    this.averageCost,
     required this.maxCount,
   });
 
   @override
   Widget build(BuildContext context) {
     final percentage = maxCount > 0 ? count / maxCount : 0.0;
+    final currencyFormat = NumberFormat.currency(
+      symbol: '\$',
+      decimalDigits: 0,
+    );
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -108,7 +119,7 @@ class _ServiceItem extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppTheme.textPrimaryColor,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -143,6 +154,32 @@ class _ServiceItem extends StatelessWidget {
               minHeight: 6,
             ),
           ),
+          if (totalCost != null || averageCost != null) ...[
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (totalCost != null)
+                  Text(
+                    'Total: ${currencyFormat.format(totalCost)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                if (averageCost != null)
+                  Text(
+                    'Promedio: ${currencyFormat.format(averageCost)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );

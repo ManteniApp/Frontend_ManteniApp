@@ -122,7 +122,8 @@ class RecommendationRemoteDataSourceImpl
 
   @override
   Future<List<MaintenanceRecommendationModel>> getAllRecommendations() async {
-    return _getRecommendations('/recommendations');
+    // Usar /recommendations/general en lugar de /recommendations ya que el endpoint general no existe
+    return _getRecommendations('/recommendations/general');
   }
 
   @override

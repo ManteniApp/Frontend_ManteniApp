@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/maintenance_report_provider.dart';
 import '../widgets/metric_card.dart';
 import '../widgets/frequent_services_card.dart';
-import '../widgets/date_range_filter_modal.dart';
+import '../widgets/maintenance_list_card.dart';
 import '../widgets/report_states.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../motorcycles/presentation/providers/motorcycle_provider.dart';
@@ -66,23 +67,6 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
         print('⚠️ [MaintenanceReportPage] No hay motocicletas disponibles');
       }
     });
-  }
-
-  void _showDateFilter() {
-    final provider = context.read<MaintenanceReportProvider>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DateRangeFilterModal(
-        initialStartDate: provider.startDate,
-        initialEndDate: provider.endDate,
-        onApply: (startDate, endDate) {
-          provider.setDateRange(startDate, endDate);
-        },
-      ),
-    );
   }
 
   void _showMotorcycleSelector() {
@@ -197,22 +181,43 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
     if (!mounted) return;
 
     if (provider.status == ReportStatus.exported && provider.pdfUrl != null) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: const Text('Reporte exportado correctamente'),
-          backgroundColor: Colors.green,
-          action: SnackBarAction(
-            label: 'Abrir',
-            textColor: Colors.white,
-            onPressed: () async {
-              final url = Uri.parse(provider.pdfUrl!);
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
-              }
-            },
+      if (kIsWeb) {
+        // En Web, el archivo se descarga automáticamente
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Reporte descargado: ${provider.pdfUrl}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
           ),
-        ),
-      );
+        );
+      } else {
+        // En móvil, mostramos la ruta y opción de abrir
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('PDF guardado exitosamente'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Abrir',
+              textColor: Colors.white,
+              onPressed: () async {
+                final uri = Uri.file(provider.pdfUrl!);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Archivo en: ${provider.pdfUrl}'),
+                      backgroundColor: Colors.blue,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+      }
     } else if (provider.status == ReportStatus.error) {
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -220,6 +225,7 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
             provider.errorMessage ?? 'Error al exportar el reporte',
           ),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -236,15 +242,11 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
               if (provider.hasData) {
                 return Row(
                   children: [
-                    // Botón de filtro
+                    // Botón de recargar
                     IconButton(
-                      icon: Icon(
-                        provider.startDate != null || provider.endDate != null
-                            ? Icons.filter_alt
-                            : Icons.filter_alt_outlined,
-                      ),
-                      onPressed: _showDateFilter,
-                      tooltip: 'Filtrar por fecha',
+                      icon: const Icon(Icons.refresh),
+                      onPressed: () => provider.loadReport(),
+                      tooltip: 'Recargar datos',
                     ),
                     // Botón de exportar
                     if (!provider.isExporting)
@@ -376,44 +378,6 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Información de filtros activos
-                  if (provider.startDate != null || provider.endDate != null)
-                    Card(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              size: 20,
-                              color: AppTheme.primaryColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Filtrado: ${provider.startDate != null ? dateFormat.format(provider.startDate!) : "Inicio"} - ${provider.endDate != null ? dateFormat.format(provider.endDate!) : "Hoy"}',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () => provider.clearFilters(),
-                              child: const Text(
-                                'Limpiar',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (provider.startDate != null || provider.endDate != null)
-                    const SizedBox(height: 16),
-
                   // Métricas principales
                   GridView.count(
                     crossAxisCount: 2,
@@ -456,6 +420,12 @@ class _MaintenanceReportPageState extends State<MaintenanceReportPage> {
 
                   // Servicios más frecuentes
                   FrequentServicesCard(services: report.mostFrequentServices),
+
+                  const SizedBox(height: 20),
+
+                  // Historial detallado de mantenimientos
+                  if (report.maintenances.isNotEmpty)
+                    MaintenanceListCard(maintenances: report.maintenances),
 
                   const SizedBox(height: 80),
                 ],

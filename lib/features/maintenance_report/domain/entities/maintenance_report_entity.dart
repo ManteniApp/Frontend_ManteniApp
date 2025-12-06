@@ -14,6 +14,9 @@ class MaintenanceReportEntity extends Equatable {
   /// Servicios más frecuentes (nombre del servicio y cantidad de veces)
   final List<ServiceFrequency> mostFrequentServices;
 
+  /// Lista detallada de todos los mantenimientos
+  final List<MaintenanceDetail> maintenances;
+
   /// Fecha del último mantenimiento registrado
   final DateTime? lastMaintenanceDate;
 
@@ -28,6 +31,7 @@ class MaintenanceReportEntity extends Equatable {
     required this.totalCost,
     required this.averageCost,
     required this.mostFrequentServices,
+    this.maintenances = const [],
     this.lastMaintenanceDate,
     this.startDate,
     this.endDate,
@@ -39,19 +43,59 @@ class MaintenanceReportEntity extends Equatable {
     totalCost,
     averageCost,
     mostFrequentServices,
+    maintenances,
     lastMaintenanceDate,
     startDate,
     endDate,
   ];
 }
 
-/// Representa la frecuencia de un servicio
+/// Representa el detalle de un mantenimiento individual
+class MaintenanceDetail extends Equatable {
+  final int id;
+  final int motoId;
+  final DateTime fecha;
+  final String tipo;
+  final String? descripcion;
+  final int? kilometraje;
+  final double costo;
+
+  const MaintenanceDetail({
+    required this.id,
+    required this.motoId,
+    required this.fecha,
+    required this.tipo,
+    this.descripcion,
+    this.kilometraje,
+    required this.costo,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    motoId,
+    fecha,
+    tipo,
+    descripcion,
+    kilometraje,
+    costo,
+  ];
+}
+
+/// Representa la frecuencia de un servicio con estadísticas completas
 class ServiceFrequency extends Equatable {
   final String serviceName;
   final int count;
+  final double? totalCost;
+  final double? averageCost;
 
-  const ServiceFrequency({required this.serviceName, required this.count});
+  const ServiceFrequency({
+    required this.serviceName,
+    required this.count,
+    this.totalCost,
+    this.averageCost,
+  });
 
   @override
-  List<Object?> get props => [serviceName, count];
+  List<Object?> get props => [serviceName, count, totalCost, averageCost];
 }

@@ -7,6 +7,7 @@ class MaintenanceReportModel extends MaintenanceReportEntity {
     required super.totalCost,
     required super.averageCost,
     required super.mostFrequentServices,
+    super.maintenances = const [],
     super.lastMaintenanceDate,
     super.startDate,
     super.endDate,
@@ -23,20 +24,52 @@ class MaintenanceReportModel extends MaintenanceReportEntity {
 
   /// Crea un modelo desde JSON
   factory MaintenanceReportModel.fromJson(Map<String, dynamic> json) {
-    // Parsear servicios más frecuentes
-    final servicesJson = json['mostFrequentServices'] as List<dynamic>? ?? [];
+    // Parsear servicios más frecuentes (mapeando desde español)
+    final servicesJson =
+        json['estadisticasPorTipo'] as List<dynamic>? ??
+        json['mostFrequentServices'] as List<dynamic>? ??
+        [];
     final services = servicesJson
         .map((service) => ServiceFrequencyModel.fromJson(service))
         .toList();
 
+    // Parsear lista de mantenimientos
+    final maintenancesJson = json['mantenimientos'] as List<dynamic>? ?? [];
+    final maintenances = maintenancesJson
+        .map((m) => MaintenanceDetailModel.fromJson(m))
+        .toList();
+
+    print('📅 [Model] Total mantenimientos parseados: ${maintenances.length}');
+
+    // Calcular la última fecha de mantenimiento desde la lista
+    DateTime? lastMaintenanceDate;
+    if (json['lastMaintenanceDate'] != null) {
+      lastMaintenanceDate = DateTime.parse(json['lastMaintenanceDate']);
+      print('📅 [Model] Fecha del backend: $lastMaintenanceDate');
+    } else if (maintenances.isNotEmpty) {
+      // Si no viene del backend, ordenar por fecha descendente y tomar la primera
+      final sortedMaintenances = List<MaintenanceDetailModel>.from(maintenances)
+        ..sort((a, b) => b.fecha.compareTo(a.fecha));
+
+      lastMaintenanceDate = sortedMaintenances.first.fecha;
+
+      print('📅 [Model] Fechas de mantenimientos:');
+      for (var m in sortedMaintenances.take(3)) {
+        print('   - ${m.fecha.toIso8601String()} (${m.tipo})');
+      }
+      print('📅 [Model] Última fecha calculada: $lastMaintenanceDate');
+    } else {
+      print('⚠️ [Model] No hay mantenimientos para calcular última fecha');
+    }
+
     return MaintenanceReportModel(
-      totalMaintenances: json['totalMaintenances'] ?? 0,
-      totalCost: _parseDouble(json['totalCost']),
-      averageCost: _parseDouble(json['averageCost']),
+      totalMaintenances:
+          json['totalMantenimientos'] ?? json['totalMaintenances'] ?? 0,
+      totalCost: _parseDouble(json['costoTotal'] ?? json['totalCost']),
+      averageCost: _parseDouble(json['costoPromedio'] ?? json['averageCost']),
       mostFrequentServices: services,
-      lastMaintenanceDate: json['lastMaintenanceDate'] != null
-          ? DateTime.parse(json['lastMaintenanceDate'])
-          : null,
+      maintenances: maintenances,
+      lastMaintenanceDate: lastMaintenanceDate,
       startDate: json['startDate'] != null
           ? DateTime.parse(json['startDate'])
           : null,
@@ -53,9 +86,49 @@ class MaintenanceReportModel extends MaintenanceReportEntity {
       'mostFrequentServices': mostFrequentServices
           .map((s) => (s as ServiceFrequencyModel).toJson())
           .toList(),
+      'maintenances': maintenances
+          .map((m) => (m as MaintenanceDetailModel).toJson())
+          .toList(),
       'lastMaintenanceDate': lastMaintenanceDate?.toIso8601String(),
       'startDate': startDate?.toIso8601String(),
       'endDate': endDate?.toIso8601String(),
+    };
+  }
+}
+
+/// Modelo para el detalle de un mantenimiento
+class MaintenanceDetailModel extends MaintenanceDetail {
+  const MaintenanceDetailModel({
+    required super.id,
+    required super.motoId,
+    required super.fecha,
+    required super.tipo,
+    super.descripcion,
+    super.kilometraje,
+    required super.costo,
+  });
+
+  factory MaintenanceDetailModel.fromJson(Map<String, dynamic> json) {
+    return MaintenanceDetailModel(
+      id: json['id'] ?? 0,
+      motoId: json['moto_id'] ?? json['motoId'] ?? 0,
+      fecha: DateTime.parse(json['fecha']),
+      tipo: json['tipo'] ?? '',
+      descripcion: json['descripcion'],
+      kilometraje: json['kilometraje'],
+      costo: MaintenanceReportModel._parseDouble(json['costo']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'moto_id': motoId,
+      'fecha': fecha.toIso8601String(),
+      'tipo': tipo,
+      'descripcion': descripcion,
+      'kilometraje': kilometraje,
+      'costo': costo,
     };
   }
 }
@@ -65,16 +138,29 @@ class ServiceFrequencyModel extends ServiceFrequency {
   const ServiceFrequencyModel({
     required super.serviceName,
     required super.count,
+    super.totalCost,
+    super.averageCost,
   });
 
   factory ServiceFrequencyModel.fromJson(Map<String, dynamic> json) {
     return ServiceFrequencyModel(
-      serviceName: json['serviceName'] ?? json['name'] ?? '',
-      count: json['count'] ?? 0,
+      serviceName: json['tipo'] ?? json['serviceName'] ?? json['name'] ?? '',
+      count: json['cantidad'] ?? json['count'] ?? 0,
+      totalCost: MaintenanceReportModel._parseDouble(
+        json['costoTotal'] ?? json['totalCost'],
+      ),
+      averageCost: MaintenanceReportModel._parseDouble(
+        json['costoPromedio'] ?? json['averageCost'],
+      ),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'serviceName': serviceName, 'count': count};
+    return {
+      'serviceName': serviceName,
+      'count': count,
+      'totalCost': totalCost,
+      'averageCost': averageCost,
+    };
   }
 }
