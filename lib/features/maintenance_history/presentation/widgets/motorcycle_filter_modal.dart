@@ -155,7 +155,8 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
                                   CircleAvatar(
                                     radius: 24,
                                     backgroundColor: Colors.grey[200],
-                                    backgroundImage: motorcycle.imageUrl.isNotEmpty
+                                    backgroundImage:
+                                        motorcycle.imageUrl.isNotEmpty
                                         ? NetworkImage(motorcycle.imageUrl)
                                         : null,
                                     child: motorcycle.imageUrl.isEmpty

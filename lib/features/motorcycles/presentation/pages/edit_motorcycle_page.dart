@@ -172,16 +172,23 @@ class _EditMotorcyclePageState extends State<EditMotorcyclePage> {
                                     ? Image.network(
                                         _motorcycle.imageUrl,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return _buildPlaceholderImage();
-                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return _buildPlaceholderImage();
+                                            },
                                         loadingBuilder: (context, child, loadingProgress) {
-                                          if (loadingProgress == null) return child;
+                                          if (loadingProgress == null)
+                                            return child;
                                           return Center(
                                             child: CircularProgressIndicator(
-                                              value: loadingProgress.expectedTotalBytes != null
-                                                  ? loadingProgress.cumulativeBytesLoaded /
-                                                    loadingProgress.expectedTotalBytes!
+                                              value:
+                                                  loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
                                                   : null,
                                             ),
                                           );
