@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/features/auth/presentation/pages/bike_profile_page.dart';
-import 'package:frontend_manteniapp/features/motorcycles/domain/entities/motorcycle_entity.dart';
-import 'package:frontend_manteniapp/features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
 import 'package:frontend_manteniapp/features/auth/presentation/widgets/recommendation_card.dart';
 import 'package:frontend_manteniapp/core/layout/main_layout.dart';
+import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeOverviewPage extends StatefulWidget {
   const HomeOverviewPage({super.key});
@@ -14,42 +14,23 @@ class HomeOverviewPage extends StatefulWidget {
 
 class _HomeOverviewPageState extends State<HomeOverviewPage>
     with AutomaticKeepAliveClientMixin {
-  final MotorcycleRemoteDataSourceImpl _dataSource =
-      MotorcycleRemoteDataSourceImpl();
-  List<MotorcycleEntity> motorcycles = [];
-  bool _isLoading = true;
-
   @override
   bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _loadMotorcycles();
+    // Cargar motos al iniciar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MotorcycleProvider>().loadMotorcycles();
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Recargar cuando la página vuelve a ser visible
-    _loadMotorcycles();
-  }
-
-  Future<void> _loadMotorcycles() async {
-    setState(() => _isLoading = true);
-    try {
-      final loaded = await _dataSource.getAllMotorcycles();
-      if (mounted) {
-        setState(() {
-          motorcycles = loaded;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    context.read<MotorcycleProvider>().loadMotorcycles();
   }
 
   @override
@@ -59,7 +40,7 @@ class _HomeOverviewPageState extends State<HomeOverviewPage>
       backgroundColor: Colors.white,
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: _loadMotorcycles,
+          onRefresh: () => context.read<MotorcycleProvider>().loadMotorcycles(),
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -105,173 +86,197 @@ class _HomeOverviewPageState extends State<HomeOverviewPage>
                       context,
                     )?.switchTab(1); // 👈 ir al tab de Motos
                   },
-                  child: SizedBox(
-                    height: 140,
-                    child: motorcycles.isEmpty
-                        ? const Center(
-                            child: Text(
-                              "No hay motos registradas",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          )
-                        : ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            itemCount: motorcycles.length,
-                            itemBuilder: (context, index) {
-                              final moto = motorcycles[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  final layoutState = MainLayout.of(context);
-                                  final motosNavigator =
-                                      layoutState?.navigatorKeys[1];
+                  child: Consumer<MotorcycleProvider>(
+                    builder: (context, provider, child) {
+                      return SizedBox(
+                        height: 140,
+                        child: provider.motorcycles.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  "No hay motos registradas",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              )
+                            : ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                itemCount: provider.motorcycles.length,
+                                itemBuilder: (context, index) {
+                                  final moto = provider.motorcycles[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      final layoutState = MainLayout.of(
+                                        context,
+                                      );
+                                      final motosNavigator =
+                                          layoutState?.navigatorKeys[1];
 
-                                  // 👇 Primero abrimos el perfil dentro del tab de Motos
-                                  motosNavigator?.currentState?.push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          BikeProfilePage(motorcycle: moto),
-                                    ),
-                                  );
+                                      // 👇 Primero abrimos el perfil dentro del tab de Motos
+                                      motosNavigator?.currentState?.push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              BikeProfilePage(motorcycle: moto),
+                                        ),
+                                      );
 
-                                  // 👇 Luego cambiamos la pestaña activa al tab de Motos
-                                  Future.delayed(
-                                    const Duration(milliseconds: 150),
-                                    () {
-                                      layoutState?.switchTab(1);
+                                      // 👇 Luego cambiamos la pestaña activa al tab de Motos
+                                      Future.delayed(
+                                        const Duration(milliseconds: 150),
+                                        () {
+                                          layoutState?.switchTab(1);
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                                child: Container(
-                                  width: 110,
-                                  margin: const EdgeInsets.only(right: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.08),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 3),
+                                    child: Container(
+                                      width: 110,
+                                      margin: const EdgeInsets.only(right: 10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.08,
+                                            ),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: moto.imageUrl.isNotEmpty
-                                            ? ClipRRect(
-                                                borderRadius:
-                                                    const BorderRadius.vertical(
-                                                      top: Radius.circular(12),
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: moto.imageUrl.isNotEmpty
+                                                ? ClipRRect(
+                                                    borderRadius:
+                                                        const BorderRadius.vertical(
+                                                          top: Radius.circular(
+                                                            12,
+                                                          ),
+                                                        ),
+                                                    child: Image.network(
+                                                      moto.imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      width: double.infinity,
+                                                      loadingBuilder:
+                                                          (
+                                                            context,
+                                                            child,
+                                                            loadingProgress,
+                                                          ) {
+                                                            if (loadingProgress ==
+                                                                null) {
+                                                              print(
+                                                                '✅ [HomeOverview] Imagen cargada: ${moto.imageUrl}',
+                                                              );
+                                                              return child;
+                                                            }
+                                                            return Center(
+                                                              child: CircularProgressIndicator(
+                                                                value:
+                                                                    loadingProgress
+                                                                            .expectedTotalBytes !=
+                                                                        null
+                                                                    ? loadingProgress
+                                                                              .cumulativeBytesLoaded /
+                                                                          loadingProgress
+                                                                              .expectedTotalBytes!
+                                                                    : null,
+                                                              ),
+                                                            );
+                                                          },
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        print(
+                                                          '❌ [HomeOverview] Error cargando imagen: ${moto.imageUrl}',
+                                                        );
+                                                        print(
+                                                          '❌ Error: $error',
+                                                        );
+                                                        return Container(
+                                                          color: Colors.white,
+                                                          child: const Center(
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .motorcycle,
+                                                                  size: 40,
+                                                                  color: Colors
+                                                                      .lightBlue,
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 4,
+                                                                ),
+                                                                Text(
+                                                                  'Sin imagen',
+                                                                  style: TextStyle(
+                                                                    fontSize:
+                                                                        11,
+                                                                    color: Colors
+                                                                        .lightBlue,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
                                                     ),
-                                                child: Image.network(
-                                                  moto.imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  loadingBuilder: (context, child, loadingProgress) {
-                                                    if (loadingProgress ==
-                                                        null) {
-                                                      print(
-                                                        '✅ [HomeOverview] Imagen cargada: ${moto.imageUrl}',
-                                                      );
-                                                      return child;
-                                                    }
-                                                    return Center(
-                                                      child: CircularProgressIndicator(
-                                                        value:
-                                                            loadingProgress
-                                                                    .expectedTotalBytes !=
-                                                                null
-                                                            ? loadingProgress
-                                                                      .cumulativeBytesLoaded /
-                                                                  loadingProgress
-                                                                      .expectedTotalBytes!
-                                                            : null,
-                                                      ),
-                                                    );
-                                                  },
-                                                  errorBuilder: (context, error, stackTrace) {
-                                                    print(
-                                                      '❌ [HomeOverview] Error cargando imagen: ${moto.imageUrl}',
-                                                    );
-                                                    print('❌ Error: $error');
-                                                    return Container(
-                                                      color: Colors.white,
-                                                      child: const Center(
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Icon(
-                                                              Icons.motorcycle,
-                                                              size: 40,
+                                                  )
+                                                : Container(
+                                                    color: Colors.white,
+                                                    child: const Center(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.motorcycle,
+                                                            size: 40,
+                                                            color: Colors
+                                                                .lightBlue,
+                                                          ),
+                                                          SizedBox(height: 4),
+                                                          Text(
+                                                            "Sin imagen",
+                                                            style: TextStyle(
+                                                              fontSize: 11,
                                                               color: Colors
                                                                   .lightBlue,
                                                             ),
-                                                            SizedBox(height: 4),
-                                                            Text(
-                                                              'Sin imagen',
-                                                              style: TextStyle(
-                                                                fontSize: 11,
-                                                                color: Colors
-                                                                    .lightBlue,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                    );
-                                                  },
-                                                ),
-                                              )
-                                            : Container(
-                                                color: Colors.white,
-                                                child: const Center(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.motorcycle,
-                                                        size: 40,
-                                                        color: Colors.lightBlue,
-                                                      ),
-                                                      SizedBox(height: 4),
-                                                      Text(
-                                                        "Sin imagen",
-                                                        style: TextStyle(
-                                                          fontSize: 11,
-                                                          color:
-                                                              Colors.lightBlue,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(6.0),
-                                        child: Text(
-                                          moto.fullName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(6.0),
+                                            child: Text(
+                                              moto.fullName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      );
+                    },
                   ),
                 ),
 

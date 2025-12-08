@@ -134,6 +134,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
             return DropdownMenuItem<String>(
               value: moto['id']?.toString(),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   CircleAvatar(
                     radius: 16,
@@ -154,7 +155,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
                         : null,
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
+                  Flexible(
                     child: Text(
                       '${moto['marca']} ${moto['modelo']}',
                       overflow: TextOverflow.ellipsis,

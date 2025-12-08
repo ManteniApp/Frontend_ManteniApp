@@ -59,44 +59,42 @@ class MotorcycleCard extends StatelessWidget {
                                 motorcycle.imageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  print(
-                                    '❌ [MotorcycleCard] Error cargando imagen',
-                                  );
-                                  print('   URL: ${motorcycle.imageUrl}');
-                                  print('   Error: $error');
-                                  // Mostrar solo los primeros caracteres del stackTrace para evitar RangeError
-                                  final stackStr = stackTrace.toString();
-                                  final maxLength = stackStr.length > 200
-                                      ? 200
-                                      : stackStr.length;
-                                  print(
-                                    '   StackTrace: ${stackStr.substring(0, maxLength)}',
-                                  );
+                                  // Silenciar errores de image-proxy con error 500
+                                  if (motorcycle.imageUrl.contains(
+                                    'image-proxy',
+                                  )) {
+                                    print(
+                                      '⚠️ [MotorcycleCard] Image proxy falló (backend), usando placeholder',
+                                    );
+                                  } else {
+                                    print(
+                                      '❌ [MotorcycleCard] Error cargando imagen',
+                                    );
+                                    print('   URL: ${motorcycle.imageUrl}');
+                                    print('   Error: $error');
+                                  }
                                   return _buildPlaceholderImage();
                                 },
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    print(
-                                      '✅ [MotorcycleCard] Imagen cargada exitosamente: ${motorcycle.imageUrl}',
-                                    );
-                                    return child;
-                                  }
-                                  print(
-                                    '⏳ [MotorcycleCard] Cargando imagen: ${motorcycle.imageUrl}',
-                                  );
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                              null
-                                          ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                          : null,
-                                    ),
-                                  );
-                                },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                              : null,
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                    },
                               )
                             : _buildPlaceholderImage(),
                       ),
@@ -121,9 +119,7 @@ class MotorcycleCard extends StatelessWidget {
                 ],
               ),
               // Iconos de acciones en la esquina superior derecha
-              if (onDelete != null ||
-                  onEdit != null ||
-                  onRecommendations != null)
+              if (onDelete != null || onEdit != null)
                 Positioned(
                   top: 0,
                   right: 0,
@@ -152,27 +148,9 @@ class MotorcycleCard extends StatelessWidget {
                         onEdit!.call();
                       } else if (value == 'delete' && onDelete != null) {
                         _showDeleteConfirmation(context);
-                      } else if (value == 'recommendations' &&
-                          onRecommendations != null) {
-                        onRecommendations!.call();
                       }
                     },
                     itemBuilder: (context) => [
-                      if (onRecommendations != null)
-                        const PopupMenuItem(
-                          value: 'recommendations',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.lightbulb_outline,
-                                color: Color(0xFF2196F3),
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text('Recomendaciones'),
-                            ],
-                          ),
-                        ),
                       if (onEdit != null)
                         const PopupMenuItem(
                           value: 'edit',

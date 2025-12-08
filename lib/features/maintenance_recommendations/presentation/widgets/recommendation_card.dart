@@ -9,76 +9,153 @@ class RecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: InkWell(
-        onTap: () => _showDetailDialog(context),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Encabezado con icono y nombre
-              Row(
-                children: [
-                  _buildIcon(),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2196F3).withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showDetailDialog(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Encabezado con icono, nombre y prioridad
+                Row(
+                  children: [
+                    _buildIcon(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            recommendation.componentName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF212121),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2196F3).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              recommendation.category,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF2196F3),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildPriorityBadge(),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Descripción con estilo mejorado
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    recommendation.description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                      height: 1.4,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Frecuencias con diseño mejorado
+                Row(
+                  children: [
+                    if (recommendation.frequencyKm != null)
+                      Expanded(
+                        child: _buildFrequencyChip(
+                          icon: Icons.speed,
+                          label: '${recommendation.frequencyKm} km',
+                          color: const Color(0xFF2196F3),
+                        ),
+                      ),
+                    if (recommendation.frequencyKm != null &&
+                        recommendation.frequencyMonths != null)
+                      const SizedBox(width: 8),
+                    if (recommendation.frequencyMonths != null)
+                      Expanded(
+                        child: _buildFrequencyChip(
+                          icon: Icons.calendar_month,
+                          label: '${recommendation.frequencyMonths} meses',
+                          color: const Color(0xFFFF9800),
+                        ),
+                      ),
+                  ],
+                ),
+
+                // Indicador de "Ver más"
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2196F3).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          recommendation.componentName,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          'Ver detalles',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: const Color(0xFF2196F3),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
-                          recommendation.category,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: const Color(0xFF2196F3),
                         ),
                       ],
                     ),
                   ),
-                  _buildPriorityBadge(),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Descripción
-              Text(
-                recommendation.description,
-                style: const TextStyle(fontSize: 14),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
-
-              // Frecuencias
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (recommendation.frequencyKm != null)
-                    _buildFrequencyChip(
-                      icon: Icons.speed,
-                      label: '${recommendation.frequencyKm} km',
-                      color: Colors.blue,
-                    ),
-                  if (recommendation.frequencyMonths != null)
-                    _buildFrequencyChip(
-                      icon: Icons.calendar_month,
-                      label: '${recommendation.frequencyMonths} meses',
-                      color: Colors.orange,
-                    ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -126,41 +203,58 @@ class RecommendationCard extends StatelessWidget {
   Widget _buildPriorityBadge() {
     Color color;
     String text;
+    IconData icon;
 
     switch (recommendation.priority.toLowerCase()) {
       case 'alta':
       case 'high':
-        color = Colors.red;
+        color = const Color(0xFFE53935);
         text = 'Alta';
+        icon = Icons.priority_high;
         break;
       case 'media':
       case 'medium':
-        color = Colors.orange;
+        color = const Color(0xFFFF9800);
         text = 'Media';
+        icon = Icons.warning_amber;
         break;
       case 'baja':
       case 'low':
-        color = Colors.green;
+        color = const Color(0xFF4CAF50);
         text = 'Baja';
+        icon = Icons.info_outline;
         break;
       default:
         return const SizedBox();
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color),
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -171,22 +265,27 @@ class RecommendationCard extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-              fontWeight: FontWeight.w500,
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

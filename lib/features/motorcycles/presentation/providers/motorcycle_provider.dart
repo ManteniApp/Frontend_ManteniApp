@@ -32,6 +32,7 @@ class MotorcycleProvider extends ChangeNotifier {
   Future<void> loadMotorcycles() async {
     _setLoading(true);
     _clearMessages();
+    notifyListeners(); // 👈 Notificar inmediatamente al cambiar a loading
 
     try {
       _motorcycles = await getAllMotorcyclesUseCase();
@@ -48,6 +49,7 @@ class MotorcycleProvider extends ChangeNotifier {
   Future<bool> registerMotorcycle(MotorcycleEntity motorcycle) async {
     _setLoading(true);
     _clearMessages();
+    notifyListeners(); // 👈 Notificar inmediatamente al cambiar a loading
 
     try {
       await registerMotorcycleUseCase(motorcycle);
@@ -63,7 +65,6 @@ class MotorcycleProvider extends ChangeNotifier {
       return false;
     }
   }
-
 
   // Sobrecarga del método para aceptar parámetros individuales
   Future<bool> registerMotorcycleWithParams({
