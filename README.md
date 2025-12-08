@@ -19,14 +19,24 @@ Su diseño sigue una arquitectura **Clean Architecture**, promoviendo la escalab
 ## 🎯 Funcionalidades Implementadas
 
 ### ✅ Autenticación
-- Login de usuarios
-- Registro de usuarios
-- Almacenamiento seguro de JWT
+- ✅ Login de usuarios (JWT)
+- ✅ Registro de usuarios
+- ✅ Autenticación con Google
+- ✅ Recuperación de contraseña
+- ✅ Almacenamiento seguro de JWT tokens
+- ✅ Deep linking para restablecer contraseña
 
 ### ✅ Gestión de Motocicletas
-- ✅ Registro de motocicletas
+- ✅ Registro de motocicletas con todos los datos
 - ✅ **Listado de motocicletas del usuario** (GET /motorcycles)
-- ✅ Perfil de motocicleta
+- ✅ **Edición de motocicletas** (PUT /motorcycles/{id})
+- ✅ **Eliminación de motocicletas** (DELETE /motorcycles/{id})
+- ✅ Perfil detallado de motocicleta
+- ✅ **Soporte para imágenes de motos:**
+  - Carga desde URL externa (`imagen_url`)
+  - Carga desde servidor local (`imagen_local`)
+  - Fallback automático a placeholder
+  - Visualización en todas las vistas (tarjetas, perfiles, selectores)
 
 ### ✅ Historial de Mantenimientos
 - ✅ Visualización de mantenimientos con diseño personalizado
@@ -34,16 +44,48 @@ Su diseño sigue una arquitectura **Clean Architecture**, promoviendo la escalab
   - Filtro por fecha (día específico)
   - Filtro por rango de precio (mín/máx)
   - **Filtro por motocicleta** (motos reales del usuario desde backend)
-- ✅ Detalle completo de cada mantenimiento en modal
-- ✅ **Editar** mantenimientos (PUT /maintenance/{id})
-- ✅ **Eliminar** mantenimientos con confirmación (DELETE /maintenance/{id})
+- ✅ Detalle completo de cada mantenimiento en modal interactivo
+- ✅ **Editar mantenimientos** (PUT /maintenance/{id})
+- ✅ **Eliminar mantenimientos** con confirmación (DELETE /maintenance/{id})
 - ✅ Integración con backend real (GET /maintenance/{motoId})
 - ✅ **Verificación de autenticación** antes de cargar datos
-- ⏳ Crear nuevos mantenimientos (POST /maintenance) - Pendiente
+- ✅ Pull-to-refresh para actualizar datos
 
-> 📄 **Documentación detallada:** Ver [BACKEND_INTEGRATION.md](./BACKEND_INTEGRATION.md)  
-> 🔐 **Fix de autenticación:** Ver [AUTHENTICATION_FIX.md](./AUTHENTICATION_FIX.md)  
-> 🏍️ **Fix filtro de motos:** Ver [MOTORCYCLE_FILTER_FIX.md](./MOTORCYCLE_FILTER_FIX.md)
+### ✅ Registro de Mantenimientos
+- ✅ **Crear nuevos mantenimientos** (POST /maintenance)
+- ✅ Formulario completo con validaciones
+- ✅ Selector de motocicleta con imágenes
+- ✅ Campos: tipo, fecha, kilometraje, costo, descripción
+- ✅ Integración con backend real
+
+### ✅ Reportes de Mantenimiento
+- ✅ **Vista de reporte completo por motocicleta**
+- ✅ Métricas clave:
+  - Total de mantenimientos
+  - Costo total y promedio
+  - Última fecha de mantenimiento (calculada automáticamente)
+- ✅ **Servicios más frecuentes** con estadísticas de costo
+- ✅ **Lista detallada de mantenimientos** con tarjetas interactivas
+- ✅ **Exportación a PDF** con autenticación
+- ✅ Soporte multiplataforma (Web y Android/iOS)
+- ✅ Selector de motocicleta con imágenes
+- ✅ Botón de actualización manual
+- ✅ Integración completa con backend (GET /maintenance-summary)
+
+### ✅ Recomendaciones de Mantenimiento
+- ✅ Recomendaciones generales de mantenimiento
+- ✅ Recomendaciones técnicas especializadas
+- ✅ Recomendaciones específicas por motocicleta
+- ✅ Sistema de filtrado por categorías
+- ✅ Tarjetas informativas con iconos
+- ✅ Integración con backend real
+
+### ✅ Perfil de Usuario
+- ✅ Visualización de datos del usuario
+- ✅ Edición de información personal
+- ✅ Cambio de contraseña
+- ✅ Actualización de foto de perfil
+- ✅ Cierre de sesión
 
 ---
 
@@ -138,26 +180,113 @@ La aplicación se conecta a un backend NestJS en:
 http://localhost:3000
 ```
 
-### Endpoints Principales
-- `POST /auth/login` - Autenticación
-- `POST /auth/register` - Registro
-- `GET /motorcycles` - Listar motocicletas
-- `POST /motorcycles` - Registrar motocicleta
-- `GET /maintenance-history` - Historial de mantenimientos
+### 🔐 Autenticación
+Todos los endpoints (excepto login y register) requieren autenticación JWT mediante header:
+```
+Authorization: Bearer {token}
+```
 
-**Nota:** La feature de Historial de Mantenimientos actualmente usa datos mock para pruebas.
+### 📡 Endpoints Implementados
+
+#### Autenticación
+- `POST /auth/login` - Iniciar sesión (retorna JWT)
+- `POST /auth/register` - Registrar nuevo usuario
+- `POST /auth/google` - Autenticación con Google
+- `POST /auth/forgot-password` - Solicitar restablecimiento de contraseña
+- `POST /auth/reset-password` - Restablecer contraseña
+
+#### Motocicletas
+- `GET /motorcycles` - Listar motocicletas del usuario autenticado
+- `GET /motorcycles/{id}` - Obtener motocicleta por ID
+- `POST /motorcycles` - Registrar nueva motocicleta
+- `PUT /motorcycles/{id}` - Actualizar motocicleta
+- `DELETE /motorcycles/{id}` - Eliminar motocicleta
+
+**Estructura de Moto:**
+```json
+{
+  "id": 10,
+  "marca": "Yamaha",
+  "modelo": "MT-07",
+  "placa": "ABC123",
+  "año": 2024,
+  "kilometraje": 5000,
+  "cilindraje": 689,
+  "imagen_url": "https://ejemplo.com/foto.jpg",
+  "imagen_local": "/uploads/motorcycles/foto.jpg"
+}
+```
+
+#### Mantenimientos
+- `GET /maintenance/{motoId}` - Historial de mantenimientos por moto
+- `GET /maintenance/detail/{id}` - Detalle de un mantenimiento
+- `POST /maintenance` - Crear nuevo mantenimiento
+- `PUT /maintenance/{id}` - Actualizar mantenimiento
+- `DELETE /maintenance/{id}` - Eliminar mantenimiento
+
+**Estructura de Mantenimiento:**
+```json
+{
+  "id": 62,
+  "moto_id": 10,
+  "fecha": "2025-12-08T05:00:00.000Z",
+  "tipo": "Cambio de aceite",
+  "descripcion": "Aceite sintético 10W-40",
+  "kilometraje": 5000,
+  "costo": "50000.00"
+}
+```
+
+#### Reportes
+- `GET /maintenance-summary?motoId={id}` - Resumen de mantenimientos
+  - Retorna: totalMantenimientos, costoTotal, costoPromedio, estadisticasPorTipo, mantenimientos[]
+- `GET /maintenance-summary/pdf?motoId={id}` - Exportar reporte a PDF
+  - Retorna: Archivo PDF binario
+
+#### Recomendaciones
+- `GET /recommendations/general` - Recomendaciones generales
+- `GET /recommendations/technical` - Recomendaciones técnicas
+- `GET /recommendations/{motorcycleId}` - Recomendaciones por moto
+
+#### Usuario
+- `GET /users/profile` - Obtener perfil del usuario
+- `PUT /users/profile` - Actualizar perfil
+- `PUT /users/change-password` - Cambiar contraseña
+- `POST /users/profile/image` - Actualizar foto de perfil
+
+### 🖼️ Manejo de Imágenes
+
+El backend envía imágenes de motos mediante dos campos:
+
+1. **`imagen_url`**: URL externa directa (ej: Cloudinary, S3)
+2. **`imagen_local`**: Ruta relativa en el servidor (ej: `/uploads/motorcycles/foto.jpg`)
+
+**Prioridad de carga en el frontend:**
+1. Si existe `imagen_local` → se usa con prefijo `http://localhost:3000`
+2. Si no, se usa `imagen_url`
+3. Si ninguno existe → se muestra placeholder
+
+**Ejemplo de uso:**
+```dart
+// El modelo automáticamente construye la URL correcta
+final imageUrl = motorcycle.imageUrl; // Ya incluye el prefijo si es local
+```
 
 ---
 
-## 🧪 Modo de Prueba (Mock Data)
+## 🧪 Estado de Integración con Backend
 
-Algunas features incluyen datos de prueba para desarrollo sin backend:
+### ✅ Completamente Integrado (Datos Reales)
+- ✅ Autenticación (Login, Register, Google Auth)
+- ✅ Gestión de motocicletas (CRUD completo)
+- ✅ Historial de mantenimientos (CRUD completo)
+- ✅ Registro de mantenimientos
+- ✅ Reportes de mantenimiento con exportación PDF
+- ✅ Recomendaciones de mantenimiento
+- ✅ Perfil de usuario
 
-### Historial de Mantenimientos
-- 10 mantenimientos de ejemplo
-- 5 motocicletas diferentes
-- Filtros funcionales (fecha, precio, motocicleta)
-- Ver: `lib/features/maintenance_history/TESTING_GUIDE.md`
+### 📊 Todos los datos mostrados provienen del backend real
+No se están usando datos mock en producción. La aplicación está completamente conectada al backend NestJS.
 
 ---
 
@@ -231,22 +360,36 @@ routes: {
 
 ## 📝 Notas de Desarrollo
 
-### Estado Actual
-- ✅ Autenticación funcional
-- ✅ Registro de motocicletas
-- ✅ Historial de mantenimientos (mock)
-- 🚧 Integración completa con backend
-- 🚧 Reportes
-- 🚧 Alertas
+### Estado Actual (Actualizado: Diciembre 2025)
+- ✅ Autenticación completa con JWT y Google
+- ✅ CRUD completo de motocicletas con imágenes
+- ✅ CRUD completo de mantenimientos
+- ✅ Sistema de reportes con exportación PDF
+- ✅ Recomendaciones de mantenimiento
+- ✅ Perfil de usuario con foto
+- ✅ Integración completa con backend NestJS
+- ✅ Soporte multiplataforma (Web, Android, iOS)
+- 🚧 Módulo de alertas y notificaciones
 
-### Próximos Pasos
-- [ ] Completar integración con backend real
-- [ ] Implementar módulo de reportes
-- [ ] Implementar módulo de alertas
-- [ ] Agregar tests unitarios
-- [ ] Agregar tests de integración
-- [ ] Mejorar manejo de errores
-- [ ] Implementar caché local
+### 🎯 Próximos Pasos
+- [ ] Implementar módulo de alertas y notificaciones push
+- [ ] Agregar tests unitarios y de integración
+- [ ] Implementar caché local para offline support
+- [ ] Mejorar manejo de errores con retry logic
+- [ ] Agregar analytics y crash reporting
+- [ ] Optimizar rendimiento de imágenes
+- [ ] Implementar búsqueda avanzada de mantenimientos
+- [ ] Agregar gráficas de estadísticas
+- [ ] Soporte para múltiples idiomas (i18n)
+- [ ] Modo oscuro
+
+### 🔧 Mejoras Técnicas Pendientes
+- [ ] Implementar refresh tokens para JWT
+- [ ] Agregar paginación en listas largas
+- [ ] Optimizar carga de imágenes con caché
+- [ ] Implementar skeleton loaders
+- [ ] Mejorar accesibilidad (a11y)
+- [ ] Agregar animaciones de transición
 
 ---
 
