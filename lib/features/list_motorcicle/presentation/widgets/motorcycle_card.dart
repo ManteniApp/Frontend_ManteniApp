@@ -59,25 +59,44 @@ class MotorcycleCard extends StatelessWidget {
                                 motorcycle.imageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
+                                  print(
+                                    '❌ [MotorcycleCard] Error cargando imagen',
+                                  );
+                                  print('   URL: ${motorcycle.imageUrl}');
+                                  print('   Error: $error');
+                                  // Mostrar solo los primeros caracteres del stackTrace para evitar RangeError
+                                  final stackStr = stackTrace.toString();
+                                  final maxLength = stackStr.length > 200
+                                      ? 200
+                                      : stackStr.length;
+                                  print(
+                                    '   StackTrace: ${stackStr.substring(0, maxLength)}',
+                                  );
                                   return _buildPlaceholderImage();
                                 },
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value:
-                                              loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes!
-                                              : null,
-                                        ),
-                                      );
-                                    },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    print(
+                                      '✅ [MotorcycleCard] Imagen cargada exitosamente: ${motorcycle.imageUrl}',
+                                    );
+                                    return child;
+                                  }
+                                  print(
+                                    '⏳ [MotorcycleCard] Cargando imagen: ${motorcycle.imageUrl}',
+                                  );
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  );
+                                },
                               )
                             : _buildPlaceholderImage(),
                       ),

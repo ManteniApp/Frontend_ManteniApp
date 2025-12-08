@@ -17,7 +17,7 @@ class MotorcycleModel extends MotorcycleEntity {
   factory MotorcycleModel.fromJson(Map<String, dynamic> json) {
     // Lógica de fallback para la imagen:
     // 1. Si hay imagen_local, usar con prefijo del backend
-    // 2. Si no, usar imagen_url
+    // 2. Si no, usar imagen_url (agregando prefijo si es relativa)
     // 3. Si no hay ninguna, dejar vacío (el UI mostrará placeholder)
     String imageUrl = '';
 
@@ -28,13 +28,31 @@ class MotorcycleModel extends MotorcycleEntity {
     if (imagenLocal != null && imagenLocal.toString().trim().isNotEmpty) {
       // Usar imagen local con prefijo del backend
       imageUrl = 'http://localhost:3000${imagenLocal}';
+      print('🖼️ [Modelo] Usando imagen_local: $imageUrl');
     } else if (imagenUrl != null && imagenUrl.toString().trim().isNotEmpty) {
-      // Usar imagen_url externa
-      imageUrl = imagenUrl.toString();
+      // Si imagen_url es relativa (empieza con /), agregar prefijo del backend
+      final urlStr = imagenUrl.toString();
+      if (urlStr.startsWith('/')) {
+        imageUrl = 'http://localhost:3000$urlStr';
+        print('🖼️ [Modelo] Usando imagen_url relativa: $imageUrl');
+      } else {
+        // URL absoluta, usar directamente
+        imageUrl = urlStr;
+        print('🖼️ [Modelo] Usando imagen_url absoluta: $imageUrl');
+      }
     } else if (imageUrlCamel != null &&
         imageUrlCamel.toString().trim().isNotEmpty) {
       // Soporte para imageUrl en camelCase (por si acaso)
-      imageUrl = imageUrlCamel.toString();
+      final urlStr = imageUrlCamel.toString();
+      if (urlStr.startsWith('/')) {
+        imageUrl = 'http://localhost:3000$urlStr';
+        print('🖼️ [Modelo] Usando imageUrl camelCase relativa: $imageUrl');
+      } else {
+        imageUrl = urlStr;
+        print('🖼️ [Modelo] Usando imageUrl camelCase absoluta: $imageUrl');
+      }
+    } else {
+      print('⚠️ [Modelo] No hay imagen disponible para moto ID: ${json['id']}');
     }
 
     return MotorcycleModel(
