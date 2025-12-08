@@ -152,11 +152,18 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.motorcycle,
-                                    color: isSelected
-                                        ? const Color(0xFF2196F3)
-                                        : Colors.grey[600],
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: Colors.grey[200],
+                                    backgroundImage: motorcycle.imageUrl.isNotEmpty
+                                        ? NetworkImage(motorcycle.imageUrl)
+                                        : null,
+                                    child: motorcycle.imageUrl.isEmpty
+                                        ? Icon(
+                                            Icons.motorcycle,
+                                            color: Colors.grey[600],
+                                          )
+                                        : null,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(

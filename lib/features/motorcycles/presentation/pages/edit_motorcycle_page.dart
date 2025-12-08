@@ -149,6 +149,48 @@ class _EditMotorcyclePageState extends State<EditMotorcyclePage> {
                               textAlign: TextAlign.center,
                             ),
                           ),
+                          const SizedBox(height: 20),
+
+                          // Vista previa de la imagen de la moto
+                          Center(
+                            child: Container(
+                              width: 200,
+                              height: 150,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: _motorcycle.imageUrl.isNotEmpty
+                                    ? Image.network(
+                                        _motorcycle.imageUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return _buildPlaceholderImage();
+                                        },
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress.expectedTotalBytes != null
+                                                  ? loadingProgress.cumulativeBytesLoaded /
+                                                    loadingProgress.expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : _buildPlaceholderImage(),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 30),
 
                           // Marca
@@ -410,6 +452,28 @@ class _EditMotorcyclePageState extends State<EditMotorcyclePage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.motorcycle, size: 60, color: Colors.grey),
+          SizedBox(height: 8),
+          Text(
+            'Imagen no disponible',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

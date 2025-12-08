@@ -55,16 +55,7 @@ class MotorcycleCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: motorcycle.imageUrl.isNotEmpty
-                            ? Image.asset(
-                                'assets/images/imgMoto.png', // Imagen temporal local
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return _buildPlaceholderImage();
-                                },
-                              )
-                            // TODO: Cuando el backend esté listo, reemplazar Image.asset por Image.network
-                            // usando motorcycle.imageUrl y restaurar el loadingBuilder
-                            /* Image.network(
+                            ? Image.network(
                                 motorcycle.imageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
@@ -81,7 +72,7 @@ class MotorcycleCard extends StatelessWidget {
                                     ),
                                   );
                                 },
-                              ) */
+                              )
                             : _buildPlaceholderImage(),
                       ),
                     ),

@@ -15,14 +15,35 @@ class MotorcycleModel extends MotorcycleEntity {
   });
 
   factory MotorcycleModel.fromJson(Map<String, dynamic> json) {
+    // Lógica de fallback para la imagen:
+    // 1. Si hay imagen_local, usar con prefijo del backend
+    // 2. Si no, usar imagen_url
+    // 3. Si no hay ninguna, dejar vacío (el UI mostrará placeholder)
+    String imageUrl = '';
+    
+    final imagenLocal = json['imagen_local'];
+    final imagenUrl = json['imagen_url'];
+    final imageUrlCamel = json['imageUrl'];
+    
+    if (imagenLocal != null && imagenLocal.toString().trim().isNotEmpty) {
+      // Usar imagen local con prefijo del backend
+      imageUrl = 'http://localhost:3000${imagenLocal}';
+    } else if (imagenUrl != null && imagenUrl.toString().trim().isNotEmpty) {
+      // Usar imagen_url externa
+      imageUrl = imagenUrl.toString();
+    } else if (imageUrlCamel != null && imageUrlCamel.toString().trim().isNotEmpty) {
+      // Soporte para imageUrl en camelCase (por si acaso)
+      imageUrl = imageUrlCamel.toString();
+    }
+
     return MotorcycleModel(
       id: json['id']?.toString(),
       brand: json['brand'] ?? json['marca'] ?? '', // 👈 Soporte para 'marca'
       model: json['model'] ?? json['modelo'] ?? '', // 👈 Soporte para 'modelo'
-      imageUrl: json['imageUrl'] ?? '', // Agregado para imageUrl
+      imageUrl: imageUrl,
       licensePlate:
           json['licensePlate'] ?? json['placa'], // 👈 Soporte para 'placa'
-      year: json['year'] ?? json['anio'] ?? 0, // 👈 Soporte para 'anio'
+      year: json['year'] ?? json['año'] ?? json['anio'] ?? 0, // 👈 Soporte para 'año' y 'anio'
       displacement:
           json['displacement'] ??
           json['cilindraje'] ??

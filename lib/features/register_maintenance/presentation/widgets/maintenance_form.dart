@@ -133,7 +133,27 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
           items: widget.motos.map((moto) {
             return DropdownMenuItem<String>(
               value: moto['id']?.toString(),
-              child: Text('${moto['marca']} ${moto['modelo']}'),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: (moto['imageUrl'] != null && moto['imageUrl'].toString().isNotEmpty)
+                        ? NetworkImage(moto['imageUrl'])
+                        : null,
+                    child: (moto['imageUrl'] == null || moto['imageUrl'].toString().isEmpty)
+                        ? Icon(Icons.motorcycle, size: 16, color: Colors.grey[600])
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '${moto['marca']} ${moto['modelo']}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             );
           }).toList(),
           onChanged: (String? newValue) {
