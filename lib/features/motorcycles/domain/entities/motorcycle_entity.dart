@@ -2,6 +2,8 @@ class MotorcycleEntity {
   final String? id;
   final String brand;
   final String model;
+  final String imageUrl;
+  final String? licensePlate; // 👈 Placa (agregado)
   final int year;
   final int displacement; // Cilindraje
   final int mileage;
@@ -12,6 +14,8 @@ class MotorcycleEntity {
     this.id,
     required this.brand,
     required this.model,
+    required this.imageUrl,
+    this.licensePlate, // 👈 Agregado
     required this.year,
     required this.displacement,
     required this.mileage,
@@ -23,6 +27,8 @@ class MotorcycleEntity {
     String? id,
     String? brand,
     String? model,
+    String? imageUrl,
+    String? licensePlate, // 👈 Agregado
     int? year,
     int? displacement,
     int? mileage,
@@ -33,6 +39,8 @@ class MotorcycleEntity {
       id: id ?? this.id,
       brand: brand ?? this.brand,
       model: model ?? this.model,
+      imageUrl: imageUrl ?? this.imageUrl,
+      licensePlate: licensePlate ?? this.licensePlate, // 👈 Agregado
       year: year ?? this.year,
       displacement: displacement ?? this.displacement,
       mileage: mileage ?? this.mileage,
@@ -57,4 +65,7 @@ class MotorcycleEntity {
 
   @override
   int get hashCode => id.hashCode ^ brand.hashCode ^ model.hashCode;
+
+  // Getter que combina marca y modelo para mostrar el nombre completo
+  String get fullName => '$brand $model';
 }

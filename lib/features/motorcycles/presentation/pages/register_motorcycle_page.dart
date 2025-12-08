@@ -17,6 +17,7 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
   // Datos del formulario
   String? marca;
   String? modelo;
+  String? placa; // 👈 Agregado
   int? ano;
   String? cilindraje;
   int? kilometraje;
@@ -337,6 +338,26 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
             },
           ),
 
+          // Campo Placa (NUEVO) 👈
+          SimpleFormField(
+            icon: Icons.pin,
+            label: 'Placa',
+            value: placa,
+            onTap: () async {
+              final result = await SelectionBottomSheet.showTextInput(
+                context: context,
+                title: 'Placa de la motocicleta',
+                hint: 'Ej: ABC123',
+                initialValue: placa,
+              );
+              if (result != null && result.isNotEmpty) {
+                setState(() {
+                  placa = result.toUpperCase(); // Convertir a mayúsculas
+                });
+              }
+            },
+          ),
+
           // Campo Año
           SimpleFormField(
             icon: Icons.calendar_today_outlined,
@@ -447,6 +468,10 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
       _showError('Por favor ingresa el modelo');
       return;
     }
+    if (placa == null || placa!.isEmpty) {
+      _showError('Por favor ingresa la placa');
+      return;
+    }
     if (ano == null) {
       _showError('Por favor selecciona el año');
       return;
@@ -465,6 +490,7 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
     final success = await provider.registerMotorcycleWithParams(
       marca: marca!,
       modelo: modelo!,
+      placa: placa!, // 👈 Agregado
       ano: ano!,
       cilindraje: cilindraje!,
       kilometraje: kilometraje!,
@@ -483,10 +509,22 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
           ),
         );
 
+        // Esperar a que se vea el mensaje y luego volver
+        Future.delayed(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            // Volver a la pantalla anterior (lista de motos o home)
+            Navigator.pop(
+              context,
+              true,
+            ); // true indica que se registró exitosamente
+          }
+        });
+
         // Resetear formulario
         setState(() {
           marca = null;
           modelo = null;
+          placa = null; // 👈 Agregado
           ano = null;
           cilindraje = null;
           kilometraje = null;

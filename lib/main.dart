@@ -1,138 +1,193 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
+import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 // Imports de nuestro feature
 import 'features/motorcycles/presentation/providers/motorcycle_provider.dart';
-//import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/domain/usecases/register_motorcycle.dart';
+import 'features/motorcycles/domain/usecases/get_all_motorcycles.dart';
 import 'features/motorcycles/data/repositories/motorcycle_repository_impl.dart';
 import 'features/motorcycles/data/datasources/motorcycle_remote_data_source.dart';
-//import 'core/theme/app_theme.dart';
-//import 'features/list_motorcicle/presentation/pages/list_motorcycle_page.dart';
+import 'features/maintenance_history/presentation/providers/maintenance_history_provider.dart';
+import 'features/maintenance_history/domain/usecases/get_maintenance_history.dart';
+import 'features/maintenance_history/domain/usecases/update_maintenance.dart';
+import 'features/maintenance_history/domain/usecases/delete_maintenance.dart';
+import 'features/maintenance_history/data/repositories/maintenance_history_repository_impl.dart';
+import 'features/maintenance_history/data/datasources/maintenance_history_remote_data_source.dart';
+import 'features/maintenance_report/presentation/providers/maintenance_report_provider.dart';
+import 'features/maintenance_report/domain/usecases/get_maintenance_report.dart';
+import 'features/maintenance_report/domain/usecases/export_report_to_pdf.dart';
+import 'features/maintenance_report/data/repositories/maintenance_report_repository_impl.dart';
+import 'features/maintenance_report/data/datasources/maintenance_report_remote_data_source.dart';
+import 'features/maintenance_recommendations/presentation/providers/recommendation_provider.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_general_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_motorcycle_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_all_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_technical_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_safety_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_performance_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_recommendations_by_category.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_recommendations_by_priority.dart';
+import 'features/maintenance_recommendations/domain/usecases/get_upcoming_recommendations.dart';
+import 'features/maintenance_recommendations/domain/usecases/delete_recommendation.dart';
+import 'features/maintenance_recommendations/data/repositories/recommendation_repository_impl.dart';
+import 'features/maintenance_recommendations/data/datasources/recommendation_remote_data_source.dart';
+import 'features/maintenance_recommendations/presentation/pages/maintenance_recommendations_page.dart';
+import 'features/maintenance_recommendations/presentation/pages/test_recommendations_page.dart';
 import 'core/layout/main_layout.dart';
-
-import 'package:frontend_manteniapp/features/auth_1/presentation/pages/login_page.dart';
-import 'package:frontend_manteniapp/features/splah/presentation/pages/splash_screen.dart';
+import 'features/auth_1/presentation/pages/login_page.dart';
+import 'features/Register_User/presentation/pages/register_user.dart';
+import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
+import 'features/maintenance_history/presentation/pages/maintenance_history_page.dart';
+import 'features/maintenance_report/presentation/pages/maintenance_report_page.dart';
+import 'features/motorcycles/presentation/pages/edit_motorcycle_page.dart';
+import 'features/motorcycles/data/models/motorcycle_model.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ManteniApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ManteniApp extends StatelessWidget {
+  const ManteniApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) {
+            final motorcycleRepository = MotorcycleRepositoryImpl(
+              remoteDataSource: MotorcycleRemoteDataSourceImpl(),
+            );
+            return MotorcycleProvider(
+              registerMotorcycleUseCase: RegisterMotorcycleUseCase(
+                motorcycleRepository,
+              ),
+              getAllMotorcyclesUseCase: GetAllMotorcycles(motorcycleRepository),
+            );
+          },
         ),
+        ChangeNotifierProvider(
+          create: (context) {
+            final repository = MaintenanceHistoryRepositoryImpl(
+              remoteDataSource: MaintenanceHistoryRemoteDataSourceImpl(),
+            );
+            return MaintenanceHistoryProvider(
+              getMaintenanceHistoryUseCase: GetMaintenanceHistory(repository),
+              updateMaintenanceUseCase: UpdateMaintenance(repository),
+              deleteMaintenanceUseCase: DeleteMaintenance(repository),
+            );
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) {
+            final repository = MaintenanceReportRepositoryImpl(
+              remoteDataSource: MaintenanceReportRemoteDataSourceImpl(),
+            );
+            return MaintenanceReportProvider(
+              getMaintenanceReportUseCase: GetMaintenanceReport(repository),
+              exportReportToPdfUseCase: ExportReportToPdf(repository),
+            );
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) {
+            final repository = MaintenanceRecommendationRepositoryImpl(
+              remoteDataSource: RecommendationRemoteDataSourceImpl(),
+            );
+            return MaintenanceRecommendationProvider(
+              getGeneralRecommendationsUseCase: GetGeneralRecommendations(
+                repository,
+              ),
+              getMotorcycleRecommendationsUseCase: GetMotorcycleRecommendations(
+                repository,
+              ),
+              getAllRecommendationsUseCase: GetAllRecommendations(repository),
+              getTechnicalRecommendationsUseCase: GetTechnicalRecommendations(
+                repository,
+              ),
+              getSafetyRecommendationsUseCase: GetSafetyRecommendations(
+                repository,
+              ),
+              getPerformanceRecommendationsUseCase:
+                  GetPerformanceRecommendations(repository),
+              getRecommendationsByCategoryUseCase: GetRecommendationsByCategory(
+                repository,
+              ),
+              getRecommendationsByPriorityUseCase: GetRecommendationsByPriority(
+                repository,
+              ),
+              getUpcomingRecommendationsUseCase: GetUpcomingRecommendations(
+                repository,
+              ),
+              deleteRecommendationUseCase: DeleteRecommendation(repository),
+            );
+          },
+        ),
+      ],
+      child: MaterialApp(
+        title: 'ManteniApp',
+        debugShowCheckedModeBanner: false,
+        // Configuración de localizaciones en español
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es', 'ES'), // Español
+        ],
+        locale: const Locale('es', 'ES'),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+          fontFamily: 'Poppins',
+        ),
+        // Pantalla inicial - LoginPage
+        home: const LoginPage(),
+        // Rutas de navegación
+        routes: {
+          '/home': (context) => const MainLayout(),
+          '/login': (context) => const LoginPage(),
+          '/register': (context) => const RegisterPage(),
+          '/register-motorcycle': (context) => const RegisterMotorcyclePage(),
+          '/maintenance-history': (context) => const MaintenanceHistoryPage(),
+          '/maintenance-report': (context) {
+            // Obtener el motorcycleId si se pasó como argumento
+            final motorcycleId =
+                ModalRoute.of(context)?.settings.arguments as String?;
+            return MaintenanceReportPage(initialMotorcycleId: motorcycleId);
+          },
+          '/perfil': (context) => PerfilUser(),
+          '/maintenance-recommendations': (context) {
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            return MaintenanceRecommendationsPage(
+              motorcycleId: args?['motorcycleId'] as String?,
+              motorcycleName: args?['motorcycleName'] as String?,
+            );
+          },
+          '/register-maintenance': (context) {
+            final arguments = ModalRoute.of(context)!.settings.arguments;
+            if (arguments is List<Map<String, dynamic>>) {
+              return MaintenanceRegisterPage(motos: arguments);
+            } else {
+              // Fallback por si los argumentos no son correctos
+              return MaintenanceRegisterPage(motos: []);
+            }
+          },
+          '/edit-motorcycle': (context) {
+            final motorcycle =
+                ModalRoute.of(context)!.settings.arguments as MotorcycleModel;
+            return EditMotorcyclePage(motorcycle: motorcycle);
+          },
+          '/test-recommendations': (context) => const TestRecommendationsPage(),
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

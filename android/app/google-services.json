@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "347009076875",
+    "project_id": "manteniapp-99e76",
+    "storage_bucket": "manteniapp-99e76.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347009076875:android:9f32a467442608a65a4e8e",
+        "android_client_info": {
+          "package_name": "com.example.frontend_manteniapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347009076875-1uddg0vdqd4h6m5dnr175v3qfhmb1ld4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpLhTyCFxL-O-O9nDO-N3tyMNNQVouv2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347009076875-1uddg0vdqd4h6m5dnr175v3qfhmb1ld4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
