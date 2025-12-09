@@ -91,7 +91,7 @@ class AlertProvider extends ChangeNotifier {
           kmObjetivo: kmObjetivo,
           estado: AlertStatus.actual,
           leida: false,
-          fechaCreacion: DateTime.now(),
+          fechaCreacion: DateTime.now(), titulo: '', priority: 1, motorcycleId: '',
         );
         agregarAlerta(alertaKm);
         alertaCreada = true;
@@ -115,7 +115,7 @@ class AlertProvider extends ChangeNotifier {
           fechaObjetivo: fechaObjetivo,
           estado: AlertStatus.actual,
           leida: false,
-          fechaCreacion: DateTime.now(),
+          fechaCreacion: DateTime.now(), titulo: '', priority: 1, motorcycleId: '',
         );
         agregarAlerta(alertaFecha);
       }
@@ -347,7 +347,7 @@ class AlertProvider extends ChangeNotifier {
       fechaObjetivo: DateTime.now().add(const Duration(days: 5)),
       estado: AlertStatus.proxima,
       leida: false,
-      fechaCreacion: DateTime.now(),
+      fechaCreacion: DateTime.now(), titulo: '', priority: 1, motorcycleId: '',
     );
     agregarAlerta(testAlert);
   }

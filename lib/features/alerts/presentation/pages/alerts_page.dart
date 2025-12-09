@@ -500,27 +500,49 @@ class _AlertsPageState extends State<AlertsPage> {
     );
   }
 
+  // En tu archivo `alerts_page.dart`, modifica el método _createTestNotification así:
+
   void _createTestNotification(BuildContext context) {
     final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
 
     final notification = AppNotification(
       id: 'test_notif_${DateTime.now().millisecondsSinceEpoch}',
-      titulo: '📢 Notificación de Prueba',
-      descripcion: 'Creada el ${DateFormat('HH:mm:ss').format(DateTime.now())}',
-      fecha: DateTime.now(), tipo: 'test',
+      titulo: '📢 Notificación de Prueba REAL',
+      descripcion: 'Creada el ${DateFormat('HH:mm:ss').format(DateTime.now())} - Esta es una notificación PUSH real',
+      fecha: DateTime.now(), 
+      tipo: 'test',
     );
 
     notificationProvider.agregarNotificacion(notification);
 
+    // 1. Primero verifica que Firebase esté configurado
+    print('🔧 Verificando configuración de Firebase...');
+    
+    // 2. Obtener el token FCM actual (opcional, para debug)
+    FirebasePushService.getFCMToken().then((token) {
+      print('🔥 Token FCM actual: $token');
+    });
+
+    // 3. Mostrar notificación local inmediata
     FirebasePushService.showMaintenanceAlert(
-      title: '📢 Notificación de Prueba',
-      body: 'Esta es una notificación de prueba del sistema',
+      title: '📢 Notificación de Prueba REAL',
+      body: 'Esta es una notificación push del sistema - ${DateTime.now().toLocal()}',
+      payload: notification.id,
+    );
+
+    // 4. También programar una para 5 segundos después (para probar scheduling)
+    FirebasePushService.scheduleNotification(
+      title: '⏰ Notificación Programada',
+      body: 'Esta notificación estaba programada para 2 segundos después',
+      scheduledTime: DateTime.now().add(const Duration(seconds: 2)),
+      payload: 'scheduled_${notification.id}',
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('✅ Notificación de prueba creada'),
+        content: Text('✅ Notificación REAL enviada y programada para 5 segundos'),
         backgroundColor: Colors.green,
+        duration: Duration(seconds: 1),
       ),
     );
   }
@@ -583,14 +605,14 @@ class _AlertsPageState extends State<AlertsPage> {
     );
   }
 
-  // 🔥 PANEL DE OPCIONES DE PRUEBA COMPLETO
+  // PANEL DE OPCIONES DE PRUEBA COMPLETO
   void _showTestOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.6,
+        height: MediaQuery.of(context).size.height * 0.7,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -630,59 +652,100 @@ class _AlertsPageState extends State<AlertsPage> {
             
             // Grid de opciones
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.2,
-                  children: [
-                    _buildTestOptionCard(
-                      icon: Icons.add_alert,
-                      title: 'Alerta Directa',
-                      description: 'Crear alerta de prueba inmediata',
-                      color: Colors.red,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _createDirectTestAlert(context);
-                      },
-                    ),
-                    _buildTestOptionCard(
-                      icon: Icons.notifications,
-                      title: 'Notificación',
-                      description: 'Enviar notificación de prueba',
-                      color: Colors.blue,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _createTestNotification(context);
-                      },
-                    ),
-                    _buildTestOptionCard(
-                      icon: Icons.search,
-                      title: 'Evaluar Mantenimientos',
-                      description: 'Revisar mantenimientos pendientes',
-                      color: Colors.orange,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _evaluateExistingMaintenances(context);
-                      },
-                    ),
-                    _buildTestOptionCard(
-                      icon: Icons.play_arrow,
-                      title: 'Datos Reales',
-                      description: 'Cargar datos de prueba realistas',
-                      color: Colors.green,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _loadRealTestData(context);
-                      },
-                    ),
-                    _buildTestOptionCard(
-                      icon: Icons.bug_report,
-                      title: 'Debug Info', description: '', onTap: () {  }, color: Colors.purple,
-                    ),
-                  ],
+              child: SingleChildScrollView( // Añadir scroll
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      // Primera fila
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTestOptionCard(
+                              icon: Icons.add_alert,
+                              title: 'Alerta Directa',
+                              description: 'Crear alerta de prueba inmediata',
+                              color: Colors.red,
+                              onTap: () {
+                                Navigator.pop(context);
+                                _createDirectTestAlert(context);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildTestOptionCard(
+                              icon: Icons.notifications,
+                              title: 'Notificación',
+                              description: 'Enviar notificación de prueba',
+                              color: Colors.blue,
+                              onTap: () {
+                                Navigator.pop(context);
+                                _createTestNotification(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Segunda fila
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTestOptionCard(
+                              icon: Icons.search,
+                              title: 'Evaluar Mantenimientos',
+                              description: 'Revisar mantenimientos pendientes',
+                              color: Colors.orange,
+                              onTap: () {
+                                Navigator.pop(context);
+                                _evaluateExistingMaintenances(context);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildTestOptionCard(
+                              icon: Icons.play_arrow,
+                              title: 'Datos Reales',
+                              description: 'Cargar datos de prueba realistas',
+                              color: Colors.green,
+                              onTap: () {
+                                Navigator.pop(context);
+                                _loadRealTestData(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Tercera fila (solo Debug Info)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTestOptionCard(
+                              icon: Icons.bug_report,
+                              title: 'Debug Info',
+                              description: 'Ver información del sistema',
+                              color: Colors.purple,
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showDebugInfo(context); // ¡Esto estaba faltando!
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(child: SizedBox()), // Espacio vacío
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),

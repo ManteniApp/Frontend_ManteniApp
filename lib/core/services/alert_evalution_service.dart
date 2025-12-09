@@ -237,7 +237,7 @@ class AlertEvaluationService {
       fechaObjetivo: fechaObjetivo,
       estado: AlertStatus.actual,
       leida: false,
-      fechaCreacion: DateTime.now(),
+      fechaCreacion: DateTime.now(), titulo: '', priority: 1, maintenanceId: maintenance.id!, motorcycleId: moto['id']!,
     );
     
     alertProvider.agregarAlerta(alerta);

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_page.dart';
@@ -27,13 +28,27 @@ import 'features/Register_User/presentation/pages/register_user.dart';
 import 'features/motorcycles/presentation/pages/register_motorcycle_page.dart';
 import 'features/maintenance_history/presentation/pages/maintenance_history_page.dart';
 
-void main() {
+Future<void> main() async {
   runApp(const ManteniApp());
+
+
+// Inicializar Firebase
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: 'TU_API_KEY', // Reemplaza con tus credenciales
+      appId: 'TU_APP_ID',
+      messagingSenderId: 'TU_SENDER_ID',
+      projectId: 'TU_PROJECT_ID',
+    ),
+  );
+  
+  runApp(ManteniApp());
 }
 
 class ManteniApp extends StatelessWidget {
   const ManteniApp({super.key});
 
+  
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {

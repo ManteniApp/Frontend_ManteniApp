@@ -28,139 +28,169 @@ class MaintenanceDetailModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header con línea de color
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _getTypeColor(maintenance.type),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7, // 70% de la pantalla
+      minChildSize: 0.5,    // Mínimo 50%
+      maxChildSize: 0.9,    // Máximo 90%
+      builder: (context, scrollController) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header con línea de color
+                Row(
                   children: [
-                    Text(
-                      maintenance.type,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      width: 4,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: _getTypeColor(maintenance.type),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      maintenance.motorcycleName,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            maintenance.type,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            maintenance.motorcycleName,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                      color: Colors.grey[600],
                     ),
                   ],
                 ),
-              ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
-                color: Colors.grey[600],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-          // Fecha
-          _buildDetailRow(
-            icon: Icons.calendar_today,
-            label: 'Fecha',
-            value: _formatDate(maintenance.date),
-          ),
-          const SizedBox(height: 16),
+                // Fecha
+                _buildDetailRow(
+                  icon: Icons.calendar_today,
+                  label: 'Fecha',
+                  value: _formatDate(maintenance.date),
+                ),
+                const SizedBox(height: 16),
 
-          // Costo
-          _buildDetailRow(
-            icon: Icons.attach_money,
-            label: 'Costo',
-            value: '\$${maintenance.cost.toStringAsFixed(2)}',
-          ),
-          const SizedBox(height: 16),
+                // Costo
+                _buildDetailRow(
+                  icon: Icons.attach_money,
+                  label: 'Costo',
+                  value: '\$${maintenance.cost.toStringAsFixed(2)}',
+                ),
+                const SizedBox(height: 16),
 
-          // Descripción
-          if (maintenance.description != null &&
-              maintenance.description!.isNotEmpty)
-            _buildDetailSection(
-              icon: Icons.description,
-              label: 'Descripción',
-              content: maintenance.description!,
-            ),
+                // Descripción
+                if (maintenance.description != null &&
+                    maintenance.description!.isNotEmpty)
+                  Column(
+                    children: [
+                      _buildDetailSection(
+                        icon: Icons.description,
+                        label: 'Descripción',
+                        content: maintenance.description!,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
 
-          const SizedBox(height: 16),
+                // Notas
+                if (maintenance.notes != null &&
+                    maintenance.notes!.isNotEmpty)
+                  Column(
+                    children: [
+                      _buildDetailSection(
+                        icon: Icons.notes,
+                        label: 'Notas',
+                        content: maintenance.notes!,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
 
-          // Notas
-          if (maintenance.notes != null && maintenance.notes!.isNotEmpty)
-            _buildDetailSection(
-              icon: Icons.notes,
-              label: 'Notas',
-              content: maintenance.notes!,
-            ),
+                const SizedBox(height: 24),
 
-          const SizedBox(height: 24),
-
-          // Botones de acción
-          Row(
-            children: [
-              // Botón Editar
-              if (onEdit != null)
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      onEdit?.call();
-                    },
-                    icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Editar'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF2196F3),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Color(0xFF2196F3)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                // Botones de acción (AHORA DENTRO DEL SCROLL)
+                Row(
+                  children: [
+                    // Botón Editar
+                    if (onEdit != null)
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            onEdit?.call();
+                          },
+                          icon: const Icon(Icons.edit_outlined),
+                          label: const Text('Editar'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF2196F3),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(color: Color(0xFF2196F3)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (onEdit != null) const SizedBox(width: 12),
+                    // Botón Cerrar
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2196F3),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cerrar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              if (onEdit != null) const SizedBox(width: 12),
-              // Botón Cerrar
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2196F3),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Cerrar',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
+                
+                // Espacio extra en la parte inferior para que los botones no queden pegados
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 
+                    ? MediaQuery.of(context).viewInsets.bottom + 16 
+                    : 16),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -181,9 +211,11 @@ class MaintenanceDetailModal extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ),
       ],
     );
@@ -219,7 +251,10 @@ class MaintenanceDetailModal extends StatelessWidget {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(content, style: const TextStyle(fontSize: 15)),
+          child: Text(
+            content,
+            style: const TextStyle(fontSize: 15),
+          ),
         ),
       ],
     );
@@ -243,12 +278,17 @@ class MaintenanceDetailModal extends StatelessWidget {
     return '${date.day} de ${months[date.month - 1]} de ${date.year}';
   }
 
-  static void show(BuildContext context, MaintenanceEntity maintenance) {
+  static void show(BuildContext context,
+      {required MaintenanceEntity maintenance, VoidCallback? onEdit}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MaintenanceDetailModal(maintenance: maintenance),
+      builder: (context) => MaintenanceDetailModal(
+        maintenance: maintenance,
+        onEdit: onEdit,
+      ),
     );
   }
 }

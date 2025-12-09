@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:frontend_manteniapp/features/motorcycles/data/models/motorcycle_model.dart';
 import '../../domain/entities/motorcycle_entity.dart';
 import '../../domain/usecases/register_motorcycle.dart';
 import '../../domain/usecases/get_all_motorcycles.dart';
@@ -100,4 +101,6 @@ class MotorcycleProvider extends ChangeNotifier {
     _errorMessage = null;
     _successMessage = null;
   }
+
+  void agregarMoto(MotorcycleModel motoPrueba) {}
 }
