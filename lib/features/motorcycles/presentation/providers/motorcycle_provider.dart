@@ -33,6 +33,7 @@ class MotorcycleProvider extends ChangeNotifier {
   Future<void> loadMotorcycles() async {
     _setLoading(true);
     _clearMessages();
+    notifyListeners(); // 👈 Notificar inmediatamente al cambiar a loading
 
     try {
       _motorcycles = await getAllMotorcyclesUseCase();
@@ -49,6 +50,7 @@ class MotorcycleProvider extends ChangeNotifier {
   Future<bool> registerMotorcycle(MotorcycleEntity motorcycle) async {
     _setLoading(true);
     _clearMessages();
+    notifyListeners(); // 👈 Notificar inmediatamente al cambiar a loading
 
     try {
       await registerMotorcycleUseCase(motorcycle);
@@ -77,6 +79,7 @@ class MotorcycleProvider extends ChangeNotifier {
     final motorcycle = MotorcycleEntity(
       brand: marca,
       model: modelo,
+      imageUrl: '', // Puedes ajustar esto según tus necesidades
       licensePlate: placa, // 👈 Agregado
       year: ano,
       displacement: int.tryParse(cilindraje.replaceAll('cc', '')) ?? 0,
@@ -84,6 +87,27 @@ class MotorcycleProvider extends ChangeNotifier {
     );
 
     return await registerMotorcycle(motorcycle);
+  }
+
+  // Versión temporal en el provider
+  Future<bool> updateMotorcycleWithParams({
+    required String id,
+    required String marca,
+    required String modelo,
+    required String placa,
+    required int ano,
+    required String cilindraje,
+    required int kilometraje,
+  }) async {
+    // Por ahora, usa el mismo método que registro
+    return await registerMotorcycleWithParams(
+      marca: marca,
+      modelo: modelo,
+      placa: placa,
+      ano: ano,
+      cilindraje: cilindraje,
+      kilometraje: kilometraje,
+    );
   }
 
   // Limpiar mensajes

@@ -52,6 +52,32 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
   @override
   Widget build(BuildContext context) {
     final motorcycleProvider = context.watch<MotorcycleProvider>();
+    return Container(
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 100),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Filtrar por motocicleta',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+                color: Colors.grey[600],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
     return DraggableScrollableSheet(
       initialChildSize: 0.3, 
@@ -109,6 +135,19 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
                                     Icons.motorcycle_outlined,
                                     size: 48,
                                     color: Colors.grey[400],
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: Colors.grey[200],
+                                    backgroundImage:
+                                        motorcycle.imageUrl.isNotEmpty
+                                        ? NetworkImage(motorcycle.imageUrl)
+                                        : null,
+                                    child: motorcycle.imageUrl.isEmpty
+                                        ? Icon(
+                                            Icons.motorcycle,
+                                            color: Colors.grey[600],
+                                          )
+                                        : null,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
@@ -209,6 +248,10 @@ class _MotorcycleFilterModalState extends State<MotorcycleFilterModal> {
                         },
                       ),
                 const SizedBox(height: 24),
+                    );
+                  },
+                ),
+          const SizedBox(height: 16),
 
                 // Botones (ahora están dentro del scroll)
                 Row(

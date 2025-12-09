@@ -16,7 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? phone;
 
   final AuthController _authController = AuthController();
-  bool _obscurePassword = true;
+  final bool _obscurePassword = true;
 
   // ✅ Funciones de validación
   bool _isValidEmail(String email) {
@@ -29,7 +29,9 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   bool _isValidPhone(String phone) {
-    final regex = RegExp(r'^[0-9]{7,15}$'); // Solo números, entre 7 y 15 dígitos
+    final regex = RegExp(
+      r'^[0-9]{7,15}$',
+    ); // Solo números, entre 7 y 15 dígitos
     return regex.hasMatch(phone);
   }
 
@@ -43,38 +45,73 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 32,
-            height: 32,
-            child: Image.asset(
-              'assets/images/logoMA.png',
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF007AFF),
-                    borderRadius: BorderRadius.circular(8),
+          // Botón de volver en la esquina superior izquierda
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF007AFF).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Color(0xFF007AFF),
+                size: 20,
+              ),
+            ),
+          ),
+          // Espacio expansible para centrar el logo y texto
+          Expanded(
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: Image.asset(
+                      'assets/images/logoMA.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF007AFF),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.build,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  child: const Icon(Icons.build, color: Colors.white, size: 18),
-                );
-              },
+                  const SizedBox(width: 8),
+                  const Text(
+                    'ManteniApp',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          const Text(
-            'ManteniApp',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
+          // Espacio invisible para mantener el balance visual
+          const SizedBox(width: 40),
         ],
       ),
     );
@@ -88,7 +125,12 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Positioned(top: 40, left: 0, right: 0, child: _buildHeader(context)),
+            Positioned(
+              top: 40,
+              left: 0,
+              right: 0,
+              child: _buildHeader(context),
+            ),
 
             Positioned(
               top: 70,
@@ -108,6 +150,7 @@ class _RegisterPageState extends State<RegisterPage> {
               top: 350,
               left: 0,
               right: 0,
+              bottom: 0,
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(30),
@@ -125,142 +168,181 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Regístrate',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Campos
-                    SimpleFormField(
-                      icon: Icons.mail,
-                      label: 'Correo',
-                      value: email,
-                      onTap: () async {
-                        final result = await SelectionBottomSheet.showTextInput(
-                          context: context,
-                          title: 'Correo electrónico',
-                          hint: 'Ingresa tu correo',
-                        );
-                        if (result != null && result.isNotEmpty) {
-                          setState(() => email = result);
-                        }
-                      },
-                    ),
-
-                    SimpleFormField(
-                      icon: Icons.lock,
-                      label: 'Contraseña',
-                      value: password != null && password!.isNotEmpty
-                          ? (_obscurePassword ? '••••••••' : password)
-                          : '',
-                      onTap: () async {
-                        final result = await SelectionBottomSheet.showTextInput(
-                          context: context,
-                          title: 'Contraseña',
-                          hint: 'Ingresa tu contraseña',
-                        );
-                        if (result != null && result.isNotEmpty) {
-                          setState(() => password = result);
-                        }
-                      },
-                    ),
-
-                    SimpleFormField(
-                      icon: Icons.person,
-                      label: 'Usuario',
-                      value: nombre,
-                      onTap: () async {
-                        final result = await SelectionBottomSheet.showTextInput(
-                          context: context,
-                          title: 'Nombre de usuario',
-                          hint: 'Ingresa tu usuario',
-                        );
-                        if (result != null && result.isNotEmpty) {
-                          setState(() => nombre = result);
-                        }
-                      },
-                    ),
-
-                    SimpleFormField(
-                      icon: Icons.phone,
-                      label: 'Teléfono',
-                      value: phone,
-                      onTap: () async {
-                        final result = await SelectionBottomSheet.showTextInput(
-                          context: context,
-                          title: 'Número de teléfono',
-                          hint: 'Ingresa tu número',
-                          keyboardType: TextInputType.phone,
-                        );
-                        if (result != null && result.isNotEmpty) {
-                          setState(() => phone = result);
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    // Botón de registro con validaciones
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        if (email == null ||
-                            password == null ||
-                            nombre == null ||
-                            phone == null) {
-                          _showSnack('Por favor completa todos los campos', error: true);
-                          return;
-                        }
-
-                        if (!_isValidEmail(email!)) {
-                          _showSnack('Correo electrónico inválido', error: true);
-                          return;
-                        }
-
-                        if (!_isValidPassword(password!)) {
-                          _showSnack('La contraseña debe tener al menos 6 caracteres', error: true);
-                          return;
-                        }
-
-                        if (!_isValidPhone(phone!)) {
-                          _showSnack('Número de teléfono inválido', error: true);
-                          return;
-                        }
-
-                        // Llamada al backend
-                        final response = await _authController.register(
-                          email!,
-                          password!,
-                          nombre!,
-                          phone!,
-                        );
-
-                        if (response != null && response.containsKey('user')) {
-                          _showSnack('✅ Usuario registrado con éxito');
-                          Navigator.pushNamed(context, '/register-motorcycle');
-                        } else {
-                          _showSnack('❌ Error al registrar el usuario', error: true);
-                        }
-                      },
-                      icon: const Icon(Icons.person_add),
-                      label: const Text("Registrarse"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E88E5),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Regístrate',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 15),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 30),
+
+                      // Campos
+                      SimpleFormField(
+                        icon: Icons.mail,
+                        label: 'Correo',
+                        value: email,
+                        onTap: () async {
+                          final result =
+                              await SelectionBottomSheet.showTextInput(
+                                context: context,
+                                title: 'Correo electrónico',
+                                hint: 'Ingresa tu correo',
+                              );
+                          if (result != null && result.isNotEmpty) {
+                            setState(() => email = result);
+                          }
+                        },
+                      ),
+
+                      SimpleFormField(
+                        icon: Icons.lock,
+                        label: 'Contraseña',
+                        value: password != null && password!.isNotEmpty
+                            ? (_obscurePassword ? '••••••••' : password)
+                            : '',
+                        onTap: () async {
+                          final result =
+                              await SelectionBottomSheet.showTextInput(
+                                context: context,
+                                title: 'Contraseña',
+                                hint: 'Ingresa tu contraseña',
+                              );
+                          if (result != null && result.isNotEmpty) {
+                            setState(() => password = result);
+                          }
+                        },
+                      ),
+
+                      SimpleFormField(
+                        icon: Icons.person,
+                        label: 'Usuario',
+                        value: nombre,
+                        onTap: () async {
+                          final result =
+                              await SelectionBottomSheet.showTextInput(
+                                context: context,
+                                title: 'Nombre de usuario',
+                                hint: 'Ingresa tu usuario',
+                              );
+                          if (result != null && result.isNotEmpty) {
+                            setState(() => nombre = result);
+                          }
+                        },
+                      ),
+
+                      SimpleFormField(
+                        icon: Icons.phone,
+                        label: 'Teléfono',
+                        value: phone,
+                        onTap: () async {
+                          final result =
+                              await SelectionBottomSheet.showTextInput(
+                                context: context,
+                                title: 'Número de teléfono',
+                                hint: 'Ingresa tu número',
+                                keyboardType: TextInputType.phone,
+                              );
+                          if (result != null && result.isNotEmpty) {
+                            setState(() => phone = result);
+                          }
+                        },
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      // Botón de registro con validaciones
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          if (email == null ||
+                              password == null ||
+                              nombre == null ||
+                              phone == null) {
+                            _showSnack(
+                              'Por favor completa todos los campos',
+                              error: true,
+                            );
+                            return;
+                          }
+
+                          if (!_isValidEmail(email!)) {
+                            _showSnack(
+                              'Correo electrónico inválido',
+                              error: true,
+                            );
+                            return;
+                          }
+
+                          if (!_isValidPassword(password!)) {
+                            _showSnack(
+                              'La contraseña debe tener al menos 6 caracteres',
+                              error: true,
+                            );
+                            return;
+                          }
+
+                          if (!_isValidPhone(phone!)) {
+                            _showSnack(
+                              'Número de teléfono inválido',
+                              error: true,
+                            );
+                            return;
+                          }
+
+                          // Llamada al backend
+                          final response = await _authController.register(
+                            email!,
+                            password!,
+                            nombre!,
+                            phone!,
+                          );
+
+                          if (response != null &&
+                              response.containsKey('user')) {
+                            _showSnack('✅ Usuario registrado con éxito');
+
+                            // Navegar a registro de moto y esperar resultado
+                            final motorcycleRegistered =
+                                await Navigator.pushNamed(
+                                  context,
+                                  '/register-motorcycle',
+                                );
+
+                            // Si registró la moto, ir directamente al MainLayout
+                            // Si no (canceló), quedarse aquí o manejar según necesites
+                            if (motorcycleRegistered == true && mounted) {
+                              // Ir al MainLayout (home) después de registrar la moto
+                              Navigator.pushReplacementNamed(context, '/');
+                            }
+                          } else {
+                            _showSnack(
+                              '❌ Error al registrar el usuario',
+                              error: true,
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.person_add),
+                        label: const Text("Registrarse"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E88E5),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 15,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),

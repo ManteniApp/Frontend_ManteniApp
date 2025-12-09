@@ -234,6 +234,35 @@ class _EditMaintenanceModalState extends State<EditMaintenanceModal> {
                       ),
                     ),
                     const SizedBox(height: 20),
+              // Tipo de mantenimiento (DESHABILITADO)
+              Text(
+                'Tipo de mantenimiento',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedType,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                items: _maintenanceTypes.map((type) {
+                  return DropdownMenuItem(value: type, child: Text(type));
+                }).toList(),
+                onChanged:
+                    null, // ⚠️ DESHABILITADO - backend no permite cambiar tipo
+              ),
 
                     // Costo
                     Text(

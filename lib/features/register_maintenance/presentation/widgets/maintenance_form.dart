@@ -124,7 +124,7 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: DropdownButtonFormField<String>(
-          value: widget.provider.selectedMotoId?.toString(),
+          initialValue: widget.provider.selectedMotoId?.toString(),
           decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Motocicleta',
@@ -133,7 +133,36 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
           items: widget.motos.map((moto) {
             return DropdownMenuItem<String>(
               value: moto['id']?.toString(),
-              child: Text('${moto['marca']} ${moto['modelo']}'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage:
+                        (moto['imageUrl'] != null &&
+                            moto['imageUrl'].toString().isNotEmpty)
+                        ? NetworkImage(moto['imageUrl'])
+                        : null,
+                    child:
+                        (moto['imageUrl'] == null ||
+                            moto['imageUrl'].toString().isEmpty)
+                        ? Icon(
+                            Icons.motorcycle,
+                            size: 16,
+                            color: Colors.grey[600],
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      '${moto['marca']} ${moto['modelo']}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             );
           }).toList(),
           onChanged: (String? newValue) {
@@ -160,17 +189,14 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: DropdownButtonFormField<String>(
-          value: widget.provider.selectedTipo,
+          initialValue: widget.provider.selectedTipo,
           decoration: const InputDecoration(
             border: InputBorder.none,
             labelText: 'Tipo de mantenimiento',
             labelStyle: TextStyle(color: Colors.grey),
           ),
           items: widget.provider.tiposMantenimiento.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
+            return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),
           onChanged: widget.provider.setSelectedTipo,
         ),
@@ -198,7 +224,9 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
               ? DateFormat('dd/MM/yyyy').format(widget.provider.selectedDate!)
               : 'Fecha',
           style: TextStyle(
-            color: widget.provider.selectedDate != null ? Colors.black : Colors.grey,
+            color: widget.provider.selectedDate != null
+                ? Colors.black
+                : Colors.grey,
             fontSize: 16,
           ),
         ),
@@ -353,9 +381,10 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: widget.provider.isFormValid && 
-                         !widget.provider.isLoading && 
-                         !_isProcessing
+          backgroundColor:
+              widget.provider.isFormValid &&
+                  !widget.provider.isLoading &&
+                  !_isProcessing
               ? const Color(0xFF1E88E5)
               : Colors.grey,
           foregroundColor: Colors.white,
@@ -366,29 +395,32 @@ class _MaintenanceFormState extends State<MaintenanceForm> {
           elevation: 8,
           shadowColor: const Color(0xFF1E88E5).withOpacity(0.5),
         ),
-        onPressed: (widget.provider.isFormValid && 
-                   !widget.provider.isLoading && 
-                   !_isProcessing)
+        onPressed:
+            (widget.provider.isFormValid &&
+                !widget.provider.isLoading &&
+                !_isProcessing)
             ? () async {
                 if (_isProcessing) return;
-                
+
                 setState(() {
                   _isProcessing = true;
                 });
-                
+
                 print('🔄 Botón presionado - Iniciando creación...');
                 final success = await widget.provider.createMaintenance();
-                
+
                 if (mounted) {
                   setState(() {
                     _isProcessing = false;
                   });
                 }
-              
+
                 if (success && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Mantenimiento registrado exitosamente'),
+                      content: const Text(
+                        'Mantenimiento registrado exitosamente',
+                      ),
                       backgroundColor: Colors.green,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(

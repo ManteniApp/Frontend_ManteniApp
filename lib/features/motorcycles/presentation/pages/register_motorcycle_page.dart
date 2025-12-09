@@ -509,14 +509,17 @@ class _RegisterMotorcyclePageState extends State<RegisterMotorcyclePage> {
           ),
         );
 
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          Navigator.pushNamedAndRemoveUntil(
-            context, 
-            '/home', // Asegúrate de que esta ruta esté definida en tu app
-            (route) => false, // Remueve todas las rutas anteriores
-          );
+        // Esperar a que se vea el mensaje y luego volver
+        Future.delayed(const Duration(milliseconds: 800), () {
+          if (mounted) {
+            // Volver a la pantalla anterior (lista de motos o home)
+            Navigator.pop(
+              context,
+              true,
+            ); // true indica que se registró exitosamente
+          }
         });
-        
+
         // Resetear formulario
         setState(() {
           marca = null;

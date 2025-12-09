@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/motorcycle_entity.dart';
+//import '../../domain/entities/motorcycle_entity.dart';
+import '../../../motorcycles/domain/entities/motorcycle_entity.dart';
 
 class MotorcycleCard extends StatelessWidget {
   final MotorcycleEntity motorcycle;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
   final VoidCallback? onTap;
+  final VoidCallback? onRecommendations;
 
   const MotorcycleCard({
     super.key,
     required this.motorcycle,
     this.onDelete,
+    this.onEdit,
     this.onTap,
+    this.onRecommendations,
   });
 
   @override
@@ -50,33 +55,47 @@ class MotorcycleCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: motorcycle.imageUrl.isNotEmpty
-                            ? Image.asset(
-                                'assets/images/imgMoto.png', // Imagen temporal local
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return _buildPlaceholderImage();
-                                },
-                              )
-                            // TODO: Cuando el backend esté listo, reemplazar Image.asset por Image.network
-                            // usando motorcycle.imageUrl y restaurar el loadingBuilder
-                            /* Image.network(
+                            ? Image.network(
                                 motorcycle.imageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
+                                  // Silenciar errores de image-proxy con error 500
+                                  if (motorcycle.imageUrl.contains(
+                                    'image-proxy',
+                                  )) {
+                                    print(
+                                      '⚠️ [MotorcycleCard] Image proxy falló (backend), usando placeholder',
+                                    );
+                                  } else {
+                                    print(
+                                      '❌ [MotorcycleCard] Error cargando imagen',
+                                    );
+                                    print('   URL: ${motorcycle.imageUrl}');
+                                    print('   Error: $error');
+                                  }
                                   return _buildPlaceholderImage();
                                 },
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                          : null,
-                                    ),
-                                  );
-                                },
-                              ) */
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                              : null,
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                    },
+                              )
                             : _buildPlaceholderImage(),
                       ),
                     ),
@@ -99,25 +118,70 @@ class MotorcycleCard extends StatelessWidget {
                   ),
                 ],
               ),
-              // Icono de eliminar en la esquina superior derecha
-              if (onDelete != null)
+              // Iconos de acciones en la esquina superior derecha
+              if (onDelete != null || onEdit != null)
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: GestureDetector(
-                    onTap: () => _showDeleteConfirmation(context),
-                    child: Container(
+                  child: PopupMenuButton<String>(
+                    icon: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       child: const Icon(
-                        Icons.delete_outline,
-                        color: Color(0xFFE57373),
-                        size: 20,
+                        Icons.more_vert,
+                        color: Color(0xFF212121),
+                        size: 18,
                       ),
                     ),
+                    onSelected: (value) {
+                      if (value == 'edit' && onEdit != null) {
+                        onEdit!.call();
+                      } else if (value == 'delete' && onDelete != null) {
+                        _showDeleteConfirmation(context);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (onEdit != null)
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.edit_outlined,
+                                color: Color(0xFF2196F3),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Editar'),
+                            ],
+                          ),
+                        ),
+                      if (onDelete != null)
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                color: Color(0xFFE57373),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Eliminar'),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
             ],

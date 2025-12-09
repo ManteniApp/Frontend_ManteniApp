@@ -37,12 +37,7 @@ class RecommendationsSection extends StatelessWidget {
                   color: Color(0xFF007BFF),
                 ),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MainLayout(initialIndex: 3),
-                    ),
-                  );
+                  MainLayout.of(context)?.switchTab(3);
                 },
               ),
             ],
@@ -58,15 +53,7 @@ class RecommendationsSection extends StatelessWidget {
                 "Faltan menos de 300 km para el próximo mantenimiento.",
             type: RecommendationType.alert,
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MainLayout(
-                    initialIndex: 3,
-                    selectedAlert: "Cambio de aceite",
-                  ),
-                ),
-              );
+              MainLayout.of(context)?.switchTab(3, alert: "Cambio de aceite");
             },
           ),
           RecommendationCard(
@@ -76,15 +63,7 @@ class RecommendationsSection extends StatelessWidget {
                 "Revisa la presión semanalmente para evitar desgaste irregular.",
             type: RecommendationType.tip,
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MainLayout(
-                    initialIndex: 3,
-                    selectedAlert: "Presión de llantas",
-                  ),
-                ),
-              );
+              MainLayout.of(context)?.switchTab(3, alert: "Presion de llantas");
             },
           ),
         ],
