@@ -7,17 +7,24 @@ plugins {
 
 android {
     namespace = "com.example.frontend_manteniapp"
-    compileSdk = 36
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     ndkVersion = "27.0.12077973" // ← ACTUALIZAR NDK
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
+
+    compileSdk = 36 
 
     defaultConfig {
         applicationId = "com.example.frontend_manteniapp"
@@ -43,4 +50,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

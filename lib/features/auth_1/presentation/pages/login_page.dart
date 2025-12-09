@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 🟦 Logo y nombre de la app
+          
               Image.asset(
                 'assets/img/logo.png',
                 width: 150,

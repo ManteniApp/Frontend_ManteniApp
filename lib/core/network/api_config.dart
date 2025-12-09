@@ -1,10 +1,11 @@
 class ApiConfig {
   // ⚠️ IMPORTANTE: Cambiar esta URL según tu entorno
   // Para desarrollo local (Chrome/Web): 'http://localhost:3000'
-  // Para emulador Android: 'http://10.0.2.2:3000'
+  static const String baseUrl = 'http://192.168.10.24:3000';
   // Para dispositivo físico: 'http://TU_IP_LOCAL:3000'
   // Para producción: 'https://tu-api.com'
-  static const String baseUrl = 'http://localhost:3000';
+  //static const String baseUrl = 'http://localhost:3000';
+
 
   // Endpoints de autenticación
   static const String loginEndpoint = '/users/login';

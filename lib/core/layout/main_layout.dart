@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_manteniapp/core/services/profile_service.dart';
+import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_page.dart';
 import 'package:frontend_manteniapp/features/maintenance_history/presentation/pages/maintenance_history_page.dart';
 import 'package:frontend_manteniapp/features/maintenance_recommendations/presentation/pages/maintenance_recommendations_page.dart';
 import 'package:frontend_manteniapp/features/motorcycles/presentation/providers/motorcycle_provider.dart';
@@ -62,6 +63,31 @@ class _MainLayoutState extends State<MainLayout> {
 
   // 🔹 Páginas principales con navegadores anidados
   List<Widget> get _pages => [
+        _buildTabNavigator(
+          key: _navigatorKeys[0],
+          child: const Center(child: Text('Inicio')),
+        ),
+        _buildTabNavigator(
+          key: _navigatorKeys[1],
+          child: ListMotorcyclePage(
+            onOpenProfile: (MotorcycleEntity moto) {
+              _navigatorKeys[1].currentState?.push(
+                MaterialPageRoute(
+                  builder: (_) => BikeProfilePage(motorcycle: moto),
+                ),
+              );
+            },
+          ),
+        ),
+        _buildTabNavigator(
+          key: _navigatorKeys[2],
+          child: const MaintenanceHistoryPage(),
+        ),
+        _buildTabNavigator(
+          key: _navigatorKeys[3],
+          child: AlertsPage(),
+        ),
+      ];
     _buildTabNavigator(key: navigatorKeys[0], child: const HomeOverviewPage()),
     _buildTabNavigator(
       key: navigatorKeys[1],

@@ -64,8 +64,6 @@ class _EditMaintenanceModalState extends State<EditMaintenanceModal> {
 
   void _save() {
     if (_formKey.currentState!.validate()) {
-      // ⚠️ El backend solo permite actualizar: descripción y costo
-      // No se puede cambiar: tipo, fecha y notas
       final updatedMaintenance = widget.maintenance.copyWith(
         cost: double.parse(_costController.text),
         description: _descriptionController.text.isEmpty
@@ -96,71 +94,146 @@ class _EditMaintenanceModalState extends State<EditMaintenanceModal> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Container(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
+      height: screenHeight * 0.85, // Altura del 85% de la pantalla
+      padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header FIJADO
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Editar Mantenimiento',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                    color: Colors.grey[600],
-                  ),
-                ],
+              const Text(
+                'Editar Mantenimiento',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 24),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+                color: Colors.grey[600],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-              // ⚠️ Nota informativa
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber[50],
-                  border: Border.all(color: Colors.amber[200]!),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
+          // Contenido SCROLLABLE
+          Expanded(
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: Colors.amber[700],
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Solo se puede editar el costo y la descripción',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.amber[900],
-                        ),
+                    // ⚠️ Nota informativa
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.amber[50],
+                        border: Border.all(color: Colors.amber[200]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.amber[700],
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Solo se puede editar el costo y la descripción',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.amber[900],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
+                    // Tipo de mantenimiento (DESHABILITADO)
+                    Text(
+                      'Tipo de mantenimiento',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: _selectedType,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                      items: _maintenanceTypes.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(type),
+                        );
+                      }).toList(),
+                      onChanged: null,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Fecha (DESHABILITADA)
+                    Text(
+                      'Fecha',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _formatDate(_selectedDate),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 20,
+                            color: Colors.grey[400],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
               // Tipo de mantenimiento (DESHABILITADO)
               Text(
                 'Tipo de mantenimiento',
@@ -191,159 +264,119 @@ class _EditMaintenanceModalState extends State<EditMaintenanceModal> {
                     null, // ⚠️ DESHABILITADO - backend no permite cambiar tipo
               ),
 
-              const SizedBox(height: 20),
-
-              // Fecha (DESHABILITADA)
-              Text(
-                'Fecha',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              // Fecha (DESHABILITADA)
-              Text(
-                'Fecha',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+                    // Costo
                     Text(
-                      _formatDate(_selectedDate),
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      'Costo',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    Icon(
-                      Icons.calendar_today,
-                      size: 20,
-                      color: Colors.grey[400],
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _costController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.attach_money),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Ingresa el costo';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Ingresa un número válido';
+                        }
+                        return null;
+                      },
                     ),
+                    const SizedBox(height: 20),
+
+                    // Descripción
+                    Text(
+                      'Descripción',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _descriptionController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.all(16),
+                        hintText: 'Describe el mantenimiento realizado',
+                      ),
+                    ),
+                    
+                    // Espacio extra para que los botones no queden pegados
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // Costo
-              Text(
-                'Costo',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _costController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.attach_money),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingresa el costo';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Ingresa un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Descripción
-              Text(
-                'Descripción',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  contentPadding: const EdgeInsets.all(16),
-                  hintText: 'Describe el mantenimiento realizado',
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Botones
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.grey[300]!),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancelar',
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _save,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2196F3),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Guardar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // Botones FIJOS en la parte inferior
+          Container(
+            margin: const EdgeInsets.only(top: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2196F3),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Guardar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

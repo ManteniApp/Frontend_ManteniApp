@@ -43,7 +43,7 @@ class MaintenanceModel extends MaintenanceEntity {
           json['moto'] ??
           'Sin nombre',
       motorcycleId:
-          json['motorcycleId']?.toString() ?? json['motocicletaId']?.toString(),
+          json['motorcycleId']?.toString() ?? json['motocicletaId']?.toString()?? json['moto_id']?.toString(),
       description: json['description'] ?? json['descripcion'],
       notes: json['notes'] ?? json['notas'],
       createdAt: json['createdAt'] != null

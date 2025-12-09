@@ -1,5 +1,11 @@
+import 'dart:ui';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:frontend_manteniapp/features/alerts/presentation/pages/alerts_page.dart';
+import 'package:frontend_manteniapp/features/alerts/state/alert_provider.dart';
+import 'package:frontend_manteniapp/features/notifications/state/notification_provier.dart';
 import 'package:frontend_manteniapp/features/perfil_usuario/presentation/pages/perfil_user.dart';
 import 'package:frontend_manteniapp/features/register_maintenance/presentation/pages/maintenance_register_page.dart';
 import 'package:provider/provider.dart';
@@ -45,18 +51,34 @@ import 'features/maintenance_report/presentation/pages/maintenance_report_page.d
 import 'features/motorcycles/presentation/pages/edit_motorcycle_page.dart';
 import 'features/motorcycles/data/models/motorcycle_model.dart';
 
-void main() {
+Future<void> main() async {
   runApp(const ManteniApp());
+
+
+// Inicializar Firebase
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: 'TU_API_KEY', // Reemplaza con tus credenciales
+      appId: 'TU_APP_ID',
+      messagingSenderId: 'TU_SENDER_ID',
+      projectId: 'TU_PROJECT_ID',
+    ),
+  );
+  
+  runApp(ManteniApp());
 }
 
 class ManteniApp extends StatelessWidget {
   const ManteniApp({super.key});
 
+  
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AlertProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(
           create: (context) {
             final motorcycleRepository = MotorcycleRepositoryImpl(
@@ -162,6 +184,7 @@ class ManteniApp extends StatelessWidget {
             return MaintenanceReportPage(initialMotorcycleId: motorcycleId);
           },
           '/perfil': (context) => PerfilUser(),
+          '/alerts': (context) => AlertsPage(),
           '/maintenance-recommendations': (context) {
             final args =
                 ModalRoute.of(context)?.settings.arguments

@@ -106,7 +106,7 @@ class _DateFilterModalState extends State<DateFilterModal> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16), // Reducir espacio
 
           // Selector de fecha
           Text(
@@ -122,7 +122,7 @@ class _DateFilterModalState extends State<DateFilterModal> {
             onTap: _selectDate,
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Reducir vertical
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey[300]!),
                 borderRadius: BorderRadius.circular(12),
@@ -144,47 +144,55 @@ class _DateFilterModalState extends State<DateFilterModal> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20), // Reducir espacio
 
-          // Botones
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _clearDate,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+          // Botones con mejor espaciado
+          Container(
+            margin: const EdgeInsets.only(top: 8), // Margen adicional
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _clearDate,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14), // Reducir vertical
+                      side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Limpiar',
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
                     ),
                   ),
-                  child: const Text(
-                    'Limpiar',
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _applyFilter,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2196F3),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _applyFilter,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2196F3),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14), // Reducir vertical
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Aplicar',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  child: const Text(
-                    'Aplicar',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          
+          // Añadir espacio de seguridad para el teclado
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 
+              ? MediaQuery.of(context).viewInsets.bottom 
+              : 0),
         ],
       ),
     );
